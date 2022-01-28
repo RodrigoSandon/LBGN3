@@ -1,0 +1,170 @@
+    # Project definitions (do not edit)
+Task: rdt_sessions
+scorer: PPT
+date: Sep8
+multianimalproject: false
+identity:
+
+    # Project path (change when moving around)
+project_path: /home/rory/Rodrigo/DLC_Extraction/rdt_sessions-PPT-2021-09-08
+
+    # Annotation data set configuration (and individual video cropping parameters)
+video_sets:
+  ? /media/rory/Padlock_DT/Redundant_Backup/BLA-Insc-8/RDT D1/Session-20211021-093007_BLA-INSC-8-RDT-D1/BLA-Insc-8_RDT_D12021-10-21T11_18_16.avi
+  : crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/100_RDT_D12020-01-16T12_26_05.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/100_RDT_D22020-01-23T12_20_27.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/100_RDT_D32020-01-29T12_17_34.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/101_RDT_D12020-01-14T12_14_43.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/101_RDT_D22020-01-17T11_53_08.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/101_RDT_D32020-01-24T11_51_19.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/68_RDT2019-11-07T13_44_42.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/68_RDT_D32019-11-12T16_22_32.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/69_RDT2019-11-04T13_22_39.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/69_RDT2019-11-08T13_55_36.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/69_RDT_D32019-11-13T15_22_09.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/70_RDT2019-11-04T14_19_20.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/70_RDT2019-11-08T14_37_54.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/70_RDT_D32019-11-13T15_59_48.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/71_RDT2019-11-04T14_19_20.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/71_RDT2019-11-08T14_37_54.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/71_RDT_D32019-11-13T15_59_48.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/72_RDT_D12019-11-27T11_26_44.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/72_RDT_D22019-12-04T10_32_15.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/72_RDT_D32019-12-11T11_22_51.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/74_RDT_D22019-12-04T11_23_50.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/74_RDT_D32019-12-10T14_00_29.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/75_RDT_D12019-11-27T12_14_37.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/102_RDT_D12020-01-15T13_09_14.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/125_RDT_D22020-08-06T10_43_58.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/130_RDT_D32020-08-29T11_57_09.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/134_RDT_D12020-08-10T15_27_25.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/143_RDT_22020-11-03T10_26_51.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/159_RDT_D32020-12-29T10_56_56.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/162_RDT_D12020-12-22T13_05_26.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/75_RDT_D22019-12-06T11_07_26.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/75_RDT_D32019-12-11T12_25_18.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/94_RDT_D12020-01-15T09_48_49.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/94_RDT_D22020-01-22T09_40_53.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/94_RDT_D32020-01-27T09_37_22.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/95_RDT_D12020-01-14T09_59_05.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/95_RDT_D22020-01-22T09_40_53.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/95_RDT_D32020-01-28T09_48_29.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/96_RDT_D12020-01-23T10_36_46.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/96_RDT_D22020-01-28T11_28_29.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-1_RDT_D32021-02-01T10_36_39.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-2_RDT_D12021-01-25T11_00_14.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-INSC-11_PR_D12021-11-08T12_56_36.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-11_PR_D22021-11-09T12_23_07.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-1_RDT_D22021-01-26T10_33_39.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-2_RDT_D22021-01-29T10_54_35.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-2_RDT_D32021-02-03T10_57_48.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-3_RDT_D12021-01-21T11_50_18.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-3_RDT_D22021-01-27T11_41_25.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-3_RDT_D32021-02-02T11_59_52.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-INSC-5_RDT_D22021-06-10T10_34_16.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-INSC-5_RDT_D32021-06-16T10_41_54.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-INSC-6_RDT_D22021-06-03T12_41_25.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-INSC-6_RDT_D32021-06-08T11_15_52.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-Insc-7_RDT_D12021-05-18T12_34_45.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-INSC-7_RDT_D22021-06-03T13_46_13.avi:
+    crop: 0, 1024, 0, 768
+  /media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/BLA-INSC-7_RDT_D32021-06-08T11_55_36.avi:
+    crop: 0, 1024, 0, 768
+bodyparts:
+- snout
+- left_ear
+- right_ear
+- neck
+- body
+- tail
+start: 0
+stop: 1
+numframes2pick: 40
+
+    # Plotting configuration
+skeleton: [[snout, left_ear], [snout, right_ear], [snout, neck], [left_ear, neck],
+  [right_ear, neck], [neck, body], [body, tail]]
+skeleton_color: white
+pcutoff: 0.1
+dotsize: 8
+alphavalue: 0.7
+colormap: rainbow
+
+    # Training,Evaluation and Analysis configuration
+TrainingFraction:
+- 0.95
+iteration: 0
+default_net_type: resnet_50
+default_augmenter: default
+snapshotindex: -1
+batch_size: 8
+
+    # Cropping Parameters (for analysis and outlier frame detection)
+cropping: false
+    #if cropping is true for analysis, then set the values here:
+x1: 0
+x2: 640
+y1: 277
+y2: 624
+
+    # Refinement configuration (parameters from annotation dataset configuration also relevant in this stage)
+corner2move2:
+- 50
+- 50
+move2corner: true

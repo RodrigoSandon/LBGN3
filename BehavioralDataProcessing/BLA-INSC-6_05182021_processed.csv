@@ -1,0 +1,95 @@
+trial_num,Block,Trial Type,Reward Size,Trial Possible (s),Start Time (s),Choice Time (s),Collection Time (s),Shock Ocurred,Omission,Win or Loss,Learning Stratergy
+0,1.0,,,0.001,,,,False,,,
+1,1.0,Forced,Small,1.0,68.849,75.781,77.023,False,,,
+2,1.0,Forced,Small,1.0,85.744,87.922,88.887,False,,,
+3,1.0,Forced,Small,1.0,97.454,99.344,100.305,False,,,
+4,1.0,Forced,Large,1.0,122.043,125.848,126.688,False,,,
+5,1.0,Forced,Large,1.0,135.076,138.624,139.436,False,,,
+6,1.0,Forced,Large,1.0,149.217,150.509,151.503,False,,,
+7,1.0,Forced,Small,1.0,164.836,193.666,194.526,False,,,
+8,1.0,Forced,Large,1.0,203.81,205.145,206.071,False,,,
+9,1.0,Free,Large,1.0,214.777,216.306,217.18,False,,Win,
+10,1.0,Free,Large,1.0,225.181,226.151,227.15,False,,Win,Win Stay
+11,1.0,Free,Large,1.0,235.952,237.312,238.387,False,,Win,Win Stay
+12,1.0,Free,Large,1.0,248.863,250.409,251.359,False,,Win,Win Stay
+13,1.0,Free,Large,1.0,259.815,263.627,264.544,False,,Win,Win Stay
+14,1.0,Free,Large,1.0,273.537,275.889,276.768,False,,Win,Win Stay
+15,1.0,Free,Large,1.0,286.887,288.319,289.194,False,,Win,Win Stay
+16,1.0,Free,Large,1.0,297.194,298.292,299.241,False,,Win,Win Stay
+17,1.0,Free,Large,1.0,307.818,310.411,311.358,False,,Win,Win Stay
+18,1.0,Free,Large,1.0,325.88,327.625,328.88,False,,Win,Win Stay
+19,1.0,Free,Large,1.0,339.374,341.699,342.713,False,,Win,Win Stay
+20,1.0,Free,Large,1.0,351.433,356.877,357.808,False,,Win,Win Stay
+21,1.0,Free,Large,1.0,378.551,379.93,380.794,False,,Win,Win Stay
+22,1.0,Free,Large,1.0,389.012,391.076,392.102,False,,Win,Win Stay
+23,1.0,Free,Large,1.0,400.549,403.097,403.994,False,,Win,Win Stay
+24,1.0,Free,Large,1.0,411.994,413.196,414.15,False,,Win,Win Stay
+25,1.0,Free,Large,1.0,433.303,435.459,436.478,False,,Win,Win Stay
+26,1.0,Free,Large,1.0,445.547,447.279,448.456,False,,Win,Win Stay
+27,1.0,Free,Large,1.0,459.905,461.215,462.266,False,,Win,Win Stay
+28,1.0,Free,Large,1.0,470.297,471.643,472.77,False,,Win,Win Stay
+29,1.0,Free,Large,1.0,483.382,484.922,485.904,False,,Win,Win Stay
+30,2.0,Free,Large,1.0,498.605,499.755,500.644,False,,Win,Win Stay
+31,2.0,Forced,Large,1.0,509.11,510.612,521.325,True,,,Win Stay
+32,,Forced,,,544.896,,,False,ITI,,
+33,2.0,Forced,Small,1.0,598.027,607.684,612.214,False,,,
+34,2.0,Forced,Small,1.0,628.835,631.267,632.301,False,,,
+35,2.0,Forced,Small,1.0,640.41,649.804,652.093,False,,,
+36,2.0,Forced,Large,1.0,674.435,675.78,682.826,True,,,
+37,2.0,Forced,Large,1.0,691.617,694.013,710.262,False,,,
+38,2.0,Forced,Large,1.0,721.995,723.938,725.718,False,,,
+39,2.0,Forced,Small,1.0,733.817,736.285,737.4,False,,,
+40,2.0,Free,Large,1.0,751.937,757.651,758.787,False,,Win,
+41,2.0,Free,Large,1.0,767.05,768.522,772.303,True,,Loss,Win Stay
+42,2.0,Free,Large,1.0,781.272,783.922,785.554,False,,Win,
+43,2.0,Free,Large,1.0,797.528,800.453,801.62,False,,Win,Win Stay
+44,2.0,Free,Large,1.0,811.304,813.655,818.855,True,,Loss,Win Stay
+45,2.0,Free,Large,1.0,828.631,830.982,838.346,True,,Loss,
+46,2.0,Free,Large,1.0,847.925,850.687,856.061,True,,Loss,
+47,2.0,Free,Large,1.0,881.818,890.153,894.0,True,,Loss,
+48,2.0,Free,Large,1.0,905.569,908.12,908.735,True,,Loss,
+49,2.0,Free,Large,1.0,916.735,923.111,927.157,True,,Loss,
+50,2.0,Free,Large,1.0,941.27,943.899,946.878,True,,Loss,
+51,2.0,Free,Large,1.0,957.799,960.796,963.201,False,,Win,
+52,2.0,Free,,1.0,978.233,,,False,Omission,,
+53,2.0,Free,Large,1.0,1022.737,1030.894,1032.279,False,,Win,
+54,2.0,Free,Large,1.0,1045.285,1051.428,1052.626,False,,Win,Win Stay
+55,2.0,Free,Large,1.0,1061.584,1070.752,1074.212,True,,Loss,Win Stay
+56,2.0,Free,Large,1.0,1088.14,1094.432,1095.511,False,,Win,
+57,2.0,Free,Large,1.0,1113.279,1114.896,1119.325,True,,Loss,Win Stay
+58,2.0,Free,Small,1.0,1147.115,1168.613,1176.583,False,,,Lose Shift
+59,2.0,Free,Large,1.0,1185.663,1189.99,1191.684,True,,Loss,
+60,2.0,Free,Small,1.0,1205.418,1226.455,1231.678,False,,,Lose Shift
+61,2.0,Free,Large,1.0,1239.852,1254.892,1256.817,False,,Win,
+62,3.0,Free,Small,1.0,1265.343,1271.592,1275.017,False,,,
+63,3.0,Forced,Large,1.0,1286.439,1293.531,1295.774,True,,,
+64,3.0,Forced,Small,1.0,1313.837,1315.38,1317.661,False,,,
+65,3.0,Forced,Large,1.0,1329.354,1334.489,1334.838,True,,,
+66,3.0,Forced,Small,1.0,1345.469,1351.918,1353.005,False,,,
+67,3.0,Forced,Large,1.0,1365.835,1395.827,1400.345,True,,,
+68,3.0,Forced,Large,1.0,1417.438,1438.768,1441.274,False,,,
+69,3.0,Forced,Small,1.0,1451.281,1453.453,1454.639,False,,,
+70,3.0,Forced,Small,1.0,1463.753,1466.601,1467.868,False,,,
+71,3.0,Free,Small,1.0,1475.871,1479.498,1481.369,False,,,
+72,3.0,Free,Large,1.0,1506.986,1514.648,1515.648,False,,Win,
+73,3.0,Free,Small,1.0,1523.649,1531.224,1536.972,False,,,
+74,3.0,Free,Small,1.0,1548.727,1556.724,1558.349,False,,,
+75,3.0,Free,Large,1.0,1567.702,1575.348,1576.848,False,,Win,
+76,3.0,Free,Large,1.0,1588.179,1591.093,1594.57,True,,Loss,Win Stay
+77,3.0,Free,Large,1.0,1602.634,1608.748,1612.245,True,,Loss,
+78,3.0,Free,Small,1.0,1621.515,1639.816,1645.17,False,,,Lose Shift
+79,3.0,Free,Small,1.0,1653.987,1660.085,1666.795,False,,,
+80,3.0,Free,Small,1.0,1688.643,1706.305,1711.759,False,,,
+81,3.0,Free,Large,1.0,1732.081,1734.978,1735.953,False,,Win,
+82,3.0,Free,Small,1.0,1748.356,1751.006,1752.863,False,,,
+83,3.0,Free,Large,1.0,1761.827,1770.623,1772.095,False,,Win,
+84,3.0,Free,Large,1.0,1781.133,1800.21,1803.992,True,,Loss,Win Stay
+85,3.0,Free,Small,1.0,1813.373,1816.982,1818.555,False,,,Lose Shift
+86,3.0,Free,,1.0,1827.952,,,False,Omission,,
+87,3.0,Free,Small,1.0,1878.583,1893.646,1896.57,False,,,
+88,3.0,Free,Large,1.0,1909.93,1912.119,1914.727,True,,Loss,
+89,3.0,Free,Large,1.0,1932.306,1944.001,1945.825,True,,Loss,
+90,3.0,Free,Large,1.0,1959.43,1965.439,1968.293,True,,Loss,
+91,3.0,Free,Large,1.0,1979.032,1988.28,1989.341,False,,Win,
+92,3.0,Free,Large,1.0,2017.971,2035.505,2037.25,True,,Loss,Win Stay
+93,,Free,Large,1.0,2047.42,2055.934,2057.628,True,,Loss,
