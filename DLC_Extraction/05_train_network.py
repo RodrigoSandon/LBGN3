@@ -1,10 +1,10 @@
 from deeplabcut import train_network
 
-CONFIG_PATH = r"/home/rory/repos/ppt_dlc/rdt_sessions-PPT-2021-09-08/config.yaml"
+CONFIG_PATH = r"/home/rory/repos/ppt_dlc2/config.yaml"
 
 
 def main():
-    train_network(config=CONFIG_PATH)
+    train_network(config=CONFIG_PATH, maxiters=1000000)
 
 
 if __name__ == "__main__":

@@ -1,10 +1,8 @@
 import deeplabcut as dlc
 
-
+# you can ind the labeled frames in /home/rory/repos/ppt_dlc2
 def main():
-    CONFIG = (
-        r"/home/rory/Rodrigo/DLC_Extraction/rdt_sessions-PPT-2021-09-08/config.yaml"
-    )
+    CONFIG = r"/home/rory/repos/ppt_dlc2/config.yaml"
 
     dlc.refine_labels(CONFIG)
 
