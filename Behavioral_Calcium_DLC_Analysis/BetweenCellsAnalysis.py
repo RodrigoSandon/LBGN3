@@ -14,8 +14,7 @@ from operator import attrgetter
 def find_paths_endswith(root_path, endswith) -> List:
 
     files = glob.glob(
-        os.path.join(root_path, "**", "*%s") % (endswith),
-        recursive=True,
+        os.path.join(root_path, "**", "*%s") % (endswith), recursive=True,
     )
 
     return files
@@ -24,8 +23,7 @@ def find_paths_endswith(root_path, endswith) -> List:
 def find_paths_startswith(root_path, startswith) -> List:
 
     files = glob.glob(
-        os.path.join(root_path, "**", "%s*") % (startswith),
-        recursive=True,
+        os.path.join(root_path, "**", "%s*") % (startswith), recursive=True,
     )
 
     return files
@@ -486,20 +484,13 @@ def shock():
             pass
 
 
-if __name__ == "__main__":
-    # main()
-    shock()
-
-
 def process_one_table():
 
-    csv_path = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D2/Shock Ocurred_Choice Time (s)/True/all_concat_cells.csv"
+    csv_path = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Shock Ocurred_Choice Time (s)/True/all_concat_cells.csv"
     df = pd.read_csv(csv_path)
     # df = truncate_past_len_threshold(df, len_threshold=200)
 
     df = change_cell_names(df)
-    # print("AFTER NAME CHANGE:")
-    # print(df.head())
 
     df = custom_standardize(
         df,
@@ -508,18 +499,11 @@ def process_one_table():
         reference_pair={0: 100},
         hertz=10,
     )
-    # print("AFTER STANDARDIZATION:")
-    # print(df.head())
 
-    # SMOOTHING NEEDS TRANSPOSE BC SMOOTHING RELATIVE TO EACH CELL'S BASELINE (so axis should be 1
-    # bc smoothing across columns)
     df = gaussian_smooth(df.T)
-    # THEN TRANSPOSE IT BACK
     df = df.T
-
-    # print("AFTER SMOOTHING:")
     # print(df.head())
-
+    # We're essentially gettin the mean of z-score for a time frame to sort
     df_sorted = sort_cells(
         df,
         unknown_time_min=0.0,
@@ -527,50 +511,31 @@ def process_one_table():
         reference_pair={0: 100},
         hertz=10,
     )
+    # print(df.head())
+    try:
+        df_sorted = insert_time_index_to_df(
+            df_sorted, range_min=-10.0, range_max=10.0, step=0.1
+        )
+    except ValueError:
+        print("Index less than 200 data points!")
+        df_sorted = insert_time_index_to_df(
+            df_sorted, range_min=-10.0, range_max=9.9, step=0.1
+        )
 
-    # print("AFTER SORTING:")
+    # Create scatter plot here
     # print(df_sorted.head())
-    subdf = subdf_of_df(
-        df_sorted,
-        unknown_time_min=0.0,
-        unknown_time_max=3.0,
-        reference_pair={0: 100},
-        hertz=10,
-    )
-
-    # MAKE SURE NEW IDX IS LAST BEFORE PLOTS, MESSES UP PREVIOUS PREPROCESSING
-    df_sorted_new_idx = insert_time_index_to_df(df_sorted)
-    """print("AFTER INDEX CHANGE:")
-    print(df_sorted.head())"""
 
     heatmap(
-        df_sorted_new_idx,
+        df_sorted,
         csv_path,
-        out_path=csv_path.replace(".csv", "_sorted_hm_baseline-10_-1_gauss1.5.png"),
+        out_path=csv_path.replace(".csv", "_hm_baseline-10_-1_gauss1.5.svg"),
         vmin=-2.5,
         vmax=2.5,
         xticklabels=20,
     )
 
-    spaghetti_plot(
-        df_sorted_new_idx,
-        csv_path,
-        out_path=csv_path.replace(
-            ".csv", "_sorted_spaghetti_baseline-10_-1_gauss1.5.png"
-        ),
-    )
 
-    # Create SCATTER PLOT of subwindows of each cell's window of specific event
-    # First create sub df -> bc we don't want to cluster based on the 200 data points only
-    # by 30 data points
-
-    # this scatter plot is plotting smoothed z-score of each cell's dff
-
-    # print(subdf.head())
-
-    scatter_plot(
-        subdf,
-        out_path=csv_path.replace(
-            ".csv", "_scatter_window0_3s_baseline-10_-1_gauss1.5.png"
-        ),
-    )
+if __name__ == "__main__":
+    # main()
+    # shock()
+    process_one_table()

@@ -1,6 +1,6 @@
 from deeplabcut import evaluate_network
 
-CONFIG_PATH = r"/home/rory/repos/ppt_dlc/rdt_sessions-PPT-2021-09-08/config.yaml"
+CONFIG_PATH = r"/home/rory/repos/ppt_dlc2/config.yaml"
 
 
 def main():
