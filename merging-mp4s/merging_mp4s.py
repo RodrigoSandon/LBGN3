@@ -3,39 +3,9 @@ import glob
 from pathlib import Path
 
 
-def delete_recursively(root, name_endswith_list):
-
-    for i in name_endswith_list:
-
-        files = glob.glob(os.path.join(root, "**", "*%s") % (i), recursive=True)
-
-        for f in files:
-            try:
-                os.remove(f)
-            except OSError as e:
-                print("Error: %s : %s" % (f, e.strerror))
-
-
-def delete_recursively_test(root, name_endswith):
-
-    files = glob.glob(os.path.join(root, "**", "*%s") % (name_endswith), recursive=True)
-
-    for f in files:
-        if name_endswith in f:
-            print(f)
-            try:
-                os.remove(f)
-                pass
-            except OSError as e:
-                print("Error: %s : %s" % (f, e.strerror))
-
-
 def main():
     count = 0
     ROOT_PATH = Path(r"/media/rory/RDT VIDS/BORIS_merge")
-
-    #delete_recursively(ROOT_PATH, "mylist.txt")
-    #delete_recursively(ROOT_PATH, "_merged.mp4")
 
     for root, dir, files in os.walk(ROOT_PATH):
         # omit first curr dir
@@ -79,15 +49,10 @@ def main():
                 os.system(cmd)
 
 
-def delete_old_mp4s(root):
-    #delete_recursively_test(root, "_.MP4")
-    pass
-
-
 if __name__ == "__main__":
     ROOT = Path(r"/media/rory/RDT VIDS/BORIS_merge")
     main()
-    input_y_n = input("Would you like to delete the old mp4s (y/n)?")
+    #input_y_n = input("Would you like to delete the old mp4s (y/n)?")
 
     """if input_y_n == "y":
         delete_old_mp4s(ROOT)
