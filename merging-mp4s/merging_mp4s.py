@@ -34,8 +34,8 @@ def main():
     count = 0
     ROOT_PATH = Path(r"/media/rory/RDT VIDS/BORIS_merge")
 
-    delete_recursively(ROOT_PATH, "mylist.txt")
-    delete_recursively(ROOT_PATH, "_merged.mp4")
+    #delete_recursively(ROOT_PATH, "mylist.txt")
+    #delete_recursively(ROOT_PATH, "_merged.mp4")
 
     for root, dir, files in os.walk(ROOT_PATH):
         # omit first curr dir
@@ -66,7 +66,7 @@ def main():
                     name_str = "file '%s'" % (name) + "\n"
                     print(name_str)
                     L.append(name_str)
-
+            print(L)
             # get file name
 
             # print(L)
@@ -79,16 +79,18 @@ def main():
                 os.system(cmd)
 
 
-def delete_old_mp4s():
-    ROOT_PATH = Path(r"/media/rory/RDT VIDS/BORIS_merge")
-    delete_recursively_test(ROOT_PATH, "_.MP4")
+def delete_old_mp4s(root):
+    #delete_recursively_test(root, "_.MP4")
+    pass
 
 
 if __name__ == "__main__":
+    ROOT = Path(r"/media/rory/RDT VIDS/BORIS_merge")
     main()
     input_y_n = input("Would you like to delete the old mp4s (y/n)?")
 
-    if input_y_n == "y":
-        delete_old_mp4s()
+    """if input_y_n == "y":
+        delete_old_mp4s(ROOT)
     elif input_y_n == "n":
         pass
+"""
