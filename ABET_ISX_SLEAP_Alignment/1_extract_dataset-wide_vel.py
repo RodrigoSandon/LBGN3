@@ -343,6 +343,29 @@ def export_sleap_data_mult_nodes(h5_filepath, session_root_path, fps):
         track_map_out = f"{name}_tracks.png"
         track_one_node(name, node_loc, track_map_out)
 
+def downsample_algo(df: pd.DataFrame) -> pd.DataFrame:
+    """Every 3 (after including the first one) rows, extract those rows and make a new df."""
+    # if index == 0 or index % 3 == 0 --> keep as new df
+    indices_to_extract = [0]
+
+    for idx, row in df.iterrows():
+        if idx % 3 == 0:
+            indices_to_extract.append(idx)
+
+    sub_df = df.iloc[indices_to_extract]
+
+    return sub_df
+
+
+
+def downsample_speed_data(bodypart, session_root):
+    speed_filepath = os.path.join(session_root, bodypart, f"{bodypart}_sleap_data.csv")
+
+    df = pd.read_csv(speed_filepath)
+
+    sub_df = downsample_algo(df)
+    
+
 
 def main():
     ROOT = r"/media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only"
@@ -359,18 +382,25 @@ def main():
 
     """Will be actually putting the bla's into existing folders"""
     for i in bla_slp_files:
-        # First move the slp file
+        # 1) move the slp file
         slp_filename = i.split("/")[-1]
-        dst_root = create_dst_path(BLA_DST_ROOT, i)
-        new_slp_path = os.path.join(dst_root, slp_filename)
+        ses_root = create_dst_path(BLA_DST_ROOT, i)
+        new_slp_path = os.path.join(ses_root, slp_filename)
         print(f"old path: {i} || new path: {new_slp_path}")
-
-        """shutil.move(i, new_slp_path)
-
+        shutil.move(i, new_slp_path)
+        
+        # 2) Convert .slp to .h5
         h5_path = new_slp_path.replace(".slp", ".h5")
         slp_to_h5(new_slp_path, h5_path)
+
+        # 3) Extract speed
         meta_data(h5_path)
-        export_sleap_data_mult_nodes(h5_path, SESSION_ROOT=dst_root, fps=30)"""
+        export_sleap_data_mult_nodes(h5_path, SESSION_ROOT=ses_root, fps=30)
+
+        # 4) Preprocess the speed file
+        downsample_speed_data(bodypart="body", session_root=ses_root)
+
+
 
     """Other folders will go into a new root folder"""
     """print("===== PROCESSING OTHER FILES =====")
