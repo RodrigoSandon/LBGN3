@@ -138,8 +138,8 @@ def main():
     send_bla_files_somewhere(BLA_DST_ROOT, bla_slp_files)
 
     """Other folders will go into a new root folder"""
-    print("===== PROCESSING OTHER FILES =====")
-    send_all_other_files_somewhere(other_slp_files)
+    """print("===== PROCESSING OTHER FILES =====")
+    send_all_other_files_somewhere(other_slp_files)"""
 
 
 
