@@ -117,14 +117,14 @@ def send_bla_files_somewhere(base, bla_slp_files: list):
         print(f"SLP destination for {mouse} {session}: {dst}")
 
 
-
 def send_all_other_files_somewhere(other_slp_files: list):
     for i in other_slp_files:
         slp_file_parsing(i)
 
 def main():
     ROOT = r"/media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only"
-    BASE = r"/media/rory/Padlock_DT/BLA_Analysis"
+    BLA_DST_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
+    OTHER_DST_ROOT = r"/media/rory/Padlock_DT/Non-BLA_Analysis"
 
     slp_files = find_paths_endswith(ROOT, ".slp")
 
@@ -133,10 +133,13 @@ def main():
 
     print("===== PROCESSING BLA FILES =====")
     print(f"Number of BLA SLP files: {len(bla_slp_files)}")
-    send_bla_files_somewhere(BASE, bla_slp_files)
 
-    """print("===== PROCESSING OTHER FILES =====")
-    send_all_other_files_somewhere(other_slp_files)"""
+    """Will be actually putting the bla's into existing folders"""
+    send_bla_files_somewhere(BLA_DST_ROOT, bla_slp_files)
+
+    """Other folders will go into a new root folder"""
+    print("===== PROCESSING OTHER FILES =====")
+    send_all_other_files_somewhere(other_slp_files)
 
 
 
