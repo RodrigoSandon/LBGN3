@@ -403,54 +403,72 @@ def process_speed_data(bodypart: str, root_dir: str, speed_filepath: str):
 
         return df
 
-    def match_sleap_w_dff_data(root_dir: str, sleap_df: pd.DataFrame) -> pd.DataFrame:
-        d = {
-            "idx_time": [],
-            "idx_frame": [],
-            "x_pix": [],
-            "y_pix": [],
-            "x_cm": [],
-            "y_cm": [],
-            "vel_f_p": [],
-            "vel_cm_s": []
-        }
+    def zerolistmaker(n):
+        listofzeros = [0] * n
+        return listofzeros
+
+    def insert_sleap_into_dff_data(root_dir: str, sleap_df: pd.DataFrame) -> pd.DataFrame:
 
         dff_path = os.path.join(root_dir, "dff_traces_preprocessed.csv")
         dff_df = pd.read_csv(dff_path)
-        sleap_timestamps = list(sleap_df["idx_time"])
+        vel_cm_s_list = zerolistmaker(len(dff_df))
 
-        for count, dff_timestamp in enumerate(list(dff_df["Time(s)"])):
+        sleap_timestamps = list(sleap_df["idx_time"])
+        dff_timestamps = list(dff_df["Time(s)"])
+        start_of_sleap = sleap_timestamps[0]
+        end_of_sleap = sleap_timestamps[-1]
+        dff_timestamps_start_idx = binary_search(
+            dff_timestamps, start_of_sleap)
+        dff_timestamps_stop_idx = binary_search(dff_timestamps, end_of_sleap)
+
+        dff_timestamps_lookfor = dff_timestamps[
+            dff_timestamps_start_idx: dff_timestamps_stop_idx + 1]
+
+        # no need to truncate original dff traces timestamps to help out algo?
+        for count, dff_timestamp in enumerate(dff_timestamps_lookfor):
             closest_sleap_timestamp_idx_match_to_dff_trace = binary_search(
                 sleap_timestamps, dff_timestamp)
             idx = closest_sleap_timestamp_idx_match_to_dff_trace
+
+            if count % 500 == 0:  # just so it won't print a lot
+                print(
+                    f"Df/f timestamp: {dff_timestamp} | SLEAP timestamp: {sleap_timestamps[idx]}")
             # ^ returns idx of sleap "idx_time" col
             # Get all col values in which pertain to this sleap timestamp
             # Only change curr "idx_time" to the current dff_timestamp
             # this should produce a dff of the same length as the dff_traces_preprocessed.csv
-            d["idx_time"].append(dff_timestamp)
-            d["idx_frame"].append(sleap_df.iloc[idx]["idx_frame"])
-            d["x_pix"].append(sleap_df.iloc[idx]["x_pix"])
-            d["y_pix"].append(sleap_df.iloc[idx]["y_pix"])
-            d["x_cm"].append(sleap_df.iloc[idx]["x_cm"])
-            d["y_cm"].append(sleap_df.iloc[idx]["y_cm"])
-            d["vel_f_p"].append(sleap_df.iloc[idx]["vel_f_p"])
-            d["vel_cm_s"].append(sleap_df.iloc[idx]["vel_cm_s"])
+            # val needs to match that of vel_cm_s_list(from index) and dff_f
+            """print(dff_df.index[dff_df["Time(s)"] == dff_timestamp].tolist()[0])
+            print(type(dff_df.index[dff_df["Time(s)"]
+                                    == dff_timestamp].tolist()[0]))"""
+            vel_cm_s_list[dff_df.index[dff_df["Time(s)"] == dff_timestamp].tolist()[
+                0]] = sleap_df.iloc[idx]["vel_cm_s"]
 
-        new_sleap_df = pd.from_dict(d)
+        # check lengths of dff and new col that you're gonna input
+        print(
+            f"Length of dff traces: {len(dff_df)} | Length of sleap data: {dff_timestamps_stop_idx - dff_timestamps_start_idx}")
+        # Now should have list ready to insert
+        dff_df.insert(1, "Speed(cm/s)", vel_cm_s_list)
 
-        return new_sleap_df
+        return dff_df
 
     ##################################################################
     sleap_df = pd.read_csv(speed_filepath)
-    out_path = speed_filepath.replace(bodypart, f"processed_{bodypart}")
+    out_path = speed_filepath.replace(bodypart, f"dff_and_{bodypart}")
 
-    #sub_df = downsample(speed_filepath)
-    #print(f"length of downsampled df: {len(sub_df)}")
-    sleap_df = match_sleap_w_dff_data(root_dir, sleap_df)
+    # sub_df = downsample(speed_filepath)
+    # print(f"length of downsampled df: {len(sub_df)}")
 
     gpio_corrected_df: pd.DataFrame
     gpio_corrected_df = gpio_correct_speed_data(root_dir, sleap_df)
-    gpio_corrected_df.to_csv(out_path, index=False)
+    gpio_corrected_df.to_csv(speed_filepath.replace(
+        bodypart, f"gpio_corrected_{bodypart}"), index=False)
+
+    print("here")
+    new_df = insert_sleap_into_dff_data(root_dir, gpio_corrected_df)
+    print("here")
+
+    new_df.to_csv(out_path, index=False)
 
 
 def main():

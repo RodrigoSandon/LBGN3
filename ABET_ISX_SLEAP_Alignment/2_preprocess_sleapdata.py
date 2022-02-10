@@ -89,9 +89,9 @@ def process_speed_data(bodypart: str, root_dir: str, speed_filepath: str):
                 sleap_timestamps, dff_timestamp)
             idx = closest_sleap_timestamp_idx_match_to_dff_trace
 
-            # if count % 500 == 0:  # just so it won't print a lot
-            print(
-                f"Df/f timestamp: {dff_timestamp} | SLEAP timestamp: {sleap_timestamps[idx]}")
+            if count % 500 == 0:  # just so it won't print a lot
+                print(
+                    f"Df/f timestamp: {dff_timestamp} | SLEAP timestamp: {sleap_timestamps[idx]}")
             # ^ returns idx of sleap "idx_time" col
             # Get all col values in which pertain to this sleap timestamp
             # Only change curr "idx_time" to the current dff_timestamp
@@ -113,13 +113,16 @@ def process_speed_data(bodypart: str, root_dir: str, speed_filepath: str):
 
     ##################################################################
     sleap_df = pd.read_csv(speed_filepath)
-    out_path = speed_filepath.replace(bodypart, f"processed2_{bodypart}")
+    out_path = speed_filepath.replace(bodypart, f"dff_and_{bodypart}")
 
     # sub_df = downsample(speed_filepath)
     # print(f"length of downsampled df: {len(sub_df)}")
 
     gpio_corrected_df: pd.DataFrame
     gpio_corrected_df = gpio_correct_speed_data(root_dir, sleap_df)
+    gpio_corrected_df.to_csv(speed_filepath.replace(
+        bodypart, f"gpio_corrected_{bodypart}"), index=False)
+
     print("here")
     new_df = insert_sleap_into_dff_data(root_dir, gpio_corrected_df)
     print("here")
