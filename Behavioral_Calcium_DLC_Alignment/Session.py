@@ -151,7 +151,8 @@ class Neuron(Session):
                     + "_"
                     + acquire_by_start_choice_or_collect_times
                 )
-                self.categorized_dff_traces[event_name] = list(combine_by_list)
+                self.categorized_dff_traces[event_name] = list(
+                    combine_by_list)  # can be omitted
 
                 self.categorized_dff_traces[event_name] = EventTrace(
                     self.cell_name,
@@ -231,7 +232,7 @@ class EventTrace(Neuron):  # for one combo
         """This is for one grouping found from the groupby columns"""
         # print("Chosen time to extract: ", start_choice_collect)
         # print("list of idxs for group ", list_of_idxs)  # - works
-        list_of_lists = []
+        list_of_lists = []  # inserting only subwindows of dff traces here around a specific time
         # list of dff traces (which is a list), every list within list represents the event found
         for abet_idx in list_of_idxs:
             # abet_idx = abet_idx - 1 Omitting this line made it so identified all events for each cell properly, I wonder why? 11/5/21
