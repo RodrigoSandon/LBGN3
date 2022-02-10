@@ -54,7 +54,7 @@ def find_dff_trace_path(session_path, endswith):
         recursive=True,
     )
     if len(files) == 1:  # should only find one
-        print(f"ABET FILE PATH FOR THIS SESSION: , {files[0]}")
+        print(f"FILE FOUND: , {files[0]}")
         return files[0]
     elif len(files) == 0:
         return None

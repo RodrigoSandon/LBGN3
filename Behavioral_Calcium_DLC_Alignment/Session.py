@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import os, glob
+import os
+import glob
 import Utilities
 from typing import List
 from itertools import combinations
@@ -24,7 +25,7 @@ class Session(object):
         Session.session_id = session_path.split("/")[6]
         # loading options: "dff" "dlc" "abet"
         Session.dff_traces = self.load_table("dff")
-        Session.dlc_df = self.load_table("dlc")
+        Session.dlc_df = self.load_table("sleap")
         Session.behavioral_df = self.load_table("abet")
 
         Session.neurons = self.parse_dff_table()
@@ -46,7 +47,8 @@ class Session(object):
 
         for cell_name, dff_traces in d.items():
             if cell_name != "Time(s)":
-                sub_dict_for_neuron = {"Time(s)": d["Time(s)"], cell_name: dff_traces}
+                sub_dict_for_neuron = {
+                    "Time(s)": d["Time(s)"], cell_name: dff_traces}
                 sub_df_for_neuron = pd.DataFrame.from_dict(sub_dict_for_neuron)
                 neuron_obj = Neuron(cell_name, sub_df_for_neuron)
                 neurons[cell_name] = neuron_obj
@@ -65,12 +67,12 @@ class Session(object):
                 return None
             dff_traces = pd.read_csv(path)
             return dff_traces
-        elif table_to_extract == "dlc":
+        elif table_to_extract == "sleap":
             path = Utilities.find_dff_trace_path(
-                self.session_path, "_1000000.csv"
-            )  # the name of the dlc ends with the number of training epochs
+                self.session_path, "_sleap_data.csv"
+            )
             if path == None:
-                print("No DLC table found!")
+                print("No SLEAP table found!")
                 return None
             dlc_df = pd.read_csv(path)
             return dlc_df
@@ -88,18 +90,13 @@ class Session(object):
             print("Type a valid table to load!")
             return None
 
-    """ Get methods"""
-
     def get_neurons(self) -> dict:
         return self.neurons
-
-    """def get_dff_times(self):
-        return self.dff_times"""
 
     def get_session_id(self):
         return self.id
 
-    def get_dff_traces(self) -> pd.core.frame.DataFrame:
+    def get_dff_traces(self) -> pd.DataFrame:
         return self.dff_traces
 
     def get_dlc_df(self):
@@ -238,7 +235,7 @@ class EventTrace(Neuron):  # for one combo
         # list of dff traces (which is a list), every list within list represents the event found
         for abet_idx in list_of_idxs:
             # abet_idx = abet_idx - 1 Omitting this line made it so identified all events for each cell properly, I wonder why? 11/5/21
-            ### - 1 BECAUSE WE WANT IT TO START AT 0, BECAUSE INDICES SHIFTED UP 1 WHEN DELETING FIRST EMPTY COLUMN
+            # - 1 BECAUSE WE WANT IT TO START AT 0, BECAUSE INDICES SHIFTED UP 1 WHEN DELETING FIRST EMPTY COLUMN
             time_for_this_idx_in_abet = self.get_abet().iloc[
                 abet_idx, self.get_abet().columns.get_loc(start_choice_collect)
             ]
@@ -251,6 +248,9 @@ class EventTrace(Neuron):  # for one combo
                 # essentially need to get the indices of what this time range entails
                 lower_bound_time = time_for_this_idx_in_abet - self.half_of_time_window
                 upper_bound_time = time_for_this_idx_in_abet + self.half_of_time_window
+
+                # I know an exact minus half time window won't exist for this choice time
+                # Therefore, we need to do a closest match binary search
                 idx_df_lower_bound_time, lower_time_val = self.find_idx_of_time_bound(
                     lower_bound_time
                 )
@@ -331,8 +331,8 @@ class EventTrace(Neuron):  # for one combo
                 ] = self.stack_dff_traces_of_group(
                     list(val), self.start_choice_or_collect_times
                 )
-                ### Before converting it to a df, we need to store this 2d array somewhere
-                ### and store the corresponding avg traces too
+                # Before converting it to a df, we need to store this 2d array somewhere
+                # and store the corresponding avg traces too
                 """Perform some process on this dict you just updated"""
                 # ??????Necessary???
 
@@ -371,7 +371,7 @@ class EventTrace(Neuron):  # for one combo
                     self.get_event_traces_name(),
                     combo_name,
                 )
-                ### Insert to aligned dff dict that corresponds to this object
+                # Insert to aligned dff dict that corresponds to this object
                 # self.aligned_dff_dict[self.get_event_traces_name] = group_df
 
                 os.makedirs(new_path, exist_ok=True)
@@ -384,6 +384,7 @@ class EventTrace(Neuron):  # for one combo
                 Utilities.avg_cell_eventrace(
                     csv_path, self.cell_name, plot=True, export_avg=True
                 )
-                self.events_omitted = 0  # make sure the events omitted resets after ever subcombo within an eventtrace
+                # make sure the events omitted resets after ever subcombo within an eventtrace
+                self.events_omitted = 0
             else:
                 print("WILL NOT INCLUDE %s" % (str(key)))
