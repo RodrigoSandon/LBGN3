@@ -106,8 +106,9 @@ def find_dst_for_mouse_and_session(base, mouse_tolower: str, session_tolower: st
     dst = os.path.join(dst, session_tolower.upper())
     isdir = os.path.isdir(dst)
 
-    if not isdir:
-        dst = dst + " NEW_SCOPE"
+    """if not isdir:
+        dst = dst + " NEW_SCOPE"""
+        # we are omitting new scope info
 
     # ^ this is full path for bla1-3
 
@@ -119,12 +120,13 @@ def find_dst_for_mouse_and_session(base, mouse_tolower: str, session_tolower: st
     return dst
 
 
-def create_dst_path(base, file):
+def create_bla_dst_path(base, file):
+    # gets the mouse and session
     mouse, session = slp_file_parsing(file)
     mouse = mouse.lower()
     session = session.lower()
     dst = find_dst_for_mouse_and_session(base, mouse, session)
-    print(f"SLP destination for {mouse} {session}: {dst}")
+    #print(f"SLP destination for {mouse} {session}: {dst}")
 
     return dst
 
@@ -135,6 +137,10 @@ def send_all_other_files_somewhere(other_slp_files: list):
 
 
 def slp_to_h5(in_path, out_path):
+    if " " in in_path:
+            in_path = in_path.replace(" ", "\ ")
+    if " " in out_path:
+            out_path = out_path.replace(" ", "\ ")
     cmd = f"sleap-convert --format analysis -o {out_path} {in_path}"
     os.system(cmd)
 
@@ -244,6 +250,7 @@ def track_one_node(node_name, node_loc, track_map_out):
     plt.yticks([])
     plt.title(f'{node_name} tracks')
     plt.savefig(track_map_out)
+    plt.close()
 
 
 """"Will no longer call export to csv, another func will do that."""
@@ -276,6 +283,7 @@ def visualize_velocity_one_node(node_name, x_axis_time, x_coord_cm, y_coord_cm, 
     # ax2.legend()
 
     plt.savefig(coord_vel_graphs_out)
+    plt.close()
 
 
 """Will call on export to csv for every node"""
@@ -355,7 +363,7 @@ def merge_isx_and_speed_data(bodypart: str, root_dir: str, speed_filepath: str):
 
         sub_df = df.iloc[indices_to_extract]
 
-        print(len(sub_df))
+        #print(len(sub_df))
 
         return sub_df
 
@@ -430,9 +438,9 @@ def merge_isx_and_speed_data(bodypart: str, root_dir: str, speed_filepath: str):
                 sleap_timestamps, dff_timestamp)
             idx = closest_sleap_timestamp_idx_match_to_dff_trace
 
-            if count % 500 == 0:  # just so it won't print a lot
+            """if count % 500 == 0:  # just so it won't print a lot
                 print(
-                    f"Df/f timestamp: {dff_timestamp} | SLEAP timestamp: {sleap_timestamps[idx]}")
+                    f"Df/f timestamp: {dff_timestamp} | SLEAP timestamp: {sleap_timestamps[idx]}")"""
             # ^ returns idx of sleap "idx_time" col
             # Get all col values in which pertain to this sleap timestamp
             # Only change curr "idx_time" to the current dff_timestamp
@@ -454,15 +462,15 @@ def merge_isx_and_speed_data(bodypart: str, root_dir: str, speed_filepath: str):
 
     ##################################################################
     sleap_df = pd.read_csv(speed_filepath)
-    out_path = speed_filepath.replace(bodypart, f"dff_and_{bodypart}")
+    out_path = os.path.join(root_dir, f"processed_dff_and_{bodypart}_data.csv")
 
     # sub_df = downsample(speed_filepath)
     # print(f"length of downsampled df: {len(sub_df)}")
 
     gpio_corrected_df: pd.DataFrame
     gpio_corrected_df = gpio_correct_speed_data(root_dir, sleap_df)
-    gpio_corrected_df.to_csv(speed_filepath.replace(
-        bodypart, f"gpio_corrected_{bodypart}"), index=False)
+    gpio_corrected_df_path = os.path.join(root_dir, bodypart, f"gpio_corrected_{bodypart}_sleap_data.csv")
+    gpio_corrected_df.to_csv(gpio_corrected_df_path, index=False)
 
     print("here")
     new_df = insert_sleap_into_dff_data(root_dir, gpio_corrected_df)
@@ -484,23 +492,30 @@ def main():
     print("===== PROCESSING BLA FILES =====")
     print(f"Number of BLA SLP files: {len(bla_slp_files)}")
 
-    """Will be actually putting the bla's into existing folders"""
-    for i in bla_slp_files:
-        print(f"Processing ... {i}")
+    # Will be actually putting the bla's into existing folders
+    for count, i in enumerate(bla_slp_files):
+        print(f"Processing {count + 1}: {i}")
         # 1) move the slp file
         slp_filename = i.split("/")[-1]
-        ses_root = create_dst_path(BLA_DST_ROOT, i)
+        ses_root = create_bla_dst_path(BLA_DST_ROOT, i)
         new_slp_path = os.path.join(ses_root, slp_filename)
         print(f"old path: {i} || new path: {new_slp_path}")
-        shutil.move(i, new_slp_path)
+
+        try:
+            shutil.copy(i, new_slp_path)
+        except FileNotFoundError as e:
+            print(e)
+            print("THIS SESSION DOESN'T CONTAIN ABET NOR ISX DATA")
+            os.makedirs(ses_root)
+            shutil.copy(i, new_slp_path)
 
         # 2) Convert .slp to .h5
         h5_path = new_slp_path.replace(".slp", ".h5")
         slp_to_h5(new_slp_path, h5_path)
 
         # 3) Extract speed
-        meta_data(h5_path)
-        export_sleap_data_mult_nodes(h5_path, SESSION_ROOT=ses_root, fps=30)
+        #meta_data(h5_path)
+        export_sleap_data_mult_nodes(h5_path, ses_root, fps=30)
 
         # 4) Preprocess the speed file
 
@@ -508,12 +523,38 @@ def main():
         speed_filepath = os.path.join(
             ses_root, bodypart, f"{bodypart}_sleap_data.csv")
 
-        merge_isx_and_speed_data(bodypart, ses_root, speed_filepath)
-        # ^ will EXPORT a dff_and_{bodypart}_sleap_data.csv and gpio corrected sleap data file
+        try:
+            merge_isx_and_speed_data(bodypart, ses_root, speed_filepath)
+            # ^ will EXPORT a dff_and_{bodypart}_sleap_data.csv and gpio corrected sleap data file"""
+        except FileNotFoundError as e:
+            print(e)
+            pass
 
     """Other folders will go into a new root folder"""
-    """print("===== PROCESSING OTHER FILES =====")
-    send_all_other_files_somewhere(other_slp_files)"""
+    print("===== PROCESSING OTHER FILES =====")
+    print(f"Number of OTHER SLP files: {len(other_slp_files)}")
+
+    # IF THIS STOPS THEN ONLY RUN THIS PART AGAIN, DONT RERUN IF ALL BLA WAS SUCCESSUL
+    for count2, j in enumerate(other_slp_files):
+        print(f"Processing {count2 + 1}: {j}")
+        # 1) move the slp file
+        slp_filename = j.split("/")[-1]
+        mouse, session = slp_file_parsing(j)
+        SESSION_ROOT = os.path.join(OTHER_DST_ROOT, mouse, session)
+        new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
+        os.makedirs(new_slp_path, exist_ok=True)
+        print(f"old path: {j} || new path: {new_slp_path}")
+
+        shutil.copy(j, new_slp_path)
+
+        # 2) Convert .slp to .h5
+        h5_path = new_slp_path.replace(".slp", ".h5")
+        slp_to_h5(new_slp_path, h5_path)
+
+        # 3) Extract speed
+        #meta_data(h5_path)
+        export_sleap_data_mult_nodes(h5_path, SESSION_ROOT, fps=30)
+
 
 
 if __name__ == "__main__":
