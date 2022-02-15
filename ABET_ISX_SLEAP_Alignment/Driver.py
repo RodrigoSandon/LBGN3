@@ -328,5 +328,5 @@ class Driver:
 
 
 if __name__ == "__main__":
-    Driver.main()
-    # Driver.run_one_session_one_neuron()
+    #Driver.main()
+    Driver.run_one_session_one_neuron()

@@ -25,7 +25,6 @@ class Session(object):
         Session.session_id = session_path.split("/")[6]
         # loading options: "dff" "dlc" "abet"
         Session.dff_traces = self.load_table("dff")
-        Session.dlc_df = self.load_table("sleap")
         Session.behavioral_df = self.load_table("abet")
 
         Session.neurons = self.parse_dff_table()
@@ -46,11 +45,15 @@ class Session(object):
         """
 
         for cell_name, dff_traces in d.items():
-            if cell_name != "Time(s)":
+            if cell_name != "Time(s)" and cell_name != "Speed(cm/s)":
+                # INFORMATION FOR JUST ONE NEURON: ABS TIME, DFF, N VEL
                 sub_dict_for_neuron = {
-                    "Time(s)": d["Time(s)"], cell_name: dff_traces}
+                    "Time(s)": d["Time(s)"], 
+                    cell_name: dff_traces}
+
+                speed = d["Speed(cm/s)"]
                 sub_df_for_neuron = pd.DataFrame.from_dict(sub_dict_for_neuron)
-                neuron_obj = Neuron(cell_name, sub_df_for_neuron)
+                neuron_obj = Neuron(cell_name, sub_df_for_neuron, speed)
                 neurons[cell_name] = neuron_obj
 
         return neurons
@@ -60,7 +63,7 @@ class Session(object):
     def load_table(self, table_to_extract):
         if table_to_extract == "dff":
             path = Utilities.find_dff_trace_path(
-                self.session_path, "dff_traces_preprocessed.csv"
+                self.session_path, "processed_dff_and_body_data.csv"
             )
             if path == None:
                 print("No dff table found!")
@@ -101,9 +104,10 @@ class Neuron(Session):
 
     categorized_dff_traces = {}  # [Event name + number] : EventTraces
 
-    def __init__(self, cell_name, dff_trace_df):
+    def __init__(self, cell_name: str, dff_trace_df: pd.DataFrame, speed: list):
         self.cell_name = cell_name
         self.dff_trace = dff_trace_df
+        self.speed = speed
 
     def get_cell_name(self):
         return self.cell_name
@@ -143,9 +147,10 @@ class Neuron(Session):
                 self.categorized_dff_traces[event_name] = list(
                     combine_by_list)  # can be omitted
 
-                self.categorized_dff_traces[event_name] = EventTrace(
+                self.categorized_dff_traces[event_name] = EventTraces(
                     self.cell_name,
                     self.dff_trace,
+                    self.speed,
                     event_name,
                     acquire_by_start_choice_or_collect_times,
                     half_of_time_window,
@@ -153,14 +158,16 @@ class Neuron(Session):
                 )
 
 
-class EventTrace(Neuron):  # for one combo
+class EventTraces(Neuron):  # for one combo
     """
     Even table defines which combination of column values we are extracting dff traces from.
     For now, there is a focus on alignment based on one combination chosen (multiple columns chosen
     or just 1 column chosen to groupby)
     """
-
-    alleventracesforacombo_eventcomboname_dict = {}  # values are in 2d
+    # FOR DFF
+    all_eventraces_foracombo_eventcomboname_dict = {}  # structure is in 2d
+    # FOR SPEED
+    all_speedlists_foracombo_eventcomboname_dict = {} # structure is in 2d
     """
     For 1 cell
 
@@ -169,8 +176,11 @@ class EventTrace(Neuron):  # for one combo
     event_combo_name : [[event occurance 1 dff traces],
                   [event occurance 2 dff traces]]
     """
+    # FOR DFF
+    avg_eventraces_foracombo_eventcomboname_dict = {}  # structure is in 1d
 
-    avgeventracesforacombo_eventcomboname_dict = {}  # values are in 1d
+    # FOR SPEED
+    avg_speedlists_foracombo_eventcomboname_dict = {} # structure is in 1d
     """
     For 1 cell
 
@@ -182,18 +192,20 @@ class EventTrace(Neuron):  # for one combo
         self,
         cell_name,
         dff_trace,
+        speed,
         eventtraces_name,
         start_choice_or_collect_times,
         half_of_time_window,
         groupby_list: list,
     ):
         # so this EventTraces obj should have a name
+        self.speed = speed
         self.name = eventtraces_name
         self.start_choice_or_collect_times = start_choice_or_collect_times
         self.half_of_time_window = half_of_time_window
         self.groupby_list = groupby_list
         self.events_omitted = 0
-        super().__init__(cell_name, dff_trace)
+        super().__init__(cell_name, dff_trace, speed)
 
     def get_event_traces_name(self):
         return self.name
@@ -250,7 +262,7 @@ class EventTrace(Neuron):  # for one combo
                     )
                     % (lower_bound_time, lower_time_val)
                 )"""
-                idx_df_upper_bound_tim, upper_time_val = self.find_idx_of_time_bound(
+                idx_df_upper_bound_time, upper_time_val = self.find_idx_of_time_bound(
                     upper_bound_time
                 )
                 """print(
@@ -259,11 +271,13 @@ class EventTrace(Neuron):  # for one combo
                     )
                     % (upper_bound_time, upper_time_val)
                 )"""
+                # Where taking the subwindow happens
                 dff_block_of_neuron = list(
                     self.get_dff_traces_of_neuron()[
-                        idx_df_lower_bound_time:idx_df_upper_bound_tim
+                        idx_df_lower_bound_time:idx_df_upper_bound_time
                     ][self.cell_name]
                 )
+
                 # print(dff_block_of_neuron) - only one dff block, so something wrong upstream
                 list_of_lists.append(dff_block_of_neuron)
                 # only getting the dff, not considering the relative time, just absolute time
@@ -316,7 +330,7 @@ class EventTrace(Neuron):  # for one combo
 
                 number_of_event_appearances = len(list(val))
                 # print(key, ": ", list(val))
-                self.alleventracesforacombo_eventcomboname_dict[
+                self.all_eventraces_foracombo_eventcomboname_dict[
                     key
                 ] = self.stack_dff_traces_of_group(
                     list(val), self.start_choice_or_collect_times
@@ -329,7 +343,7 @@ class EventTrace(Neuron):  # for one combo
                 # converting that 2d list of lists into df
 
                 group_df = pd.DataFrame.from_records(
-                    self.alleventracesforacombo_eventcomboname_dict[key]
+                    self.all_eventraces_foracombo_eventcomboname_dict[key]
                 )
 
                 group_df = self.trim_grouped_df(group_df)
