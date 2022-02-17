@@ -21,8 +21,8 @@ class Session(object):
 
     def __init__(self, session_path):
         # /media/rory/PTP Inscopix 2/PTP_Inscopix_#3/BLA-Insc-6/Session-20210518-102215_BLA-Insc-6_RDT_D1
+        # new: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/RDT D2/2021-06-03-11-20-22_video_BLA-Insc-6_RDT_D2_NEW_SCOPE
         Session.session_path = session_path
-        Session.session_id = session_path.split("/")[6]
         # loading options: "dff" "dlc" "abet"
         Session.dff_traces = self.load_table("dff")
         Session.behavioral_df = self.load_table("abet")
@@ -84,9 +84,6 @@ class Session(object):
 
     def get_neurons(self) -> dict:
         return self.neurons
-
-    def get_session_id(self):
-        return self.id
 
     def get_dff_traces(self) -> pd.DataFrame:
         return self.dff_traces
@@ -164,12 +161,13 @@ class EventTraces(Neuron):  # for one combo
     For now, there is a focus on alignment based on one combination chosen (multiple columns chosen
     or just 1 column chosen to groupby)
     """
+    #these are for getting a table of all events that happened under this one subevent
     # FOR DFF
     all_eventraces_foracombo_eventcomboname_dict = {}  # structure is in 2d
     # FOR SPEED
     all_speedlists_foracombo_eventcomboname_dict = {} # structure is in 2d
     """
-    For 1 cell
+    For 1 cell ( a dict of 2d lists)
 
     event_combo_name : [[event occurance 1 dff traces],
                   [event occurance 2 dff traces]],
@@ -229,12 +227,14 @@ class EventTraces(Neuron):  # for one combo
 
         return idx, idx_time_val
 
-    def stack_dff_traces_of_group(self, list_of_idxs, start_choice_collect):
+    def create_all_events_2d_lists(self, list_of_idxs, start_choice_collect):
         """This is for one grouping found from the groupby columns"""
         # print("Chosen time to extract: ", start_choice_collect)
         # print("list of idxs for group ", list_of_idxs)  # - works
-        list_of_lists = []  # inserting only subwindows of dff traces here around a specific time
+        list_of_events_dff = []  # inserting only subwindows of dff traces here around a specific time
         # list of dff traces (which is a list), every list within list represents the event found
+        list_of_events_speed = []
+
         for abet_idx in list_of_idxs:
             # abet_idx = abet_idx - 1 Omitting this line made it so identified all events for each cell properly, I wonder why? 11/5/21
             # - 1 BECAUSE WE WANT IT TO START AT 0, BECAUSE INDICES SHIFTED UP 1 WHEN DELETING FIRST EMPTY COLUMN
@@ -278,14 +278,19 @@ class EventTraces(Neuron):  # for one combo
                     ][self.cell_name]
                 )
 
+                speed_block_of_neuron = self.speed[
+                        idx_df_lower_bound_time:idx_df_upper_bound_time
+                    ]
+
                 # print(dff_block_of_neuron) - only one dff block, so something wrong upstream
-                list_of_lists.append(dff_block_of_neuron)
+                list_of_events_dff.append(dff_block_of_neuron)
+                list_of_events_speed.append(speed_block_of_neuron)
                 # only getting the dff, not considering the relative time, just absolute time
                 # now append this
             else:
                 self.events_omitted += 1
                 pass
-        return list_of_lists  # this is a 2d list - SCOPE OF THIS WAS INNER
+        return list_of_events_dff, list_of_events_speed  # this is a 2d list - SCOPE OF THIS WAS INNER
 
     def trim_grouped_df(self, grouped_df):
         """Drops any columns that are past the half_the_time_window *10*2 - 1"""
@@ -325,14 +330,18 @@ class EventTraces(Neuron):  # for one combo
         # SUBCOMBO PROCESSING
         for key, val in grouped_table.groups.items():
             # make sure to not include subcombos that have nans in it
+            # val are a list of idx for when to get these events
+            # of when choice time occurred
 
             if "nan" not in str(key):
 
                 number_of_event_appearances = len(list(val))
-                # print(key, ": ", list(val))
+                print(key, ": ", list(val))
                 self.all_eventraces_foracombo_eventcomboname_dict[
                     key
-                ] = self.stack_dff_traces_of_group(
+                ], self.all_speedlists_foracombo_eventcomboname_dict[
+                    key
+                    ] = self.create_all_events_2d_lists(
                     list(val), self.start_choice_or_collect_times
                 )
                 # Before converting it to a df, we need to store this 2d array somewhere
@@ -340,21 +349,29 @@ class EventTraces(Neuron):  # for one combo
                 """Perform some process on this dict you just updated"""
                 # ??????Necessary???
 
-                # converting that 2d list of lists into df
+                # converting that 2d list of lists for one subevent into df
 
-                group_df = pd.DataFrame.from_records(
+                group_df_dff = pd.DataFrame.from_records(
                     self.all_eventraces_foracombo_eventcomboname_dict[key]
                 )
 
-                group_df = self.trim_grouped_df(group_df)
-                # print(group_df.head())
+                group_df_speed = pd.DataFrame.from_records(
+                    self.all_speedlists_foracombo_eventcomboname_dict[key]
+                )
+
+                group_df_dff = self.trim_grouped_df(group_df_dff)
+
+                group_df_speed = self.trim_grouped_df(group_df_speed)
+                # print(group_df_dff.head())
                 # Doing some editing on this df
-                group_df = Utilities.rename_all_col_names(group_df, x_axis)
+                group_df_dff = Utilities.rename_all_col_names(group_df_dff, x_axis)
+
+                group_df_speed = Utilities.rename_all_col_names(group_df_speed, x_axis)
                 """print(
                     "Event %s has %s events omitted." % (str(key), self.events_omitted)
                 )"""
-                # print("Dimensions of grouped df:", (group_df.shape))
-                group_df.insert(
+                # print("Dimensions of grouped df:", (group_df_dff.shape))
+                group_df_dff.insert(
                     loc=0,
                     column="Event #",
                     value=Utilities.make_value_list_for_col(
@@ -362,7 +379,15 @@ class EventTraces(Neuron):  # for one combo
                     ),
                 )
 
-                # print(group_df)
+                group_df_speed.insert(
+                    loc=0,
+                    column="Event #",
+                    value=Utilities.make_value_list_for_col(
+                        "Event", number_of_event_appearances - self.events_omitted
+                    ),
+                )
+
+                # print(group_df_dff)
                 # print(type(key))
                 # making a path for this df to go to (within session path)
 
@@ -376,19 +401,30 @@ class EventTraces(Neuron):  # for one combo
                     combo_name,
                 )
                 # Insert to aligned dff dict that corresponds to this object
-                # self.aligned_dff_dict[self.get_event_traces_name] = group_df
+                # self.aligned_dff_dict[self.get_event_traces_name] = group_df_dff
 
                 os.makedirs(new_path, exist_ok=True)
-                name_of_csv = "plot_ready.csv"
-                csv_path = os.path.join(new_path, name_of_csv)
-                group_df.to_csv(csv_path, index=False)
+
+                name_of_dff_df = "plot_ready.csv"
+                csv_path_dff = os.path.join(new_path, name_of_dff_df)
+                group_df_dff.to_csv(csv_path_dff, index=False)
+
+                name_of_speed_df = "speed_plot_ready.csv"
+                csv_path_speed = os.path.join(new_path, name_of_speed_df)
+                group_df_speed.to_csv(csv_path_speed, index=False)
 
                 ### Add on analysis here ###
-                # 1)
+                
+                # 1) Averaging
                 Utilities.avg_cell_eventrace(
-                    csv_path, self.cell_name, plot=True, export_avg=True
+                    csv_path_dff, self.cell_name, plot=True, export_avg=True
                 )
+                Utilities.avg_cell_event_dff_speed_norm(
+                    csv_path_dff, csv_path_speed, self.cell_name, plot=True, export_avg=True
+                )
+
+
                 # make sure the events omitted resets after ever subcombo within an eventtrace
                 self.events_omitted = 0
             else:
-                print("WILL NOT INCLUDE %s" % (str(key)))
+                print(f"WILL NOT INCLUDE {str(key)}")

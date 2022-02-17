@@ -206,6 +206,7 @@ def main():
                 )  # should add up to the num of total cells in that csv"""
                 # in which it does
                 zipped_dff_traces = zip(*d[key])
+                # d[key] is a list of lists
 
                 """for_printing = zip(*d[key])
                 print(list(for_printing)[0])"""

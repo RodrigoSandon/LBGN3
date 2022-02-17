@@ -1,4 +1,4 @@
-from ABET_ISX_SLEAP_Alignment.GroupbyAlignment import Session
+from GroupbyAlignment import Session
 import time
 from pathlib import Path
 import os
@@ -229,104 +229,105 @@ class Driver:
             "Omission_Choice Time (s)",
             "Reward Size_Choice Time (s)",
         ]
-        try:
-            SESSION_PATH = (
-                r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/RM D2"
+        
+        SESSION_PATH = (
+            r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/RDT D2"
+        )
+
+        session_1 = Session(SESSION_PATH)
+
+        # now make individual neuron objects for each of the columns
+        # print("Dict of all neurons in session: ", session_1.neurons)
+
+        # Go into one neuron obj from the neuron dict, call its method that returns a list
+        # but only getting values 0-10 (exclusive)
+
+        # Looping into all neuron objects in neurons dict from session
+        for cell_name, neuron_obj in session_1.get_neurons().items():
+            print(
+                "################################ Cell name:",
+                cell_name,
+                " ################################",
             )
 
-            session_1 = Session(SESSION_PATH)
-
-            # now make individual neuron objects for each of the columns
-            # print("Dict of all neurons in session: ", session_1.neurons)
-
-            # Go into one neuron obj from the neuron dict, call its method that returns a list
-            # but only getting values 0-10 (exclusive)
-
-            # Looping into all neuron objects in neurons dict from session
-            for cell_name, neuron_obj in session_1.get_neurons().items():
-                print(
-                    "################################ Cell name:",
-                    cell_name,
-                    " ################################",
-                )
-
-                # print(neuron_obj.get_sample_dff_times())
-                # print(neuron_obj.get_dff_trace())
-                """            neuron_obj.add_aligned_dff_traces(
-                        "Choice Time (s)",
-                        half_of_time_window=10,
-                        trial_type="Trial Type",
-                        reward_size="Reward Size",
-                    )"""
-                neuron_obj.add_aligned_dff_traces(
+            # print(neuron_obj.get_sample_dff_times())
+            # print(neuron_obj.get_dff_trace())
+            """            neuron_obj.add_aligned_dff_traces(
                     "Choice Time (s)",
                     half_of_time_window=10,
-                    block="Block",
                     trial_type="Trial Type",
-                    rew_size="Reward Size",
-                    shock="Shock Ocurred",
-                    omission="Omission",
-                    win_loss="Win or Loss",
-                    learning_strat="Learning Stratergy",
+                    reward_size="Reward Size",
+                )"""
+            neuron_obj.add_aligned_dff_traces(
+                "Choice Time (s)",
+                half_of_time_window=10,
+                block="Block",
+                trial_type="Trial Type",
+                rew_size="Reward Size",
+                shock="Shock Ocurred",
+                omission="Omission",
+                win_loss="Win or Loss",
+                learning_strat="Learning Stratergy",
+            )
+            # time always goes last, everything else goes in order (time window not included in name)
+            # print(neuron_obj.categorized_dff_traces)
+            number_of_event_traces = 0
+            start = time.time()
+            for (
+                event_name,
+                eventraces,
+            ) in neuron_obj.get_categorized_dff_traces().items():
+                print(
+                    "Event traces name: ",
+                    eventraces.get_event_traces_name(),
                 )
-                # time always goes last, everything else goes in order (time window not included in name)
-                # print(neuron_obj.categorized_dff_traces)
-                number_of_event_traces = 0
-                start = time.time()
-                for (
-                    event_name,
-                    eventraces,
-                ) in neuron_obj.get_categorized_dff_traces().items():
-                    print(
-                        "Event traces name: ",
-                        eventraces.get_event_traces_name(),
-                    )
-                    if (
-                        "_Choice Time (s)" != eventraces.get_event_traces_name()
-                        and "_Start Time (s)" != eventraces.get_event_traces_name()
-                        and "_Collection Time (s)" != eventraces.get_event_traces_name()
-                    ):  # omitting an anomaly
-                        is_eventname_in_list_we_care_about = [
-                            ele
-                            for ele in list_of_combos_we_care_about
-                            if (ele == eventraces.get_event_traces_name())
-                        ]
+                if (
+                    "_Choice Time (s)" != eventraces.get_event_traces_name()
+                    and "_Start Time (s)" != eventraces.get_event_traces_name()
+                    and "_Collection Time (s)" != eventraces.get_event_traces_name()
+                ):  # omitting an anomaly
+                    is_eventname_in_list_we_care_about = [
+                        ele
+                        for ele in list_of_combos_we_care_about
+                        if (ele == eventraces.get_event_traces_name())
+                    ]
 
-                        if bool(is_eventname_in_list_we_care_about) == True:
-                            """print(
-                                f"WE CARE ABOUT: {eventraces.get_event_traces_name()}"
+                    if bool(is_eventname_in_list_we_care_about) == True:
+                        """print(
+                            f"WE CARE ABOUT: {eventraces.get_event_traces_name()}"
+                        )"""
+                        number_of_event_traces += 1
+                        """print(
+                                "Event trace number: ",
+                                number_of_event_traces,
                             )"""
-                            number_of_event_traces += 1
-                            """print(
-                                    "Event trace number: ",
-                                    number_of_event_traces,
-                                )"""
-                            # print(eventraces.get_dff_traces_of_neuron())
-                            # but can it pull the abet data for every event trace?
-                            # print(eventraces.get_abet())
-                            """now I have abet and dff ready to go, now write
-                                a function in EventTraces to make this processed table
-                                for this neuron depending on the input parameters"""
-                            # testing groupby
+                        # print(eventraces.get_dff_traces_of_neuron())
+                        # but can it pull the abet data for every event trace?
+                        # print(eventraces.get_abet())
+                        """now I have abet and dff ready to go, now write
+                            a function in EventTraces to make this processed table
+                            for this neuron depending on the input parameters"""
+                        # testing groupby
 
-                            eventraces.process_dff_traces_by()  # returns path of csv
-                            # avg_cell_eventrace(csv_path)
-                            # PLOT
-                        else:
-                            """print(
-                                f"WE DON'T CARE ABOUT: {eventraces.get_event_traces_name()}"
-                            )"""
-                            pass
-                print("Time taken for %s: %s" %
-                      (cell_name, time.time() - start))
-                break  # <- FOR RUNNING ONE NEURON
-        except Exception as e:
+                        eventraces.process_dff_traces_by()  # returns path of csv
+                        # avg_cell_eventrace(csv_path)
+                        # PLOT
+                        break # <- for running one event
+                    else:
+                        """print(
+                            f"WE DON'T CARE ABOUT: {eventraces.get_event_traces_name()}"
+                        )"""
+                        pass
+            print("Time taken for %s: %s" %
+                    (cell_name, time.time() - start))
+            break  # <- FOR RUNNING ONE NEURON
+        """except Exception as e:
             print(
                 "NO ABET TABLE FOUND, SO SINGLE CELL ALIGNMENT & ANALYSIS CAN'T BE DONE!"
             )
-            print(e)
+            print(e)"""
 
 
 if __name__ == "__main__":
-    #Driver.main()
-    Driver.run_one_session_one_neuron()
+    Driver.main()
+    #Driver.run_one_session_one_neuron()
