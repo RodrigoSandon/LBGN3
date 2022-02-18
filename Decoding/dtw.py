@@ -9,6 +9,7 @@ from itertools import combinations
 import time
 from typing import List, Optional
 import seaborn as sns
+import os, glob
 
 
 def dp(dist_mat):
@@ -189,119 +190,114 @@ def fill_points_for_hm(df):
 
 
 def main():
+    def find_paths_endswith(root_path, endswith) -> List:
 
-    CONCAT_CELLS_PATH = r"/Users/rodrigosandon/Documents/GitHub/LBGN/SampleData/all_concat_cells.csv"
-    start = time.time()
+        files = glob.glob(
+            os.path.join(root_path, "**", "*%s") % (endswith), recursive=True,
+        )
 
-    print(f"Currently working on ... {CONCAT_CELLS_PATH}")
-    df = pd.read_csv(CONCAT_CELLS_PATH)
+        return files
 
-    df = change_cell_names(df)
+    ROOT_PATHS = [
+        "/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Block_Reward Size_Shock Ocurred_Choice Time (s)",
+        "/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D2/Block_Reward Size_Shock Ocurred_Choice Time (s)",
+    ]
 
-    # df = df.reindex(index=df.index[::-1])
+    for root in ROOT_PATHS:
+        csvs_to_process = find_paths_endswith(root, "all_concat_cells.csv")
 
-    df = custom_standardize(
-        df,
-        unknown_time_min=-10.0,
-        unknown_time_max=-1.0,
-        reference_pair={0: 100},
-        hertz=10,
-    )
+        for csv in csvs_to_process:
+            CONCAT_CELLS_PATH = csv
 
-    df = gaussian_smooth(df.T)
-    df = df.T
+            start = time.time()
 
-    to_select = 2  # can only compare two cells at a time
-    cells_list = list(df.columns)
+            print(f"Currently working on ... {CONCAT_CELLS_PATH}")
+            df = pd.read_csv(CONCAT_CELLS_PATH)
 
-    combos = list(combinations(cells_list, to_select))
-    # print(len(combos))
+            df = change_cell_names(df)
 
-    # SETUP SKELETON DATAFRAME
-    col_number = len(list(df.columns))
-    cell_hm = pd.DataFrame(
-        data=np.zeros((col_number, col_number)),
-        index=list(df.columns),
-        columns=list(df.columns),
-    )
-    # print("Skeleton df: ")
-    # print(cell_hm)
+            # df = df.reindex(index=df.index[::-1])
 
-    for count, combo in enumerate(combos):
-        print(f"Working on combo {count}/{len(combos)}: {combo}")
+            df = custom_standardize(
+                df,
+                unknown_time_min=-10.0,
+                unknown_time_max=-1.0,
+                reference_pair={0: 100},
+                hertz=10,
+            )
 
-        cell_x = list(combo)[0]
-        cell_y = list(combo)[1]
+            df = gaussian_smooth(df.T)
+            df = df.T
 
-        x = np.array(list(df[cell_x]))
-        y = np.array(list(df[cell_y]))
+            to_select = 2  # can only compare two cells at a time
+            cells_list = list(df.columns)
 
-        N = x.shape[0]
-        M = y.shape[0]
+            combos = list(combinations(cells_list, to_select))
+            # print(len(combos))
 
-        dist_mat = np.zeros((N, M))
-        for i in range(N):
-            for j in range(M):
-                dist_mat[i, j] = abs(x[i] - y[j])
+            # SETUP SKELETON DATAFRAME
+            col_number = len(list(df.columns))
+            cell_hm = pd.DataFrame(
+                data=np.zeros((col_number, col_number)),
+                index=list(df.columns),
+                columns=list(df.columns),
+            )
 
-        path, cost_mat = dp(dist_mat)
+            for count, combo in enumerate(combos):
+                print(f"Working on combo {count}/{len(combos)}: {combo}")
 
-        alignment_cost = cost_mat[N - 1, M - 1]
-        norm_alignment_cost = cost_mat[N - 1, M - 1] / (N + M)
+                cell_x = list(combo)[0]
+                cell_y = list(combo)[1]
 
-        """
-        Overlaps: comparing cell 4 w/ cell 5 and cell 5 w/ cell 4 -> already covered by combo func
-        Account for: never will compare cell w/ itself
+                x = np.array(list(df[cell_x]))
+                y = np.array(list(df[cell_y]))
 
-        Note: all_concat_cells.csv is already sorted
-        The first cell introduces all the indices neccesary, except for it's own (cell 1, cell 1)
+                N = x.shape[0]
+                M = y.shape[0]
 
-        """
+                dist_mat = np.zeros((N, M))
+                for i in range(N):
+                    for j in range(M):
+                        dist_mat[i, j] = abs(x[i] - y[j])
 
-        # <- tthe closer the is to zero, the more similar
-        cell_hm.loc[cell_x, cell_y] = norm_alignment_cost
+                path, cost_mat = dp(dist_mat)
 
-        # print("Alignment cost: {:.4f}".format(alignment_cost))
-        print("Normalized alignment cost: {:.4f}".format(norm_alignment_cost))
+                alignment_cost = cost_mat[N - 1, M - 1]
+                norm_alignment_cost = cost_mat[N - 1, M - 1] / (N + M)
 
-    cell_hm = fill_points_for_hm(cell_hm)
+                """
+                Overlaps: comparing cell 4 w/ cell 5 and cell 5 w/ cell 4 -> already covered by combo func
+                Account for: never will compare cell w/ itself
 
-    cell_hm.to_csv(
-        "/Users/rodrigosandon/Documents/GitHub/LBGN/SampleData/sim_map_all_concat_cells.csv", index=False)
+                Note: all_concat_cells.csv is already sorted
+                The first cell introduces all the indices neccesary, except for it's own (cell 1, cell 1)
 
-    heatmap(
-        cell_hm,
-        CONCAT_CELLS_PATH,
-        out_path=CONCAT_CELLS_PATH.replace(".csv", "_sim_map_final.png"),
-        vmin=0.5,
-        vmax=0,
-        xticklabels=2,
-    )
+                """
 
-    end = time.time()
-    print(f"Time taken: {end - start}")
+                # <- the closer the is to zero, the more similar
+                cell_hm.loc[cell_x, cell_y] = norm_alignment_cost
+
+                # print("Alignment cost: {:.4f}".format(alignment_cost))
+                # print("Normalized alignment cost: {:.4f}".format(norm_alignment_cost))
+
+            cell_hm = fill_points_for_hm(cell_hm)
+
+            cell_hm.to_csv(
+                CONCAT_CELLS_PATH.replace(".csv", "_dtw.csv"), index=False,
+            )
+
+            heatmap(
+                cell_hm,
+                CONCAT_CELLS_PATH,
+                out_path=CONCAT_CELLS_PATH.replace(".csv", "_dtw.png"),
+                vmin=0.5,
+                vmax=0,
+                xticklabels=2,
+            )
+
+            end = time.time()
+            print(f"Time taken: {end - start}")
 
 
 if __name__ == "__main__":
     main()
-
-
-"""print("Way 2")
-        x = list(df[cell_x])
-        y = list(df[cell_y])
-
-        start_1 = time.time()
-        cost = dtw(x, y, global_constraint="sakoe_chiba", sakoe_chiba_radius=3)
-        print("Alignment cost: {:.4f}".format(cost))
-
-        end_1 = time.time()
-        print(f"Time taken: {end_1 - start_1}")
-
-        print("Way 3")
-
-        start_2 = time.time()
-        cost = dtw(x, y, global_constraint="itakura", itakura_max_slope=2.)
-        print("Alignment cost: {:.4f}".format(cost))
-
-        end_2 = time.time()
-        print(f"Time taken: {end_2 - start_2}")"""
