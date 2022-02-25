@@ -2,6 +2,7 @@ import pandas as pd
 import os, glob
 from typing import List, Dict
 from pathlib import Path
+from csv import writer, DictWriter
 
 
 def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
@@ -9,52 +10,6 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
         os.path.join(root_path, "**", middle, "**", endswith), recursive=True,
     )
     return files
-
-
-def binary_search(data, val):
-    """Will return index if the value is found, otherwise the index of the item that is closest
-    to that value."""
-    lo, hi = 0, len(data) - 1
-    best_ind = lo
-    while lo <= hi:
-        mid = lo + (hi - lo) // 2
-        if data[mid] < val:
-            lo = mid + 1
-        elif data[mid] > val:
-            hi = mid - 1
-        else:
-            best_ind = mid
-            break
-        # check if data[mid] is closer to val than data[best_ind]
-        if abs(data[mid] - val) < abs(data[best_ind] - val):
-            best_ind = mid
-
-    return best_ind
-
-
-def binary_search2(arr, low, high, x):
-
-    # Check base case
-    if high >= low:
-
-        mid = (high + low) // 2
-
-        # If element is present at the middle itself
-        if arr[mid] == x:
-            return mid
-
-        # If element is smaller than mid, then it can only
-        # be present in left subarray
-        elif arr[mid] > x:
-            return binary_search2(arr, low, mid - 1, x)
-
-        # Else the element can only be present in right subarray
-        else:
-            return binary_search2(arr, mid + 1, high, x)
-
-    else:
-        # Element is not present in the array
-        return -1
 
 
 class EventDataset:
@@ -81,6 +36,8 @@ class Trial:
         trial_number,
         cell,
         dff_trace,
+        timepoints,
+        idx_at_time_zero,
     ):
         self.block = block
         self.event_category = event_category
@@ -90,17 +47,28 @@ class Trial:
         self.trial_number = trial_number
         self.cell = cell
         self.trial_dff_trace = dff_trace
+        self.timepoints = timepoints
+        self.idx_at_time_zero = idx_at_time_zero
 
         self.prechoice_dff_trace = self.get_prechoice_dff_trace()
         self.postchoice_dff_trace = self.get_postchoice_dff_trace()
 
+        self.prechoice_timepoints = self.get_prechoice_timepoints()
+        self.postchoice_timepoints = self.get_postchoice_timepoints()
+
     def get_prechoice_dff_trace(self):
         """Gives you activity at beginning (-10s) to 0"""
-        pass
+        return self.trial_dff_trace[0 : self.idx_at_time_zero + 1]
 
     def get_postchoice_dff_trace(self):
         """Gives you activity at 0 to 10s"""
-        pass
+        return self.trial_dff_trace[self.idx_at_time_zero + 1 : -1]
+
+    def get_prechoice_timepoints(self):
+        return self.timepoints[0 : self.idx_at_time_zero + 1]
+
+    def get_postchoice_timepoints(self):
+        return self.timepoints[self.idx_at_time_zero + 1 : -1]
 
 
 def strip_outcome(my_str):
@@ -178,53 +146,35 @@ def main():
                 [Outcome]: {
                     [Mouse]: {
                         [Session]: {
-                            [Trial]: {
+                            [Trial 1]: {
+                                [Cell] : [Cell df/f timewindow],
+                                .
+                                .
+                                .
+                            }
+                            [Trial 2]: {
                                 [Cell] : [Cell df/f timewindow],
                                 .
                                 .
                                 .
                             }
                         },
-                        [Session]: {
-                            [Trial]: {
-                                [Cell] : [Cell df/f timewindow],
-                                .
-                                .
-                                .
-                            }
-                        }
                     },
-                    [Mouse]: {
-                        [Session]: {
-                            [Trial]: {
-                                [Cell] : [Cell df/f timewindow],
-                                .
-                                .
-                                .
-                            }
-                        },
-                        [Session]: {
-                            [Trial]: {
-                                [Cell] : [Cell df/f timewindow],
-                                .
-                                .
-                                .
-                            }
-                        }
-                    }
                 },
             }
         }
     """
+    # a trial has it's own csv
 
     ROOT_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis")
+    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset")
 
     files_1 = find_paths(
-        ROOT_PATH, middle="Reward Size_Choice Time (s)", endswith="plot_ready.csv"
+        ROOT_PATH, middle="Block_Reward Size_Choice Time (s)", endswith="plot_ready.csv"
     )
 
     files_2 = find_paths(
-        ROOT_PATH, middle="Omission_Choice Time (s)", endswith="plot_ready.csv"
+        ROOT_PATH, middle="Block_Omission_Choice Time (s)", endswith="plot_ready.csv"
     )
     all_csv_paths = files_1 + files_2
 
@@ -234,6 +184,12 @@ def main():
         block, event_category, outcome, mouse, session, cell = custom_dissect_path(
             csv_path
         )
+        # Now create the folders where this info of these trials will go
+        # including event_category in dirs is not neccesary, we will be able to make it out by
+        # looking at the dir structure itself
+        new_dirs = os.path.join(DST_PATH, block, outcome, mouse, session)
+        print(f"Dirs being created: {new_dirs}")
+        os.makedirs(new_dirs, exist_ok=True)
         # open the csv and loop through the df to acquire trials
         df: pd.DataFrame
         df = pd.read_csv(csv_path)
@@ -243,18 +199,20 @@ def main():
             float(i.replace("-", "")) for i in list(df.columns) if "-" in i
         ] + [float(i) for i in list(df.columns) if "-" not in i]
 
+        idx_at_time_zero: int
         for idx, i in enumerate(timepoints):
-            if i > 1000000:  # the number will in fact be greater than 0. hopefully??
+            # forcing numbers to be negative as we go since they were initially negative
+            timepoints[idx] = -abs(i)
+            if i > 1000000:  # timepoint values will not change so ur good
+                idx_at_time_zero = idx
+                # changing last number to be zero b/c it is in fact zero (not some v. high number)
                 timepoints[idx] = 0
 
-        idx_at_time_zero = binary_search(timepoints, 0)
         print("idx: ", idx_at_time_zero)
         print("timepoint: ", timepoints[idx_at_time_zero])
 
         for i in range(len(df)):
             trial_num = i + 1
-            dff_prechoice_subwindow = None
-            dff_postchoice_subwindow = None
             new_trial = Trial(
                 block,
                 event_category,
@@ -264,8 +222,42 @@ def main():
                 trial_num,
                 cell,
                 list(df.iloc[i, :]),
+                timepoints,
+                idx_at_time_zero,
             )
-            print(list(df.iloc[i, :])[0 : idx_at_time_zero + 2])
+
+            trial_csv_name = os.path.join(new_dirs, f"trail_{trial_num}.csv")
+
+            # look if the csv for this trial exists already
+            if os.path.exists(trial_csv_name) == True:
+                d_row = {}
+                # add the cell name and according dff traces to d_row
+                d_row["Cell"] = cell
+                for i in new_trial.get_prechoice_timepoints():
+                    d_row[i] = new_trial.get_prechoice_dff_trace()[i]
+
+                """for key, val in d_row.items():
+                    print(f"{key} : {val}")"""
+                # if so, append d_row into csv, 'a' is append mode
+                with open(trial_csv_name, "a") as csv_obj:
+                    d_writer_obj = DictWriter(
+                        csv_obj, fieldnames=new_trial.get_prechoice_timepoints()
+                    )
+                    d_writer_obj.writerow(d_row)
+                    csv_obj.close()
+
+            # else (if the csv doesn't exist):
+            # make new csv, add the header row (cell + timepoints in a list), and append data
+            else:
+                header = ["Cell"] + new_trial.get_prechoice_timepoints()
+                data = [cell] + new_trial.get_prechoice_dff_trace()
+                with open(trial_csv_name, "w+") as csv_obj:
+                    writer_obj = writer(csv_obj)
+                    writer_obj.writerow(header)
+                    writer_obj.writerow(data)
+                    csv_obj.close()
+
+        break
 
 
 def tester():
@@ -278,7 +270,7 @@ def tester():
     df: pd.DataFrame
     df = pd.read_csv(csv_path)
     df = df.iloc[:, 1:]
-    print(df.head())
+    # print(df.head())
     # print(list(df.iloc[0, :]))  # choosing one row (all of it)
 
     # choose a subset of each row based on column
@@ -288,24 +280,39 @@ def tester():
         float(i) for i in list(df.columns) if "-" not in i
     ]
     # so when I did this the zero became the greatest number bc it was E-17 something
+    idx_at_time_zero: int
     for idx, i in enumerate(timepoints):
-        if i > 1000000:  # the number will in fact be greater than 0. hopefully??
-            timepoints[idx] = 0
+        if i > 1000000:
+            # the number will in fact be greater than 0. hopefully?? Shouldn't change bc timepoints will always be the same
+            idx_at_time_zero = idx
 
     # print(timepoints)
-    # print(len(timepoints))
+    print(len(timepoints))
     # current timepoints are not ints
-    idx_at_time_zero = binary_search(timepoints, 0)
-    print("idx: ", idx_at_time_zero)
-    print("timepoint: ", timepoints[idx_at_time_zero])
+    # print("idx: ", idx_at_time_zero)
+    # print("timepoint: ", timepoints[idx_at_time_zero])
 
-    print(timepoints[0 : idx_at_time_zero + 2])
-    print(len(timepoints[0 : idx_at_time_zero + 2]))
-    print(list(df.iloc[0, :])[0 : idx_at_time_zero + 2])
+    for i in range(len(df)):
+        trial_num = i + 1
 
-    # almost a hardcode but it's bc the binary search is not finding the lowest value
+        new_trial = Trial(
+            block,
+            event_category,
+            outcome,
+            mouse,
+            session,
+            trial_num,
+            cell,
+            list(df.iloc[i, :]),
+            idx_at_time_zero,
+        )
+
+        # print(new_trial.prechoice_dff_trace)
+        print(len(new_trial.prechoice_dff_trace))
+        # Now a new trial obj is being made for each csv, so now start building your dict
+        break
 
 
 if __name__ == "__main__":
-    # main()
-    tester()
+    main()
+    # tester()
