@@ -179,85 +179,78 @@ def main():
     all_csv_paths = files_1 + files_2
 
     for csv_path in all_csv_paths:
-        csv_path = Path(csv_path)
-        # extract bins we can get from the csv_path itself
-        block, event_category, outcome, mouse, session, cell = custom_dissect_path(
-            csv_path
-        )
-        # Now create the folders where this info of these trials will go
-        # including event_category in dirs is not neccesary, we will be able to make it out by
-        # looking at the dir structure itself
-        new_dirs = os.path.join(DST_PATH, block, outcome, mouse, session)
-        print(f"Dirs being created: {new_dirs}")
-        os.makedirs(new_dirs, exist_ok=True)
-        # open the csv and loop through the df to acquire trials
-        df: pd.DataFrame
-        df = pd.read_csv(csv_path)
-        df = df.iloc[:, 1:]
-
-        timepoints = [
-            float(i.replace("-", "")) for i in list(df.columns) if "-" in i
-        ] + [float(i) for i in list(df.columns) if "-" not in i]
-
-        idx_at_time_zero: int
-        for idx, i in enumerate(timepoints):
-            # forcing numbers to be negative as we go since they were initially negative
-            timepoints[idx] = -abs(i)
-            if i > 1000000:  # timepoint values will not change so ur good
-                idx_at_time_zero = idx
-                # changing last number to be zero b/c it is in fact zero (not some v. high number)
-                timepoints[idx] = 0
-
-        print("idx: ", idx_at_time_zero)
-        print("timepoint: ", timepoints[idx_at_time_zero])
-
-        for i in range(len(df)):
-            trial_num = i + 1
-            new_trial = Trial(
-                block,
-                event_category,
-                outcome,
-                mouse,
-                session,
-                trial_num,
-                cell,
-                list(df.iloc[i, :]),
-                timepoints,
-                idx_at_time_zero,
+        try:
+            csv_path = Path(csv_path)
+            # extract bins we can get from the csv_path itself
+            block, event_category, outcome, mouse, session, cell = custom_dissect_path(
+                csv_path
             )
+            # Now create the folders where this info of these trials will go
+            # including event_category in dirs is not neccesary, we will be able to make it out by
+            # looking at the dir structure itself
+            new_dirs = os.path.join(DST_PATH, block, outcome, mouse, session)
+            print(f"Dirs being created: {new_dirs}")
+            os.makedirs(new_dirs, exist_ok=True)
+            # open the csv and loop through the df to acquire trials
+            df: pd.DataFrame
+            df = pd.read_csv(csv_path)
+            df = df.iloc[:, 1:]
 
-            trial_csv_name = os.path.join(new_dirs, f"trail_{trial_num}.csv")
+            timepoints = [
+                float(i.replace("-", "")) for i in list(df.columns) if "-" in i
+            ] + [float(i) for i in list(df.columns) if "-" not in i]
 
-            # look if the csv for this trial exists already
-            if os.path.exists(trial_csv_name) == True:
-                d_row = {}
-                # add the cell name and according dff traces to d_row
-                d_row["Cell"] = cell
-                for i in new_trial.get_prechoice_timepoints():
-                    d_row[i] = new_trial.get_prechoice_dff_trace()[i]
+            idx_at_time_zero: int
+            for idx, i in enumerate(timepoints):
+                # forcing numbers to be negative as we go since they were initially negative
+                timepoints[idx] = -abs(i)
+                if i > 1000000:  # timepoint values will not change so ur good
+                    idx_at_time_zero = idx
+                    # changing last number to be zero b/c it is in fact zero (not some v. high number)
+                    timepoints[idx] = 0
 
-                """for key, val in d_row.items():
-                    print(f"{key} : {val}")"""
-                # if so, append d_row into csv, 'a' is append mode
-                with open(trial_csv_name, "a") as csv_obj:
-                    d_writer_obj = DictWriter(
-                        csv_obj, fieldnames=new_trial.get_prechoice_timepoints()
-                    )
-                    d_writer_obj.writerow(d_row)
-                    csv_obj.close()
+            print("idx: ", idx_at_time_zero)
+            print("timepoint: ", timepoints[idx_at_time_zero])
 
-            # else (if the csv doesn't exist):
-            # make new csv, add the header row (cell + timepoints in a list), and append data
-            else:
+            for i in range(len(df)):
+                trial_num = i + 1
+                new_trial = Trial(
+                    block,
+                    event_category,
+                    outcome,
+                    mouse,
+                    session,
+                    trial_num,
+                    cell,
+                    list(df.iloc[i, :]),
+                    timepoints,
+                    idx_at_time_zero,
+                )
+
+                trial_csv_name = os.path.join(new_dirs, f"trial_{trial_num}.csv")
                 header = ["Cell"] + new_trial.get_prechoice_timepoints()
                 data = [cell] + new_trial.get_prechoice_dff_trace()
-                with open(trial_csv_name, "w+") as csv_obj:
-                    writer_obj = writer(csv_obj)
-                    writer_obj.writerow(header)
-                    writer_obj.writerow(data)
-                    csv_obj.close()
 
-        break
+                # look if the csv for this trial exists already
+                if os.path.exists(trial_csv_name) == True:
+                    with open(trial_csv_name, "a") as csv_obj:
+                        writer_obj = writer(csv_obj)
+                        writer_obj.writerow(data)
+                        csv_obj.close()
+
+                # else (if the csv doesn't exist):
+                # make new csv, add the header row (cell + timepoints in a list), and append data
+                else:
+                    with open(trial_csv_name, "w+") as csv_obj:
+                        writer_obj = writer(csv_obj)
+                        writer_obj.writerow(header)
+                        writer_obj.writerow(data)
+                        csv_obj.close()
+        except IndexError as e:
+            # Very rarely, the csv that's opened contains no traces at all--how could this be?
+            # ex: bla6, rm d2, block_rew size, any cell, and look at the plot_ready.csv
+            print(e)
+            pass
 
 
 def tester():
