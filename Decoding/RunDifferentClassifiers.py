@@ -13,13 +13,15 @@ import os, glob
 from tarfile import BLOCKSIZE
 import pandas as pd
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 
 
 def find_paths(root_path: Path, block, mouse, session, startswith: str) -> List[str]:
@@ -83,6 +85,33 @@ def binary_logreg():
 
     model_pipe.fit(X_train, y_train)
     print("Model accuracy: %.3f" % model_pipe.score(X_test, y_test))
+
+
+"""def load_data() -> Tuple[np.ndarray, np.ndarray]:
+
+    ...
+
+
+from sklearn.decomposition import PCA
+
+
+def create_model(model):
+    return make_pipeline(StandardScaler(), PCA(3), model)
+
+
+X, y = load_data()
+X_train, X_test, y_train, y_test = train_test_split(X, y)
+
+reslts = {}
+
+logistic_pipe = create_model(LogisticRegression())
+svm_pipe = create_model(SVC(C=1000))
+
+# RandomForestClassifier(n_estimators=)
+results["logistc"] = cross_val_score(logistic_pipe, X, y, scor)
+svm
+
+# model = make_pipeline(StandardScaler(), LogisticRegression())"""
 
 
 def multinomial_logreg():
