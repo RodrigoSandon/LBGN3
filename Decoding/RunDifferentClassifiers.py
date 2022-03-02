@@ -71,23 +71,32 @@ def plot_confusion_matrix(y_true, y_pred, labels):
 def logistic_regression(X_train, X_test, y_train, y_test, results: dict) -> dict:
     # l2 -> all neurons make small contributions
     # l1 -> only some neurons make large contributions
-    # pipe = make_pipeline(
-    # StandardScaler(), LogisticRegression(penalty="l2", max_iter=400),
-    # )
-    # clf = LogisticRegression(
-    #     penalty="l2",
-    #     # l1_ratio=0,
-    #     C=50,
-    #     # solver="saga",
-    #     max_iter=500,
-    #     class_weight={"Large": 0.2, "Small": 0.4},
-    # )
-    # clf = RandomForestClassifier(n_estimators=30)
+    pipe = make_pipeline(
+        StandardScaler(), LogisticRegression(penalty="l2", max_iter=400),
+    )
+    clf = LogisticRegression(
+        penalty="l2",
+        # l1_ratio=0,
+        C=50,
+        # solver="saga",
+        max_iter=500,
+        class_weight={"Large": 0.2, "Small": 0.4},
+    )
+
+    results["logistic_reg"] = get_pipe_w_f1_results(
+        pipe, X_train, X_test, y_train, y_test
+    )
+
+    return results
+
+
+def linear_discriminant(X_train, X_test, y_train, y_test, results: dict) -> dict:
+
     clf = LinearDiscriminantAnalysis()
 
     pipe = make_pipeline(StandardScaler(), clf)
 
-    results["logistic_reg"] = get_pipe_w_f1_results(
+    results["linear_discriminant"] = get_pipe_w_f1_results(
         pipe, X_train, X_test, y_train, y_test
     )
 
@@ -162,7 +171,7 @@ def binary_classifications():
         )
 
         ######### INPUT CLASSIFIERS HERE #########
-        f1_results = logistic_regression(X_train, X_test, y_train, y_test, f1_results)
+        f1_results = linear_discriminant(X_train, X_test, y_train, y_test, f1_results)
         # f1_results = gaussian_NB(X_train, X_test, y_train, y_test, f1_results)
         # f1_results = svm_svc(X_train, X_test, y_train, y_test, f1_results)
 

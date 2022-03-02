@@ -45,4 +45,8 @@ def print_listdir(root_path):
 
 
 root_path = r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-5/Session-20210510-093930_BLA-Insc-5_RM_D1/SingleCellAlignmentData/C01"
-print_listdir(root_path)
+# print_listdir(root_path)
+
+import math
+
+print(int(math.ceil(4.2)))

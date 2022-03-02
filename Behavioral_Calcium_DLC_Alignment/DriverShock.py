@@ -14,15 +14,10 @@ sys.path.insert(0, "/home/rory/Rodrigo/Behavioral_Calcium_DLC_Analysis")
 
 
 class Driver:
-
     def run_one_session_one_neuron():
-        list_of_combos_we_care_about = [
-            "Bin_Shock Time (s)"
-        ]
+        list_of_combos_we_care_about = ["Bin_Shock Time (s)"]
         try:
-            SESSION_PATH = (
-                r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/Shock Test NEW_SCOPE"
-            )
+            SESSION_PATH = r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/Shock Test NEW_SCOPE"
 
             session_1 = Session(SESSION_PATH)
 
@@ -41,9 +36,7 @@ class Driver:
                 )
 
                 neuron_obj.add_aligned_dff_traces(
-                    "Shock Time (s)",
-                    half_of_time_window=5,
-                    shock_intensity="Bin"
+                    "Shock Time (s)", half_of_time_window=6, shock_intensity="Bin"
                 )
                 # time always goes first, everything else goes in order (time window not included in name)
                 # print(neuron_obj.categorized_dff_traces)
@@ -54,8 +47,7 @@ class Driver:
                     eventraces,
                 ) in neuron_obj.get_categorized_dff_traces().items():
                     print(
-                        "Event traces name: ",
-                        eventraces.get_event_traces_name(),
+                        "Event traces name: ", eventraces.get_event_traces_name(),
                     )
                     if (
                         "_Choice Time (s)" != eventraces.get_event_traces_name()
@@ -75,8 +67,7 @@ class Driver:
                             eventraces.process_dff_traces_by()  # returns path of csv
                         else:
                             pass
-                print("Time taken for %s: %s" %
-                      (cell_name, time.time() - start))
+                print("Time taken for %s: %s" % (cell_name, time.time() - start))
                 break  # <- FOR RUNNING ONE NEURON
         except Exception as e:
             print(
@@ -135,7 +126,10 @@ class Driver:
 
                             session_1 = Session(session_path)
 
-                            for cell_name, neuron_obj in session_1.get_neurons().items():
+                            for (
+                                cell_name,
+                                neuron_obj,
+                            ) in session_1.get_neurons().items():
                                 print(
                                     "################################ Cell name:",
                                     cell_name,
@@ -144,8 +138,8 @@ class Driver:
 
                                 neuron_obj.add_aligned_dff_traces(
                                     "Shock Time (s)",
-                                    half_of_time_window=5,
-                                    shock_intensity="Bin"
+                                    half_of_time_window=6,
+                                    shock_intensity="Bin",
                                 )
                                 # time always goes first, everything else goes in order (time window not included in name)
                                 # print(neuron_obj.categorized_dff_traces)
@@ -160,26 +154,37 @@ class Driver:
                                         eventraces.get_event_traces_name(),
                                     )
                                     if (
-                                        "_Choice Time (s)" != eventraces.get_event_traces_name(
-                                        )
-                                        and "_Start Time (s)" != eventraces.get_event_traces_name()
-                                        and "_Collection Time (s)" != eventraces.get_event_traces_name()
-                                        and "_Shock Time (s)" != eventraces.get_event_traces_name()
+                                        "_Choice Time (s)"
+                                        != eventraces.get_event_traces_name()
+                                        and "_Start Time (s)"
+                                        != eventraces.get_event_traces_name()
+                                        and "_Collection Time (s)"
+                                        != eventraces.get_event_traces_name()
+                                        and "_Shock Time (s)"
+                                        != eventraces.get_event_traces_name()
                                     ):  # omitting an anomaly, we don't want just times to be a grouping
                                         is_eventname_in_list_we_care_about = [
                                             ele
                                             for ele in list_of_combos_we_care_about
-                                            if (ele == eventraces.get_event_traces_name())
+                                            if (
+                                                ele
+                                                == eventraces.get_event_traces_name()
+                                            )
                                         ]
 
-                                        if bool(is_eventname_in_list_we_care_about) == True:
+                                        if (
+                                            bool(is_eventname_in_list_we_care_about)
+                                            == True
+                                        ):
                                             number_of_event_traces += 1
 
                                             eventraces.process_dff_traces_by()  # returns path of csv
                                         else:
                                             pass
-                                print("Time taken for %s: %s" %
-                                      (cell_name, time.time() - start))
+                                print(
+                                    "Time taken for %s: %s"
+                                    % (cell_name, time.time() - start)
+                                )
                         except Exception as e:
                             print(
                                 "NO ABET TABLE FOUND, SO SINGLE CELL ALIGNMENT & ANALYSIS CAN'T BE DONE!"

@@ -12,10 +12,13 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
     return files
 
 
-class EventDataset:
-    def __init__(self, event_category, d):
-        self.event_category = event_category
-        self.d = d
+def find_paths_endswith(root_path, endswith) -> List:
+
+    files = glob.glob(
+        os.path.join(root_path, "**", "*%s") % (endswith), recursive=True,
+    )
+
+    return files
 
 
 """
@@ -41,6 +44,50 @@ class Trial:
     ):
         self.block = block
         self.event_category = event_category
+        self.outcome = outcome
+        self.mouse = mouse
+        self.session = session
+        self.trial_number = trial_number
+        self.cell = cell
+        self.trial_dff_trace = dff_trace
+        self.timepoints = timepoints
+        self.idx_at_time_zero = idx_at_time_zero
+
+        self.prechoice_dff_trace = self.get_prechoice_dff_trace()
+        self.postchoice_dff_trace = self.get_postchoice_dff_trace()
+
+        self.prechoice_timepoints = self.get_prechoice_timepoints()
+        self.postchoice_timepoints = self.get_postchoice_timepoints()
+
+    def get_prechoice_dff_trace(self):
+        """Gives you activity at beginning (-10s) to 0"""
+        return self.trial_dff_trace[0 : self.idx_at_time_zero + 1]
+
+    def get_postchoice_dff_trace(self):
+        """Gives you activity at 0 to 10s"""
+        return self.trial_dff_trace[self.idx_at_time_zero + 1 : -1]
+
+    def get_prechoice_timepoints(self):
+        return self.timepoints[0 : self.idx_at_time_zero + 1]
+
+    def get_postchoice_timepoints(self):
+        return self.timepoints[self.idx_at_time_zero + 1 : -1]
+
+
+class ShockTrial:
+    def __init__(
+        self,
+        intensity,
+        outcome,
+        mouse,
+        session,
+        trial_number,
+        cell,
+        dff_trace,
+        timepoints,
+        idx_at_time_zero,
+    ):
+        self.intensity = intensity
         self.outcome = outcome
         self.mouse = mouse
         self.session = session
@@ -101,10 +148,15 @@ def custom_dissect_path(path: Path):
     return block, event_category, outcome, mouse, session, cell
 
 
-def categorize_trial_dff_traces(all_csv_paths: Path, **kwargs: tuple):
-
-    d: Dict[str, dict]
-    d = {}
+# /media/rory/Padlock_DT/BLA_Analysis/Decoding/Pre-Arranged_Dataset/Shock Test/Shock/0.22-0.3/BLA-Insc-2/C03/plot_ready.csv
+def shock_dissect_path(path: Path):
+    parts = list(path.parts)
+    session = parts[7]
+    outcome = parts[8]
+    intensity = parts[9]
+    mouse = parts[10]
+    cell = parts[12]
+    return session, outcome, intensity, mouse, cell
 
 
 def main():
@@ -253,6 +305,86 @@ def main():
             pass
 
 
+def main_shock():
+    ROOT_PATH = Path(
+        r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pre-Arranged_Dataset"
+    )
+    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset")
+
+    all_csv_paths = find_paths_endswith(ROOT_PATH, endswith="plot_ready.csv")
+
+    for csv_path in all_csv_paths:
+        try:
+            csv_path = Path(csv_path)
+            # extract bins we can get from the csv_path itself
+            session, outcome, intensity, mouse, cell = shock_dissect_path(csv_path)
+            # Now create the folders where this info of these trials will go
+            # including event_category in dirs is not neccesary, we will be able to make it out by
+            # looking at the dir structure itself
+            new_dirs = os.path.join(DST_PATH, session, outcome, intensity, mouse, cell)
+            print(f"Dirs being created: {new_dirs}")
+            os.makedirs(new_dirs, exist_ok=True)
+            # open the csv and loop through the df to acquire trials
+            df: pd.DataFrame
+            df = pd.read_csv(csv_path)
+            df = df.iloc[:, 1:]
+
+            timepoints = [
+                float(i.replace("-", "")) for i in list(df.columns) if "-" in i
+            ] + [float(i) for i in list(df.columns) if "-" not in i]
+
+            idx_at_time_zero: int
+            for idx, i in enumerate(timepoints):
+                # forcing numbers to be negative as we go since they were initially negative
+                timepoints[idx] = -abs(i)
+                if i > 1000000:  # timepoint values will not change so ur good
+                    idx_at_time_zero = idx
+                    # changing last number to be zero b/c it is in fact zero (not some v. high number)
+                    timepoints[idx] = 0
+
+            print("idx: ", idx_at_time_zero)
+            print("timepoint: ", timepoints[idx_at_time_zero])
+
+            for i in range(len(df)):
+                trial_num = i + 1
+                new_trial = ShockTrial(
+                    intensity,
+                    outcome,
+                    mouse,
+                    session,
+                    trial_num,
+                    cell,
+                    list(df.iloc[i, :]),
+                    timepoints,
+                    idx_at_time_zero,
+                )
+
+                trial_csv_name = os.path.join(new_dirs, f"trial_{trial_num}.csv")
+                header = ["Cell"] + new_trial.get_prechoice_timepoints()
+                data = [cell] + new_trial.get_prechoice_dff_trace()
+
+                # look if the csv for this trial exists already
+                if os.path.exists(trial_csv_name) == True:
+                    with open(trial_csv_name, "a") as csv_obj:
+                        writer_obj = writer(csv_obj)
+                        writer_obj.writerow(data)
+                        csv_obj.close()
+
+                # else (if the csv doesn't exist):
+                # make new csv, add the header row (cell + timepoints in a list), and append data
+                else:
+                    with open(trial_csv_name, "w+") as csv_obj:
+                        writer_obj = writer(csv_obj)
+                        writer_obj.writerow(header)
+                        writer_obj.writerow(data)
+                        csv_obj.close()
+        except IndexError as e:
+            # Very rarely, the csv that's opened contains no traces at all--how could this be?
+            # ex: bla6, rm d2, block_rew size, any cell, and look at the plot_ready.csv
+            print(e)
+            pass
+
+
 def tester():
     example = "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/Post-RDT D3/SingleCellAlignmentData/C02/Block_Reward Size_Choice Time (s)/(3.0, 'Large')/plot_ready.csv"
 
@@ -307,5 +439,6 @@ def tester():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    main_shock()
     # tester()
