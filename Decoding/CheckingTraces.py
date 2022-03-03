@@ -6,12 +6,11 @@ from typing import List
 import matplotlib.pyplot as plt
 
 
-def find_paths_startswith(root_path, startswith) -> List:
-
+def find_paths(root_path: Path, mouse, startswith) -> List[str]:
     files = glob.glob(
-        os.path.join(root_path, "**", "%s*") % (startswith), recursive=True,
+        os.path.join(root_path, "**", mouse, f"{startswith}*"),
+        recursive=True,
     )
-
     return files
 
 
@@ -46,7 +45,8 @@ def main():
     ROOT_PATH = Path(
         r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/Shock Test")
 
-    files = find_paths_startswith(ROOT_PATH, "trial")
+    mouse = "BLA-Insc-1"
+    files = find_paths(ROOT_PATH, mouse, "trial")
 
     for csv in files:
         csv = Path(csv)
