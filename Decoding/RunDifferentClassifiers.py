@@ -28,6 +28,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 
+# import warnings filter
+from warnings import simplefilter
+
+# ignore all future warnings
+simplefilter(action="ignore", category=FutureWarning)
+
 
 def find_paths(root_path: Path, block, mouse, session, startswith: str) -> List[str]:
     files = glob.glob(
@@ -99,7 +105,9 @@ def plot_confusion_matrix(y_true, y_pred, cfm_path, labels):
     plt.close()
 
 
-def logistic_regression(X_train, X_test, y_train, y_test, results: dict) -> dict:
+def logistic_regression(
+    X_train, X_test, y_train, y_test, results: dict, cfm_path
+) -> dict:
     # l2 -> all neurons make small contributions
     # l1 -> only some neurons make large contributions
     pipe = make_pipeline(
@@ -115,7 +123,7 @@ def logistic_regression(X_train, X_test, y_train, y_test, results: dict) -> dict
     )
 
     results["logistic_reg"] = get_pipe_w_f1_results(
-        pipe, X_train, X_test, y_train, y_test
+        pipe, X_train, X_test, y_train, y_test, cfm_path
     )
 
     return results
@@ -141,21 +149,23 @@ def linear_discriminant(
     return results
 
 
-def svm_svc(X_train, X_test, y_train, y_test, results: dict) -> dict:
+def svm_svc(X_train, X_test, y_train, y_test, results: dict, cfm_path) -> dict:
     # l2 -> all neurons make small contributions
     # l1 -> only some neurons make large contributions
     pipe = make_pipeline(StandardScaler(), SVC())
 
-    results["SVC"] = get_pipe_w_f1_results(pipe, X_train, X_test, y_train, y_test)
+    results["SVC"] = get_pipe_w_f1_results(
+        pipe, X_train, X_test, y_train, y_test, cfm_path
+    )
 
     return results
 
 
-def gaussian_NB(X_train, X_test, y_train, y_test, results: dict) -> dict:
+def gaussian_NB(X_train, X_test, y_train, y_test, results: dict, cfm_path) -> dict:
     pipe = make_pipeline(StandardScaler(), PCA(3), GaussianNB())
 
     results["gaussian_nb"] = get_pipe_w_f1_results(
-        pipe, X_train, X_test, y_train, y_test
+        pipe, X_train, X_test, y_train, y_test, cfm_path
     )
 
     return results
@@ -229,9 +239,9 @@ def binary_classifications_shock():
     for i, shock_intensity in enumerate(shock_intensities):
 
         print()
-        print(f"PREDICTING OUTCOME IN BLOCK {shock_intensity}, {mouse}")
+        print(f"PREDICTING OUTCOME IN INTENSITIES {shock_intensity}, {mouse}")
         files = find_paths_shock(ROOT_PATH, shock_intensity, mouse, "trial")
-        print(*files, sep="\n")
+        # print(*files, sep="\n")
         print("Number of trials (csvs): ", len(files))
 
         y = []
@@ -263,14 +273,14 @@ def binary_classifications_shock():
             X, y, test_size=0.20, train_size=0.80, random_state=None
         )
         # Confusion matrix save?
-        cfm_dir = "/".join(csv.parts[0:11])
-        cfm_path = os.path.join(cfm_dir, "cfm.png")
+        cfm_dir = "/".join(csv.parts[0:8])
+        cfm_path = os.path.join(cfm_dir, f"cfm_{shock_intensity}_{mouse}.png")
         ######### INPUT CLASSIFIERS HERE #########
         f1_results = linear_discriminant(
             X_train, X_test, y_train, y_test, f1_results, cfm_path, "Shock Test"
         )
-        # f1_results = gaussian_NB(X_train, X_test, y_train, y_test, f1_results)
-        # f1_results = svm_svc(X_train, X_test, y_train, y_test, f1_results)
+        # f1_results = gaussian_NB(X_train, X_test, y_train, y_test, f1_results, cfm_path)
+        # f1_results = svm_svc(X_train, X_test, y_train, y_test, f1_results, cfm_path)
 
         ######### PRINT RESULTS #########
         for key, val in f1_results.items():
