@@ -1,3 +1,4 @@
+from re import I
 import pandas as pd
 import os, glob
 from typing import List, Dict
@@ -74,50 +75,6 @@ class Trial:
         return self.timepoints[self.idx_at_time_zero + 1 : -1]
 
 
-class ShockTrial:
-    def __init__(
-        self,
-        intensity,
-        outcome,
-        mouse,
-        session,
-        trial_number,
-        cell,
-        dff_trace,
-        timepoints,
-        idx_at_time_zero,
-    ):
-        self.intensity = intensity
-        self.outcome = outcome
-        self.mouse = mouse
-        self.session = session
-        self.trial_number = trial_number
-        self.cell = cell
-        self.trial_dff_trace = dff_trace
-        self.timepoints = timepoints
-        self.idx_at_time_zero = idx_at_time_zero
-
-        self.prechoice_dff_trace = self.get_prechoice_dff_trace()
-        self.postchoice_dff_trace = self.get_postchoice_dff_trace()
-
-        self.prechoice_timepoints = self.get_prechoice_timepoints()
-        self.postchoice_timepoints = self.get_postchoice_timepoints()
-
-    def get_prechoice_dff_trace(self):
-        """Gives you activity at beginning (-10s) to 0"""
-        return self.trial_dff_trace[0 : self.idx_at_time_zero + 1]
-
-    def get_postchoice_dff_trace(self):
-        """Gives you activity at 0 to 10s"""
-        return self.trial_dff_trace[self.idx_at_time_zero + 1 : -1]
-
-    def get_prechoice_timepoints(self):
-        return self.timepoints[0 : self.idx_at_time_zero + 1]
-
-    def get_postchoice_timepoints(self):
-        return self.timepoints[self.idx_at_time_zero + 1 : -1]
-
-
 def strip_outcome(my_str):
     outcome_bins: list
     if "(" in my_str:
@@ -155,7 +112,7 @@ def shock_dissect_path(path: Path):
     outcome = parts[8]
     intensity = parts[9]
     mouse = parts[10]
-    cell = parts[12]
+    cell = parts[11]
     return session, outcome, intensity, mouse, cell
 
 
@@ -321,47 +278,24 @@ def main_shock():
             # Now create the folders where this info of these trials will go
             # including event_category in dirs is not neccesary, we will be able to make it out by
             # looking at the dir structure itself
-            new_dirs = os.path.join(DST_PATH, session, outcome, intensity, mouse, cell)
+            new_dirs = os.path.join(DST_PATH, session, outcome, intensity, mouse)
             print(f"Dirs being created: {new_dirs}")
             os.makedirs(new_dirs, exist_ok=True)
             # open the csv and loop through the df to acquire trials
             df: pd.DataFrame
             df = pd.read_csv(csv_path)
-            df = df.iloc[:, 1:]
+            df = df.iloc[:, 1:]  # remove first event # col
 
-            timepoints = [
-                float(i.replace("-", "")) for i in list(df.columns) if "-" in i
-            ] + [float(i) for i in list(df.columns) if "-" not in i]
-
-            idx_at_time_zero: int
-            for idx, i in enumerate(timepoints):
-                # forcing numbers to be negative as we go since they were initially negative
-                timepoints[idx] = -abs(i)
-                if i > 1000000:  # timepoint values will not change so ur good
-                    idx_at_time_zero = idx
-                    # changing last number to be zero b/c it is in fact zero (not some v. high number)
-                    timepoints[idx] = 0
-
-            print("idx: ", idx_at_time_zero)
-            print("timepoint: ", timepoints[idx_at_time_zero])
+            # In the case of shock test session, i've already cut out the parts we want
+            # in another script
 
             for i in range(len(df)):
                 trial_num = i + 1
-                new_trial = ShockTrial(
-                    intensity,
-                    outcome,
-                    mouse,
-                    session,
-                    trial_num,
-                    cell,
-                    list(df.iloc[i, :]),
-                    timepoints,
-                    idx_at_time_zero,
-                )
 
                 trial_csv_name = os.path.join(new_dirs, f"trial_{trial_num}.csv")
-                header = ["Cell"] + new_trial.get_prechoice_timepoints()
-                data = [cell] + new_trial.get_prechoice_dff_trace()
+                header = ["Cell"] + list(df.columns)
+                # get the current row (but not the timepoints)
+                data = [cell] + list(df.iloc[i, :])
 
                 # look if the csv for this trial exists already
                 if os.path.exists(trial_csv_name) == True:
