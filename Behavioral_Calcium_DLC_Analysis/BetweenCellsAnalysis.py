@@ -9,6 +9,14 @@ import seaborn as sns
 from scipy import stats
 import Cell
 from operator import attrgetter
+from pathlib import Path
+
+
+def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
+    files = glob.glob(
+        os.path.join(root_path, "**", middle, "**", endswith), recursive=True,
+    )
+    return files
 
 
 def find_paths_endswith(root_path, endswith) -> List:
@@ -436,6 +444,7 @@ def shock():
 
             df = change_cell_names(df)
 
+            # 3/4/2022 change: I want to see unorm heatmap
             df = custom_standardize(
                 df,
                 unknown_time_min=-5.0,
@@ -466,7 +475,7 @@ def shock():
             heatmap(
                 df_sorted,
                 csv_path,
-                out_path=csv_path.replace(".csv", "_hm_baseline-5_0_gauss1.5.png"),
+                out_path=csv_path.replace(".csv", "_hm.png"),
                 vmin=-2.5,
                 vmax=2.5,
                 xticklabels=10,
@@ -475,9 +484,7 @@ def shock():
             spaghetti_plot(
                 df_sorted,
                 csv_path,
-                out_path=csv_path.replace(
-                    ".csv", "_spaghetti_baseline-5_0_gauss1.5.png"
-                ),
+                out_path=csv_path.replace(".csv", "_spaghetti.png"),
             )
         except FileNotFoundError:
             print(f"File {csv_path} was not found!")
@@ -535,7 +542,67 @@ def process_one_table():
     )
 
 
+def shock_one_mouse():
+
+    ROOT_PATH = r"/media/rory/Padlock_DT/BLA_Analysis/"
+    # ROOT_PATH = r"/Users/rodrigosandon/Documents/GitHub/LBGN/SampleData/truncating_bug"
+
+    csv_list = find_paths(ROOT_PATH, "Shock Test", "concat_cells.csv")
+    # print(csv_list)
+    # csv_list.reverse()
+    for count, csv_path in enumerate(csv_list):
+
+        print(f"Working on file {count}: {csv_path}")
+
+        df = pd.read_csv(csv_path)
+        # df = truncate_past_len_threshold(df, len_threshold=200)
+
+        df = change_cell_names(df)
+
+        # 3/4/2022 change: I want to see unorm heatmap
+        df = custom_standardize(
+            df,
+            unknown_time_min=-5.0,
+            unknown_time_max=0.0,
+            reference_pair={0: 50},
+            hertz=10,
+        )
+
+        df = gaussian_smooth(df.T)
+        df = df.T
+        # print(df)
+        # We're essentially gettin the mean of z-score for a time frame to sort
+        df_sorted = sort_cells(
+            df,
+            unknown_time_min=0.0,
+            unknown_time_max=3.0,
+            reference_pair={0: 50},
+            hertz=10,
+        )
+        # print(df.head())
+        df_sorted = insert_time_index_to_df(
+            df_sorted, range_min=-5.0, range_max=5.0, step=0.1
+        )
+
+        # Create scatter plot here
+        # print(df_sorted.head())
+
+        heatmap(
+            df_sorted,
+            csv_path,
+            out_path=csv_path.replace(".csv", "_hm.png"),
+            vmin=-2.5,
+            vmax=2.5,
+            xticklabels=10,
+        )
+
+        spaghetti_plot(
+            df_sorted, csv_path, out_path=csv_path.replace(".csv", "_spaghetti.png"),
+        )
+
+
 if __name__ == "__main__":
     # main()
     # shock()
-    process_one_table()
+    # process_one_table()
+    shock_one_mouse()

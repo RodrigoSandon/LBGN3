@@ -4,16 +4,17 @@ import pandas as pd
 from pathlib import Path
 from typing import List
 import matplotlib.pyplot as plt
+import scipy.stats as stats
 
 
 def find_paths(root_path: Path, mouse, startswith) -> List[str]:
-    files = glob.glob(
-        os.path.join(root_path, "**", mouse, f"{startswith}*"), recursive=True,
+    files = glob.iglob(
+        os.path.join(root_path, "**", mouse, f"{startswith}*.csv"), recursive=True,
     )
     return files
 
 
-def spaghetti_plot(df: pd.DataFrame, trial, out_path):
+def spaghetti_plot(df: pd.DataFrame, trial, out_path, norm: bool):
     df_no_idx = df.iloc[:, 1:]
     x = list(df_no_idx.columns)
     new_x = []
@@ -27,7 +28,7 @@ def spaghetti_plot(df: pd.DataFrame, trial, out_path):
         else:
             i = abs(round(float(i), 1))
             new_x.append(i)
-    print(new_x)
+    # print(new_x)
     df = df.T
     try:
         number_cells = 0
@@ -37,12 +38,18 @@ def spaghetti_plot(df: pd.DataFrame, trial, out_path):
                 # print("cell: ", cell)
                 # print(x)
                 # print(list(df[cell])[1:])
-                plt.plot(new_x, list(df[cell])[1:], label=cell)
+                if norm == True:
+                    plt.plot(new_x, stats.zscore(list(df[cell])[1:]), label=cell)
+                else:
+                    plt.plot(new_x, list(df[cell])[1:], label=cell)
                 number_cells += 1
 
         plt.title(f"{trial} Cell Ca2+ Traces (n={number_cells})")
         plt.xlabel("Time (s)")
-        plt.ylabel("dF/F")
+        if norm == True:
+            plt.ylabel("Z-score")
+        else:
+            plt.ylabel("dF/F")
         plt.savefig(out_path)
         plt.close()
 
@@ -69,10 +76,14 @@ def main():
         parts = list(csv_parts.parts)
         print(f"Processing {csv}")
         df = pd.read_csv(csv)
+        norm = True
 
         trial = parts[11].replace(".csv", "")
-        png_out = csv.replace(".csv", "_spaghetti.png")
-        spaghetti_plot(df, trial, png_out)
+        if norm == True:
+            png_out = csv.replace(".csv", "_norm_spaghetti.png")
+        else:
+            png_out = csv.replace(".csv", "_spaghetti.png")
+        spaghetti_plot(df, trial, png_out, norm)
 
 
 if __name__ == "__main__":
