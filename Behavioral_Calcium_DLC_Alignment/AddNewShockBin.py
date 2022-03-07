@@ -50,6 +50,7 @@ def main():
         ]
         pos_timepoints = [float(i) for i in list(new_df.columns) if "-" not in i]
         all_timepoints = neg_timepoints + pos_timepoints
+        print(all_timepoints)
         detected_noshock_idxs = []
         detected_shock_idxs = []
 
@@ -87,6 +88,7 @@ def main():
             os.path.join(dst_dir_noshock, "plot_ready.csv"), index=False
         )
         shock_trials.to_csv(os.path.join(dst_dir_shock, "plot_ready.csv"), index=False)
+        break
 
 
 if __name__ == "__main__":

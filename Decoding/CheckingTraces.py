@@ -67,23 +67,35 @@ def main():
         r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/Shock Test"
     )
 
-    mouse = "BLA-Insc-1"
-    files = find_paths(ROOT_PATH, mouse, "trial")
-    # print(files)
+    mice = [
+        "BLA-Insc-1",
+        "BLA-Insc-2",
+        "BLA-Insc-3",
+        "BLA-Insc-5",
+        "BLA-Insc-6",
+        "BLA-Insc-7",
+        "BLA-Insc-8",
+        "BLA-Insc-9",
+        "BLA-Insc-11",
+        "BLA-Insc-13",
+    ]
+    for mouse in mice:
+        files = find_paths(ROOT_PATH, mouse, "trial")
+        # print(files)
 
-    for csv in files:
-        csv_parts = Path(csv)
-        parts = list(csv_parts.parts)
-        print(f"Processing {csv}")
-        df = pd.read_csv(csv)
-        norm = True
+        for csv in files:
+            csv_parts = Path(csv)
+            parts = list(csv_parts.parts)
+            print(f"Processing {csv}")
+            df = pd.read_csv(csv)
+            norm = True
 
-        trial = parts[11].replace(".csv", "")
-        if norm == True:
-            png_out = csv.replace(".csv", "_norm_spaghetti.png")
-        else:
-            png_out = csv.replace(".csv", "_spaghetti.png")
-        spaghetti_plot(df, trial, png_out, norm)
+            trial = parts[11].replace(".csv", "")
+            if norm == True:
+                png_out = csv.replace(".csv", "_norm_spaghetti.png")
+            else:
+                png_out = csv.replace(".csv", "_spaghetti.png")
+            spaghetti_plot(df, trial, png_out, norm)
 
 
 if __name__ == "__main__":

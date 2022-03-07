@@ -218,6 +218,7 @@ def main():
                     # changing last number to be zero b/c it is in fact zero (not some v. high number)
                     timepoints[idx] = 0
 
+            print(timepoints)
             print("idx: ", idx_at_time_zero)
             print("timepoint: ", timepoints[idx_at_time_zero])
 

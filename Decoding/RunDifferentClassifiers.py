@@ -28,6 +28,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from scipy import stats
+from scipy.ndimage import gaussian_filter1d
 
 # import warnings filter
 from warnings import simplefilter
@@ -172,6 +173,22 @@ def gaussian_NB(X_train, X_test, y_train, y_test, results: dict, cfm_path) -> di
     return results
 
 
+def spaghetti_plot(d: dict, classifier: str, out_path):
+    x = ["0-0.1", "0.12-0.2", "0.22-0.3", "0.32-0.4", "0.42-0.5"]
+
+    for key in d.keys():
+
+        plt.plot(x, d[key], label=key)
+
+    plt.title(f"{classifier} Val F1 Scores Across Intensities")
+    plt.xlabel("Intensity")
+    plt.ylabel("F1 Score")
+    plt.legend(bbox_to_anchor=(1.04, 1), borderaxespad=0)
+    plt.subplots_adjust(left=0.1, bottom=0.1, right=0.7, top=0.9)
+    plt.savefig(out_path)
+    plt.close()
+
+
 # Block -> Outcome Reward ->
 # /media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/{1.0}/[Large]/{BLA-Insc-1}/{RDT D1}/[trail_1.csv]
 def binary_classifications():
@@ -241,10 +258,57 @@ def binary_classifications():
             print(key, ":", val)
 
 
+def convert_secs_to_idx(
+    unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int
+):
+    reference_time = list(reference_pair.keys())[0]
+    reference_idx = list(reference_pair.values())[0]
+
+    idx_start = (unknown_time_min * hertz) + reference_idx
+
+    idx_end = (unknown_time_max * hertz) + reference_idx
+    return int(idx_start), int(idx_end)
+
+
+def create_subwindow(
+    my_list: list, unknown_time_min, unknown_time_max, reference_pair, hertz
+) -> list:
+    idx_start, idx_end = convert_secs_to_idx(
+        unknown_time_min, unknown_time_max, reference_pair, hertz
+    )
+    subwindow = my_list[idx_start:idx_end]
+
+    return subwindow
+
+
+def zscore(obs_value, mu, sigma):
+    return (obs_value - mu) / sigma
+
+
+def custom_standardize_list(
+    my_list: list, unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int
+) -> list:
+    norm_list: list
+    norm_list = []
+
+    subwindow = create_subwindow(
+        my_list, unknown_time_min, unknown_time_max, reference_pair, hertz
+    )
+    mean = stats.tmean(subwindow)
+    stdev = stats.tstd(subwindow)
+
+    for i in my_list:
+        z_value = zscore(i, mean, stdev)
+        norm_list.append(z_value)
+
+    return norm_list
+
+
 # Shock Test
 # /media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/Shock Test/Shock/0.32-0.4/BLA-Insc-1/trial_3.csv
 def binary_classifications_shock():
     ROOT_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/")
+    PLOT_OUT_PATH = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/Shock Test/all_f1_scores.png"
     mouse = [
         "BLA-Insc-1",
         "BLA-Insc-2",
@@ -260,12 +324,14 @@ def binary_classifications_shock():
     shock_intensities = ["0-0.1", "0.12-0.2", "0.22-0.3", "0.32-0.4", "0.42-0.5"]
     norm = True
 
-    for m in mouse:
-        for i, shock_intensity in enumerate(shock_intensities):
+    f1_all_results = {}
 
+    for m in mouse:
+        f1_all_results[m] = []
+        for i, shock_intensity in enumerate(shock_intensities):
             print()
             print(f"PREDICTING OUTCOME IN INTENSITIES {shock_intensity}, {m}")
-            files = find_paths_shock(ROOT_PATH, shock_intensity, m, "trial")
+            files = find_paths_shock(ROOT_PATH, shock_intensity, m, "trial*.csv")
             # print(*files, sep="\n")
             print("Number of trials (csvs): ", len(files))
 
@@ -278,6 +344,7 @@ def binary_classifications_shock():
                 csv = Path(csv)
                 outcome = csv.parts[8]
                 df: pd.DataFrame
+                # print(csv)
                 df = pd.read_csv(csv)
 
                 df = df.T
@@ -285,7 +352,16 @@ def binary_classifications_shock():
                 # go through columns and add to X and y
                 for col in list(df.columns):
                     if norm == True:
-                        X.append(stats.zscore(list(df[col])))
+                        # X.append(stats.zscore(list(df[col])))
+                        my_list = custom_standardize_list(
+                            list(df[col]),
+                            unknown_time_min=-5.0,
+                            unknown_time_max=0.0,
+                            reference_pair={0: 50},
+                            hertz=10,
+                        )
+                        my_list = gaussian_filter1d(sigma=1.5, axis=0)
+                        X.append(my_list)
                     else:
                         X.append(list(df[col]))
                     y.append(outcome)
@@ -304,19 +380,26 @@ def binary_classifications_shock():
             # Confusion matrix save?
             cfm_dir = "/".join(csv.parts[0:8])
             if norm == True:
-                cfm_path = os.path.join(cfm_dir, f"norm_cfm_{shock_intensity}_{m}.png")
+                cfm_path = os.path.join(
+                    cfm_dir, f"norm_-5to0_gaus_cfm_{shock_intensity}_{m}.png"
+                )
             else:
                 cfm_path = os.path.join(cfm_dir, f"cfm_{shock_intensity}_{m}.png")
             ######### INPUT CLASSIFIERS HERE #########
             f1_results = linear_discriminant(
                 X_train, X_test, y_train, y_test, f1_results, cfm_path, "Shock Test",
             )
+            val_f1 = f1_results["linear_discriminant"]["val f1"]
+            test_f1 = f1_results["linear_discriminant"]["test f1"]
             # f1_results = gaussian_NB(X_train, X_test, y_train, y_test, f1_results, cfm_path)
             # f1_results = svm_svc(X_train, X_test, y_train, y_test, f1_results, cfm_path)
+            f1_all_results[m].append(val_f1)
 
             ######### PRINT RESULTS #########
             for key, val in f1_results.items():
                 print(key, ":", val)
+
+    spaghetti_plot(f1_all_results, "Linear Discriminant", PLOT_OUT_PATH)
 
 
 if __name__ == "__main__":
