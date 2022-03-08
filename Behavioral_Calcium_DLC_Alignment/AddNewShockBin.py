@@ -50,20 +50,27 @@ def main():
         ]
         pos_timepoints = [float(i) for i in list(new_df.columns) if "-" not in i]
         all_timepoints = neg_timepoints + pos_timepoints
-        print(all_timepoints)
+        # print(all_timepoints)
         detected_noshock_idxs = []
         detected_shock_idxs = []
 
+        # Change the value of zero!
+        for idx, timepoint in enumerate(all_timepoints):
+            if timepoint < -1000000:  # if less than neg million, then it's zero
+                all_timepoints[idx] = 0
+
         for idx, timepoint in enumerate(all_timepoints):
             # this exactly from csv -2.000000000000014
-            if timepoint >= -6 and timepoint < -2.000000000000014:
+            if timepoint >= -6 and timepoint <= -2.000000000000014:
                 detected_noshock_idxs.append(idx)
             if timepoint >= -2.000000000000014 and timepoint <= 2:
                 detected_shock_idxs.append(idx)
 
         # since i want to keep the trial num col, make sure to add +1 to all idxs, and insert 0 into both dfs
         detected_noshock_idxs = [0] + [i + 1 for i in detected_noshock_idxs]
+        print(len(detected_noshock_idxs))
         detected_shock_idxs = [0] + [i + 1 for i in detected_shock_idxs]
+        print(len(detected_shock_idxs))
 
         noshock_trials: pd.DataFrame
         shock_trials: pd.DataFrame
