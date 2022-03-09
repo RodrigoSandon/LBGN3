@@ -68,9 +68,9 @@ def main():
 
         # since i want to keep the trial num col, make sure to add +1 to all idxs, and insert 0 into both dfs
         detected_noshock_idxs = [0] + [i + 1 for i in detected_noshock_idxs]
-        print(len(detected_noshock_idxs))
+        # print(len(detected_noshock_idxs))
         detected_shock_idxs = [0] + [i + 1 for i in detected_shock_idxs]
-        print(len(detected_shock_idxs))
+        # print(len(detected_shock_idxs))
 
         noshock_trials: pd.DataFrame
         shock_trials: pd.DataFrame
@@ -95,7 +95,6 @@ def main():
             os.path.join(dst_dir_noshock, "plot_ready.csv"), index=False
         )
         shock_trials.to_csv(os.path.join(dst_dir_shock, "plot_ready.csv"), index=False)
-        break
 
 
 if __name__ == "__main__":

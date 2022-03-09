@@ -285,6 +285,8 @@ def main_shock():
             # open the csv and loop through the df to acquire trials
             df: pd.DataFrame
             df = pd.read_csv(csv_path)
+            print(list(df.columns))
+
             df = df.iloc[:, 1:]  # remove first event # col
 
             # In the case of shock test session, i've already cut out the parts we want
@@ -297,6 +299,7 @@ def main_shock():
                 header = ["Cell"] + list(df.columns)
                 # get the current row (but not the timepoints)
                 data = [cell] + list(df.iloc[i, :])
+                # print(len(list(df.iloc[i, :])))
 
                 # look if the csv for this trial exists already
                 if os.path.exists(trial_csv_name) == True:
