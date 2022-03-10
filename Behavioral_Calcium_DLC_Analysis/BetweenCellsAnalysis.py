@@ -214,7 +214,7 @@ Example:
 
 
 def custom_standardize(
-    df, unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int
+    df: pd.DataFrame, unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int
 ):
     # print(df.head())
     for col in df.columns:
@@ -236,6 +236,29 @@ def custom_standardize(
         df[col] = new_col_vals  # <- not neccesary bc of the .apply function?
     return df
 
+def custom_standardize_limit(
+    df: pd.DataFrame, unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int, limit
+):
+    """A limit indicates when to stop z-scoring based off of the baseline."""
+    limit_idx = convert_secs_to_idx_single_timepoint(limit, reference_pair, hertz) + 1
+    for col in df.columns:
+        subwindow = create_subwindow_for_col(
+            df, col, unknown_time_min, unknown_time_max, reference_pair, hertz
+        )
+        mean_for_cell = stats.tmean(subwindow)
+        stdev_for_cell = stats.tstd(subwindow)
+
+        new_col_vals = []
+        for count, ele in enumerate(list(df[col])):
+            if count <= limit_idx:
+                z_value = zscore(ele, mean_for_cell, stdev_for_cell)
+            else: # if outside limits of zscoring, don't zscore
+                z_value = ele
+            new_col_vals.append(z_value)
+
+        df[col] = new_col_vals
+    return df
+
 
 def zscore(obs_value, mu, sigma):
     return (obs_value - mu) / sigma
@@ -255,6 +278,12 @@ def convert_secs_to_idx(
     idx_end = (unknown_time_max * hertz) + reference_idx
     return int(idx_start), int(idx_end)
 
+def convert_secs_to_idx_single_timepoint(
+    unknown_time, reference_pair: dict, hertz: int
+):
+    reference_idx = list(reference_pair.values())[0]
+
+    return (unknown_time * hertz) + reference_idx
 
 """def standardize(df):
     # from scipy.stats import zscore
@@ -490,6 +519,81 @@ def shock():
             print(f"File {csv_path} was not found!")
             pass
 
+def shock_multiple_customs():
+
+    ROOT_PATH = (
+        r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/Shock Test"
+    )
+    # ROOT_PATH = r"/Users/rodrigosandon/Documents/GitHub/LBGN/SampleData/truncating_bug"
+
+    csv_list = find_paths_startswith(ROOT_PATH, "all_concat_cells.csv")
+    # print(csv_list)
+    # csv_list.reverse()
+    for count, csv_path in enumerate(csv_list):
+
+        print(f"Working on file {count}: {csv_path}")
+
+        try:
+            df = pd.read_csv(csv_path)
+            # df = truncate_past_len_threshold(df, len_threshold=200)
+
+            df = change_cell_names(df)
+
+            # 3/4/2022 change: I want to see unorm heatmap
+            # 3/10/22 : I wanna see two different z score baseline at once
+            df = custom_standardize_limit(
+                df,
+                unknown_time_min=-5.0,
+                unknown_time_max=-4.0,
+                reference_pair={0: 50},
+                hertz=10,
+                limit=-2.0
+            )
+            df = custom_standardize_limit(
+                df,
+                unknown_time_min=-2.0,
+                unknown_time_max=0.0,
+                reference_pair={0: 50},
+                hertz=10,
+                limit=2.0
+            )
+
+            df = gaussian_smooth(df.T)
+            df = df.T
+            # print(df.head())
+            # We're essentially gettin the mean of z-score for a time frame to sort
+            df_sorted = sort_cells(
+                df,
+                unknown_time_min=0.0,
+                unknown_time_max=3.0,
+                reference_pair={0: 50},
+                hertz=10,
+            )
+            # print(df.head())
+            df_sorted = insert_time_index_to_df(
+                df_sorted, range_min=-5.0, range_max=5.0, step=0.1
+            )
+
+            # Create scatter plot here
+            # print(df_sorted.head())
+
+            heatmap(
+                df_sorted,
+                csv_path,
+                out_path=csv_path.replace(".csv", "_double_z_hm.png"),
+                vmin=-2.5,
+                vmax=2.5,
+                xticklabels=10,
+            )
+
+            spaghetti_plot(
+                df_sorted,
+                csv_path,
+                out_path=csv_path.replace(".csv", "_double_z_spaghetti.png"),
+            )
+        except FileNotFoundError:
+            print(f"File {csv_path} was not found!")
+            pass
 
 def process_one_table():
 
@@ -605,4 +709,5 @@ if __name__ == "__main__":
     # main()
     # shock()
     # process_one_table()
-    shock_one_mouse()
+    # shock_one_mouse()
+    shock_multiple_customs()
