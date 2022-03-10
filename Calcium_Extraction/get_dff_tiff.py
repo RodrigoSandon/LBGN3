@@ -35,7 +35,7 @@ def get_input_cell_set_files(root_path: Path):
 
 
 def main():
-    root_path = "/media/rory/RDT VIDS/PTP_Inscopix_#1/"
+    root_path = "/media/rory/RDT VIDS/PTP_Inscopix_#5/"
     cellsets, roots = get_input_cell_set_files(root_path)  # should have the same index
 
     for i in range(len(cellsets)):
