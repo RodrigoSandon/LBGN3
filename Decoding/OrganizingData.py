@@ -264,6 +264,7 @@ def main():
 
 
 def main_shock():
+    """MAKE SURE TO DELETE ARRANGED_DATASET FOR SHOCK TEST TO GET NEW RESULTS"""
     ROOT_PATH = Path(
         r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pre-Arranged_Dataset"
     )
@@ -285,7 +286,6 @@ def main_shock():
             # open the csv and loop through the df to acquire trials
             df: pd.DataFrame
             df = pd.read_csv(csv_path)
-            print(list(df.columns))
 
             df = df.iloc[:, 1:]  # remove first event # col
 
@@ -296,6 +296,7 @@ def main_shock():
                 trial_num = i + 1
 
                 trial_csv_name = os.path.join(new_dirs, f"trial_{trial_num}.csv")
+                #print(list(df.columns))
                 header = ["Cell"] + list(df.columns)
                 # get the current row (but not the timepoints)
                 data = [cell] + list(df.iloc[i, :])

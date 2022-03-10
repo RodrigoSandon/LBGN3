@@ -106,9 +106,10 @@ def main() -> None:
     ):  # if not specifying which specific vids to/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5/BLA-Insc-14/PR D1/Session-20220216-095510_BLA-Insc-14_PR_D1/2022-02-16-09-58-13_video_green.isxd process
         for count, i in enumerate(vids):
             print(f"INPUT: {i}")
-            output_dir = generate_output_dir(i)
-            print(f"OUTPUT: {output_dir}")
-            preprocess(in_path=i, out_dir=output_dir)
+            # output_dir = generate_output_dir(i) #comment out if you don't want dirs to be made 3/10/22
+            # print(f"OUTPUT: {output_dir}")
+            #preprocess(in_path=i, out_dir=output_dir)
+            preprocess(in_path=Path(i), out_dir=None) # output is input dir
     else:  # if are specifying
         for i in vids_left_raw_paths:
             print(i)
