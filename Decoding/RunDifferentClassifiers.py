@@ -286,6 +286,15 @@ def create_subwindow(
     return subwindow
 
 
+def create_subwindow_fixed(
+    my_list: list
+) -> list:
+
+    subwindow = my_list[0:21]
+
+    return subwindow
+
+
 def zscore(obs_value, mu, sigma):
     return (obs_value - mu) / sigma
 
@@ -309,8 +318,26 @@ def custom_standardize_list(
     return norm_list
 
 
+def custom_standardize_list_fixed(
+    my_list: list
+) -> list:
+    norm_list: list
+    norm_list = []
+
+    subwindow = create_subwindow_fixed(my_list)
+    mean = stats.tmean(subwindow)
+    stdev = stats.tstd(subwindow)
+
+    for i in my_list:
+        z_value = zscore(i, mean, stdev)
+        norm_list.append(z_value)
+
+    return norm_list
+
 # Shock Test
 # /media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/Shock Test/Shock/0.32-0.4/BLA-Insc-1/trial_3.csv
+
+
 def binary_classifications_shock():
     ROOT_PATH = Path(
         r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/")
@@ -362,25 +389,11 @@ def binary_classifications_shock():
                 for col in list(df.columns):
                     if norm == True:
                         # X.append(stats.zscore(list(df[col])))
-                        if "No Shock" not in csv:
-                            my_list = custom_standardize_list(
-                                list(df[col]),
-                                unknown_time_min=-6.0,
-                                unknown_time_max=-2.0,
-                                reference_pair={-4: 20},
-                                hertz=10,
-                            )
-                           
-                        elif "No Shock" in csv:
-                            my_list = custom_standardize_list(
-                                list(df[col]),
-                                unknown_time_min=-2.0,
-                                unknown_time_max=2.0,
-                                reference_pair={0: 20},
-                                hertz=10,
-                            )
-                        
-                        #print(my_list)
+                        my_list = custom_standardize_list_fixed(
+                            list(df[col]),
+                        )
+
+                        # print(my_list)
                         my_list = gaussian_filter1d(my_list, sigma=1.5, axis=0)
                         X.append(my_list)
 
