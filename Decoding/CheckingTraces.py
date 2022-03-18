@@ -14,6 +14,36 @@ def find_paths(root_path: Path, mouse, startswith) -> List[str]:
     return files
 
 
+def zscore(obs_value, mu, sigma):
+    return (obs_value - mu) / sigma
+
+
+def create_subwindow_fixed(
+    my_list: list
+) -> list:
+
+    subwindow = my_list[0:21]
+
+    return subwindow
+
+
+def custom_standardize_list_fixed(
+    my_list: list
+) -> list:
+    norm_list: list
+    norm_list = []
+
+    subwindow = create_subwindow_fixed(my_list)
+    mean = stats.tmean(subwindow)
+    stdev = stats.tstd(subwindow)
+
+    for i in my_list:
+        z_value = zscore(i, mean, stdev)
+        norm_list.append(z_value)
+
+    return norm_list
+
+
 def spaghetti_plot(df: pd.DataFrame, trial, out_path, norm: bool):
     df_no_idx = df.iloc[:, 1:]
     x = list(df_no_idx.columns)
@@ -39,7 +69,8 @@ def spaghetti_plot(df: pd.DataFrame, trial, out_path, norm: bool):
                 # print(x)
                 # print(list(df[cell])[1:])
                 if norm == True:
-                    plt.plot(new_x, stats.zscore(list(df[cell])[1:]), label=cell)
+                    plt.plot(new_x, custom_standardize_list_fixed(
+                        list(df[cell])[1:]), label=cell)
                 else:
                     plt.plot(new_x, list(df[cell])[1:], label=cell)
                 number_cells += 1
