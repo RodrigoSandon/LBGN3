@@ -385,7 +385,7 @@ def binary_classifications_shock():
                 df = df.T
                 df = df.iloc[1:, :]  # remove first row (the cell names)
                 # go through columns and add to X and y
-                #print(csv)
+                print(csv)
                 for col in list(df.columns):
                     if norm == True:
                         # X.append(stats.zscore(list(df[col])))
