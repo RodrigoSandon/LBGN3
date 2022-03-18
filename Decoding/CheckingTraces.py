@@ -54,6 +54,8 @@ def spaghetti_plot(df: pd.DataFrame, trial, out_path, norm: bool):
             i = i.replace("-", "")
             i = -abs(round(float(i), 1))
             # print(type(i))
+            if i > 100000:
+                i = 0
             new_x.append(i)
         else:
             i = abs(round(float(i), 1))
