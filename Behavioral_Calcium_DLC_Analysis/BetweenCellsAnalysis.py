@@ -192,7 +192,8 @@ def spaghetti_plot(df, file_path, out_path):
             # print("cell: ", cell)
             plt.plot(x, list(df[cell]), label=cell)
         number_cells = len(df.T)
-        plt.title("Smoothed Z-Scores of Neural Ca2+ Traces (n=%s)" % (number_cells))
+        plt.title("Smoothed Z-Scores of Neural Ca2+ Traces (n=%s)" %
+                  (number_cells))
         plt.xlabel("Time (s)")
         plt.ylabel("Z-Score")
         plt.locator_params(axis="x", nbins=20)
@@ -236,11 +237,13 @@ def custom_standardize(
         df[col] = new_col_vals  # <- not neccesary bc of the .apply function?
     return df
 
+
 def custom_standardize_limit(
     df: pd.DataFrame, unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int, limit
 ):
     """A limit indicates when to stop z-scoring based off of the baseline."""
-    limit_idx = convert_secs_to_idx_single_timepoint(limit, reference_pair, hertz) + 1
+    limit_idx = convert_secs_to_idx_single_timepoint(
+        limit, reference_pair, hertz) + 1
     for col in df.columns:
         subwindow = create_subwindow_for_col(
             df, col, unknown_time_min, unknown_time_max, reference_pair, hertz
@@ -252,7 +255,28 @@ def custom_standardize_limit(
         for count, ele in enumerate(list(df[col])):
             if count <= limit_idx:
                 z_value = zscore(ele, mean_for_cell, stdev_for_cell)
-            else: # if outside limits of zscoring, don't zscore
+            else:  # if outside limits of zscoring, don't zscore
+                z_value = ele
+            new_col_vals.append(z_value)
+
+        df[col] = new_col_vals
+    return df
+
+
+def custom_standardize_limit_fixed(
+        df: pd.DataFrame, baseline_min, baseline_max, limit_idx):
+    """A limit indicates when to stop z-scoring based off of the baseline."""
+    for col in df.columns:
+        subwindow = list(df[col])[baseline_min: baseline_max + 1]
+
+        mean_for_cell = stats.tmean(subwindow)
+        stdev_for_cell = stats.tstd(subwindow)
+
+        new_col_vals = []
+        for count, ele in enumerate(list(df[col])):
+            if count <= limit_idx:
+                z_value = zscore(ele, mean_for_cell, stdev_for_cell)
+            else:  # if outside limits of zscoring, don't zscore
                 z_value = ele
             new_col_vals.append(z_value)
 
@@ -278,12 +302,14 @@ def convert_secs_to_idx(
     idx_end = (unknown_time_max * hertz) + reference_idx
     return int(idx_start), int(idx_end)
 
+
 def convert_secs_to_idx_single_timepoint(
     unknown_time, reference_pair: dict, hertz: int
 ):
     reference_idx = list(reference_pair.values())[0]
 
     return (unknown_time * hertz) + reference_idx
+
 
 """def standardize(df):
     # from scipy.stats import zscore
@@ -435,7 +461,8 @@ def main():
             heatmap(
                 df_sorted,
                 csv_path,
-                out_path=csv_path.replace(".csv", "_hm_baseline-10_-1_gauss1.5.png"),
+                out_path=csv_path.replace(
+                    ".csv", "_hm_baseline-10_-1_gauss1.5.png"),
                 vmin=-2.5,
                 vmax=2.5,
                 xticklabels=20,
@@ -519,6 +546,7 @@ def shock():
             print(f"File {csv_path} was not found!")
             pass
 
+
 def shock_multiple_customs():
 
     ROOT_PATH = (
@@ -541,21 +569,17 @@ def shock_multiple_customs():
 
             # 3/4/2022 change: I want to see unorm heatmap
             # 3/10/22 : I wanna see two different z score baseline at once
-            df = custom_standardize_limit(
+            df = custom_standardize_limit_fixed(
                 df,
-                unknown_time_min=-5.0,
-                unknown_time_max=-4.0,
-                reference_pair={0: 50},
-                hertz=10,
-                limit=-2.0
+                baseline_min=0,
+                baseline_max=10,
+                limit_idx=30
             )
-            df = custom_standardize_limit(
+            df = custom_standardize_limit_fixed(
                 df,
-                unknown_time_min=-2.0,
-                unknown_time_max=0.0,
-                reference_pair={0: 50},
-                hertz=10,
-                limit=2.0
+                baseline_min=30,
+                baseline_max=50,
+                limit_idx=-1
             )
 
             df = gaussian_smooth(df.T)
@@ -580,7 +604,7 @@ def shock_multiple_customs():
             heatmap(
                 df_sorted,
                 csv_path,
-                out_path=csv_path.replace(".csv", "_double_z_hm.png"),
+                out_path=csv_path.replace(".csv", "_double_z_hm2.png"),
                 vmin=-2.5,
                 vmax=2.5,
                 xticklabels=10,
@@ -589,11 +613,12 @@ def shock_multiple_customs():
             spaghetti_plot(
                 df_sorted,
                 csv_path,
-                out_path=csv_path.replace(".csv", "_double_z_spaghetti.png"),
+                out_path=csv_path.replace(".csv", "_double_z_spaghetti2.png"),
             )
         except FileNotFoundError:
             print(f"File {csv_path} was not found!")
             pass
+
 
 def process_one_table():
 
@@ -701,7 +726,8 @@ def shock_one_mouse():
         )
 
         spaghetti_plot(
-            df_sorted, csv_path, out_path=csv_path.replace(".csv", "_spaghetti.png"),
+            df_sorted, csv_path, out_path=csv_path.replace(
+                ".csv", "_spaghetti.png"),
         )
 
 
