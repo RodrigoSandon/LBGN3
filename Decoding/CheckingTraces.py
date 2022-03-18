@@ -47,8 +47,8 @@ def custom_standardize_list_fixed(
 def spaghetti_plot(df: pd.DataFrame, trial, out_path, norm: bool):
     df_no_idx = df.iloc[:, 1:]
     x = list(df_no_idx.columns)
-    new_x = []
-    for i in x:
+    #new_x = []
+    """for i in x:
         # print(type(i))
         if "-" in i:
             i = i.replace("-", "")
@@ -59,22 +59,22 @@ def spaghetti_plot(df: pd.DataFrame, trial, out_path, norm: bool):
             new_x.append(i)
         else:
             i = abs(round(float(i), 1))
-            new_x.append(i)
+            new_x.append(i)"""
     # print(new_x)
     df = df.T
     try:
         number_cells = 0
-        plt.locator_params(tight=True, axis="x", nbins=5)
+        #plt.locator_params(tight=True, axis="x", nbins=5)
         for cell in df.columns:
             if cell != "Cell":  # ignore first tranposed col
                 # print("cell: ", cell)
                 # print(x)
                 # print(list(df[cell])[1:])
                 if norm == True:
-                    plt.plot(new_x, custom_standardize_list_fixed(
+                    plt.plot(x, custom_standardize_list_fixed(
                         list(df[cell])[1:]), label=cell)
                 else:
-                    plt.plot(new_x, list(df[cell])[1:], label=cell)
+                    plt.plot(x, list(df[cell])[1:], label=cell)
                 number_cells += 1
 
         plt.title(f"{trial} Cell Ca2+ Traces (n={number_cells})")
