@@ -349,15 +349,16 @@ def binary_classifications_shock():
             f1_results = {}
 
             for csv in files:
-                csv = Path(csv)
-                outcome = csv.parts[8]
+                csv_path = Path(csv)
+                outcome = csv_path.parts[8]
                 df: pd.DataFrame
                 # print(csv)
-                df = pd.read_csv(csv)
+                df = pd.read_csv(csv_path)
 
                 df = df.T
                 df = df.iloc[1:, :]  # remove first row (the cell names)
                 # go through columns and add to X and y
+                print(csv)
                 for col in list(df.columns):
                     if norm == True:
                         # X.append(stats.zscore(list(df[col])))
@@ -369,8 +370,7 @@ def binary_classifications_shock():
                                 reference_pair={-4: 20},
                                 hertz=10,
                             )
-                            my_list = gaussian_filter1d(sigma=1.5, axis=0)
-                            X.append(my_list)
+                           
                         elif "No Shock" in csv:
                             my_list = custom_standardize_list(
                                 list(df[col]),
@@ -379,8 +379,10 @@ def binary_classifications_shock():
                                 reference_pair={0: 20},
                                 hertz=10,
                             )
-                            my_list = gaussian_filter1d(sigma=1.5, axis=0)
-                            X.append(my_list)
+                        
+                        #print(my_list)
+                        my_list = gaussian_filter1d(my_list, sigma=1.5, axis=0)
+                        X.append(my_list)
 
                     else:
                         X.append(list(df[col]))
@@ -398,7 +400,7 @@ def binary_classifications_shock():
                 X, y, test_size=0.20, train_size=0.80, random_state=None
             )
             # Confusion matrix save?
-            cfm_dir = "/".join(csv.parts[0:8])
+            cfm_dir = "/".join(csv_path.parts[0:8])
             if norm == True:
                 cfm_path = os.path.join(
                     cfm_dir, f"norm_-5to0_gaus_cfm_{shock_intensity}_{m}.png"
