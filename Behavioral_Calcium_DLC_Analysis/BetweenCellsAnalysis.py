@@ -274,7 +274,7 @@ def custom_standardize_limit_fixed(
 
         new_col_vals = []
         for count, ele in enumerate(list(df[col])):
-            if count <= limit_idx:
+            if count >= baseline_min and count <= limit_idx:
                 z_value = zscore(ele, mean_for_cell, stdev_for_cell)
             else:  # if outside limits of zscoring, don't zscore
                 z_value = ele
@@ -392,7 +392,7 @@ def insert_time_index_to_df(df, range_min, range_max, step) -> pd.DataFrame:
     end_idx = len(x_axis) - 1
     # print(x_axis[end_idx])
 
-    x_axis[middle_idx] = 0
+    #x_axis[middle_idx] = 0
     x_axis = [round(i, 1) for i in x_axis]
 
     df.insert(0, "Time (s)", x_axis)
@@ -569,19 +569,21 @@ def shock_multiple_customs():
 
             # 3/4/2022 change: I want to see unorm heatmap
             # 3/10/22 : I wanna see two different z score baseline at once
+            #print(df.iloc[70:90, :])
             df = custom_standardize_limit_fixed(
                 df,
-                baseline_min=0,
-                baseline_max=10,
-                limit_idx=30
+                baseline_min=10,
+                baseline_max=30,
+                limit_idx=90
             )
+            """#print(df.iloc[70:90, :])
             df = custom_standardize_limit_fixed(
                 df,
-                baseline_min=30,
-                baseline_max=50,
-                limit_idx=-1
-            )
-
+                baseline_min=50,
+                baseline_max=70,
+                limit_idx=90
+            )"""
+            #print(df.iloc[70:90, :])
             df = gaussian_smooth(df.T)
             df = df.T
             # print(df.head())
@@ -595,11 +597,19 @@ def shock_multiple_customs():
             )
             # print(df.head())
             df_sorted = insert_time_index_to_df(
-                df_sorted, range_min=-5.0, range_max=5.0, step=0.1
+                df_sorted, range_min=-7.0, range_max=5.0, step=0.1
             )
-
+            """print(list(df_sorted.index)[10])
+            print(list(df_sorted.index)[30])
+            print(list(df_sorted.index)[50])
+            print(list(df_sorted.index)[70])
+            print(list(df_sorted.index)[90])"""
             # Create scatter plot here
             # print(df_sorted.head())
+            # If you only want to show a subwindow of the subwindow
+            #print(df_sorted.head())
+            #print(list(df_sorted.index))
+            df_sorted = df_sorted.iloc[10:91,:]
 
             heatmap(
                 df_sorted,

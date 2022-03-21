@@ -186,10 +186,15 @@ def main():
     
     SO IN TOTAL, 15 FOLDERS SHOULD APPEAR 11/29/21
     """
+    def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
+        files = glob.glob(
+            os.path.join(root_path, "**", middle, "**", endswith), recursive=True,
+        )
+        return files
 
     # file = open(f"{ROOT_PATH}/structure_of_between_mice_alignment.txt", "w+")
 
-    lst_of_avg_cell_csv_paths = find_csv_files(ROOT_PATH, "concat_cells.csv")
+    lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, 'Shock Test', "concat_cells.csv") #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
     bw_mice_alignment_f_name = "BetweenMiceAlignmentData"
     bw_mice_alignment_path = os.path.join(ROOT_PATH, bw_mice_alignment_f_name)
 
