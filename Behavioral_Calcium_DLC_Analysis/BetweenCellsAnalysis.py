@@ -428,10 +428,10 @@ def main():
             df = custom_standardize(
                 df,
                 unknown_time_min=-10.0,
-                unknown_time_max=-1.0,
+                unknown_time_max=0.0,
                 reference_pair={0: 100},
                 hertz=10,
-            )
+            ) #changed unknown time max: -1 to 0 3/22/22
 
             df = gaussian_smooth(df.T)
             df = df.T
@@ -445,6 +445,9 @@ def main():
                 hertz=10,
             )
             # print(df.head())
+            # Saving norm df as csv
+            new_csv = csv_path.replace(".csv", "baseline-10_0_gauss1.5.csv")
+            df_sorted.to_csv(new_csv, index=False)
             try:
                 df_sorted = insert_time_index_to_df(
                     df_sorted, range_min=-10.0, range_max=10.0, step=0.1
@@ -462,7 +465,7 @@ def main():
                 df_sorted,
                 csv_path,
                 out_path=csv_path.replace(
-                    ".csv", "_hm_baseline-10_-1_gauss1.5.png"),
+                    ".csv", "_hm_baseline-10_0_gauss1.5.png"),
                 vmin=-2.5,
                 vmax=2.5,
                 xticklabels=20,
@@ -472,7 +475,7 @@ def main():
                 df_sorted,
                 csv_path,
                 out_path=csv_path.replace(
-                    ".csv", "_spaghetti_baseline-10_-1_gauss1.5.png"
+                    ".csv", "_spaghetti_baseline-10_0_gauss1.5.png"
                 ),
             )
         except FileNotFoundError:
@@ -742,8 +745,8 @@ def shock_one_mouse():
 
 
 if __name__ == "__main__":
-    # main()
+    main()
     # shock()
     # process_one_table()
     # shock_one_mouse()
-    shock_multiple_customs()
+    #shock_multiple_customs()
