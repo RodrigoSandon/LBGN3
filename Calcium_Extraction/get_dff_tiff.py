@@ -49,4 +49,21 @@ def main():
         )
 
 
-main()
+def process_one_isxd():
+    
+    cellsets = ["/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5/BLA-Insc-18/RDT D3/Session-20220203-112555_BLA-Insc-18_RDT_D3/cnmfe_cellset.isxd"]
+    roots = ["/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5/BLA-Insc-18/RDT D3/Session-20220203-112555_BLA-Insc-18_RDT_D3"]
+
+    for i in range(len(cellsets)):
+
+        get_dff_and_tiff(
+            cellsets[i],
+            os.path.join(roots[i], "dff_traces.csv"),
+            os.path.join(roots[i], "cell_"),
+            "start",
+            "",
+        )
+
+
+#main()
+process_one_isxd()
