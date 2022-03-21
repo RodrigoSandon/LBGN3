@@ -431,7 +431,7 @@ def main():
                 unknown_time_max=0.0,
                 reference_pair={0: 100},
                 hertz=10,
-            ) #changed unknown time max: -1 to 0 3/22/22
+            )  # changed unknown time max: -1 to 0 3/22/22
 
             df = gaussian_smooth(df.T)
             df = df.T
@@ -476,6 +476,79 @@ def main():
                 csv_path,
                 out_path=csv_path.replace(
                     ".csv", "_spaghetti_baseline-10_0_gauss1.5.png"
+                ),
+            )
+        except FileNotFoundError:
+            print(f"File {csv_path} was not found!")
+            pass
+
+
+def new_main():
+
+    ROOT_PATH = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
+    # ROOT_PATH = r"/Users/rodrigosandon/Documents/GitHub/LBGN/SampleData/truncating_bug"
+
+    to_look_for_originally = "all_concat_cells.csv"
+    # would only look for this is the file causing the conditional statement didn't exist
+    to_look_for_conditional = "all_concat_cells_truncated.csv"
+
+    csv_list = find_paths_conditional_endswith(
+        ROOT_PATH, to_look_for_originally, to_look_for_conditional
+    )
+    # print(csv_list)
+    # csv_list.reverse()
+    for count, csv_path in enumerate(csv_list):
+
+        print(f"Working on file {count}: {csv_path}")
+
+        try:
+            df = pd.read_csv(csv_path)
+            # df = truncate_past_len_threshold(df, len_threshold=200)
+
+            df = change_cell_names(df)
+
+            # print(df.head())
+            # We're essentially gettin the mean of z-score for a time frame to sort
+            df_sorted = sort_cells(
+                df,
+                unknown_time_min=0.0,
+                unknown_time_max=3.0,
+                reference_pair={0: 100},
+                hertz=10,
+            )
+            # print(df.head())
+            # Saving norm df as csv
+            new_csv = csv_path.replace(
+                ".csv", "baseline-10_0_gauss1.5_z_avgs.csv")
+            df_sorted.to_csv(new_csv, index=False)
+            try:
+                df_sorted = insert_time_index_to_df(
+                    df_sorted, range_min=-10.0, range_max=10.0, step=0.1
+                )
+            except ValueError:
+                print("Index less than 200 data points!")
+                df_sorted = insert_time_index_to_df(
+                    df_sorted, range_min=-10.0, range_max=9.9, step=0.1
+                )
+
+            # Create scatter plot here
+            # print(df_sorted.head())
+
+            heatmap(
+                df_sorted,
+                csv_path,
+                out_path=csv_path.replace(
+                    ".csv", "_hm_baseline-10_0_gauss1.5_z_avgs.png"),
+                vmin=-2.5,
+                vmax=2.5,
+                xticklabels=20,
+            )
+
+            spaghetti_plot(
+                df_sorted,
+                csv_path,
+                out_path=csv_path.replace(
+                    ".csv", "_spaghetti_baseline-10_0_gauss1.5_z_avgs.png"
                 ),
             )
         except FileNotFoundError:
@@ -610,9 +683,9 @@ def shock_multiple_customs():
             # Create scatter plot here
             # print(df_sorted.head())
             # If you only want to show a subwindow of the subwindow
-            #print(df_sorted.head())
-            #print(list(df_sorted.index))
-            df_sorted = df_sorted.iloc[0:81,:]
+            # print(df_sorted.head())
+            # print(list(df_sorted.index))
+            df_sorted = df_sorted.iloc[0:81, :]
 
             heatmap(
                 df_sorted,
@@ -749,4 +822,4 @@ if __name__ == "__main__":
     # shock()
     # process_one_table()
     # shock_one_mouse()
-    #shock_multiple_customs()
+    # shock_multiple_customs()
