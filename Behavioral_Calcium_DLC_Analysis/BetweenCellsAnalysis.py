@@ -572,17 +572,17 @@ def shock_multiple_customs():
             #print(df.iloc[70:90, :])
             df = custom_standardize_limit_fixed(
                 df,
-                baseline_min=10,
-                baseline_max=30,
-                limit_idx=90
+                baseline_min=0,
+                baseline_max=20,
+                limit_idx=40
             )
-            """#print(df.iloc[70:90, :])
+            #print(df.iloc[70:90, :])
             df = custom_standardize_limit_fixed(
                 df,
-                baseline_min=50,
-                baseline_max=70,
-                limit_idx=90
-            )"""
+                baseline_min=40,
+                baseline_max=60,
+                limit_idx=80
+            )
             #print(df.iloc[70:90, :])
             df = gaussian_smooth(df.T)
             df = df.T
@@ -597,19 +597,19 @@ def shock_multiple_customs():
             )
             # print(df.head())
             df_sorted = insert_time_index_to_df(
-                df_sorted, range_min=-7.0, range_max=5.0, step=0.1
+                df_sorted, range_min=-6.0, range_max=6, step=0.1
             )
-            """print(list(df_sorted.index)[10])
-            print(list(df_sorted.index)[30])
-            print(list(df_sorted.index)[50])
-            print(list(df_sorted.index)[70])
-            print(list(df_sorted.index)[90])"""
+            """print(list(df_sorted.index)[0])
+            print(list(df_sorted.index)[20])
+            print(list(df_sorted.index)[40])
+            print(list(df_sorted.index)[60])
+            print(list(df_sorted.index)[80])"""
             # Create scatter plot here
             # print(df_sorted.head())
             # If you only want to show a subwindow of the subwindow
             #print(df_sorted.head())
             #print(list(df_sorted.index))
-            df_sorted = df_sorted.iloc[10:91,:]
+            df_sorted = df_sorted.iloc[0:81,:]
 
             heatmap(
                 df_sorted,

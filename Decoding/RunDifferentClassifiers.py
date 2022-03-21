@@ -291,6 +291,7 @@ def create_subwindow_fixed(
 ) -> list:
 
     subwindow = my_list[0:21]
+    # No shifting bc weonly have thatspecified time window
 
     return subwindow
 
@@ -385,7 +386,7 @@ def binary_classifications_shock():
                 df = df.T
                 df = df.iloc[1:, :]  # remove first row (the cell names)
                 # go through columns and add to X and y
-                print(csv)
+                #print(csv)
                 for col in list(df.columns):
                     if norm == True:
                         # X.append(stats.zscore(list(df[col])))
@@ -410,7 +411,7 @@ def binary_classifications_shock():
             print(f"Labels: {labels}")
 
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.20, train_size=0.80, random_state=None
+                X, y, test_size=0.40, train_size=0.60, random_state=None
             )
             # Confusion matrix save?
             cfm_dir = "/".join(csv_path.parts[0:8])
