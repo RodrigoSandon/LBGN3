@@ -2,7 +2,14 @@ import os, glob
 import pandas as pd
 from scipy import stats
 import matplotlib.pyplot as plt
+from pathlib import Path
+from typing import List
 
+def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
+    files = glob.glob(
+        os.path.join(root_path, "**", middle, "**", endswith), recursive=True,
+    )
+    return files
 
 def find_paths_conditional_endswith(
     root_path, og_lookfor: str, cond_lookfor: str
@@ -130,12 +137,13 @@ class Cell:
 
 def main():
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
-    to_look_for = "all_concat_cells.csv"
-    if_folder_includes_this_process_this_instead = "all_concat_cells_truncated.csv"
+    to_look_for = "all_concat_cells_zbaseline-10_0_gauss1.5_z_avgs.csv"
+    #if_folder_includes_this_process_this_instead = "all_concat_cells_truncated.csv"
 
-    files = find_paths_conditional_endswith(
+    """files = find_paths_conditional_endswith(
         ROOT, to_look_for, if_folder_includes_this_process_this_instead
-    )
+    )"""
+    files = find_paths(ROOT, "RDT D1", to_look_for)
 
     for csv in files:
         # print(csv)
@@ -169,7 +177,7 @@ def main():
             print(csv)
             number_cells = len(list(df.columns))
 
-            out_path = "/".join(csv.split("/")[:-1]) + "/unnorm_sorted_traces.png"
+            out_path = "/".join(csv.split("/")[:-1]) + "/sorted_traces_z.png"
             # print(out_path)
 
             # dict of lists of lists of dff_traces, would later be avg dff traces
@@ -235,7 +243,7 @@ def main():
             plt.close()
             # break
 
-        except (FileNotFoundError, ValueError) as e:
+        except Exception as e:
             print(e)
             pass
 

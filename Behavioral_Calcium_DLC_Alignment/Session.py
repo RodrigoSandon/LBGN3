@@ -383,8 +383,8 @@ class EventTrace(Neuron):  # for one combo
                 ### Add on analysis here ###
                 df = pd.read_csv(csv_path)
                 #print(df.head())
-                col_to_save = list(df["Event #"])
-                df = df.iloc[:, 1:]  # omit first row and col
+                df = df.T
+                df = df.iloc[1:, :]  # omit first col
                 
                 #print(df.head())
 
@@ -396,12 +396,12 @@ class EventTrace(Neuron):  # for one combo
                     reference_pair={0: 100},
                     hertz=10,
                 )
-
-                df = Utilities.gaussian_smooth(df.T)
                 df = df.T
+                df = Utilities.gaussian_smooth(df)
+                
                 # 2) Average Z score per each trial
                 Utilities.avg_cell_eventrace(
-                    df, col_to_save, csv_path, self.cell_name, plot=True, export_avg=True
+                    df, csv_path, self.cell_name, plot=True, export_avg=True
                 )
                 # make sure the events omitted resets after ever subcombo within an eventtrace
                 self.events_omitted = 0

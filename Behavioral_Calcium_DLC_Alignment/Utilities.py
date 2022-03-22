@@ -15,7 +15,7 @@ def create_combos(event_name_list_input: List):
         combs = combinations(event_name_list_input, to_select)
 
 
-def avg_cell_eventrace(df, col_to_save, csv_path, cell_name, plot: bool, export_avg: bool):
+def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
     """Plots the figure from the csv file given"""
     path_to_save = csv_path.replace("plot_ready_z.csv", "avg_plot_z.png")
     #df_sub = df.iloc[:, 1:]
