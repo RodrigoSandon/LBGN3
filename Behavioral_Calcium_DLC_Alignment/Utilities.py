@@ -15,10 +15,9 @@ def create_combos(event_name_list_input: List):
         combs = combinations(event_name_list_input, to_select)
 
 
-def avg_cell_eventrace(csv_path, cell_name, plot: bool, export_avg: bool):
+def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
     """Plots the figure from the csv file given"""
     path_to_save = csv_path.replace("plot_ready.csv", "avg_plot.png")
-    df = pd.read_csv(csv_path)
     df_sub = df.iloc[:, 1:]
     # print(df_sub.head())
     xaxis = list(df_sub.columns)
@@ -145,7 +144,7 @@ def convert_secs_to_idx(
 def custom_standardize(
     df: pd.DataFrame, unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int
 ):
-    # df = df.iloc[1:, 1:] #omit first row and col
+    df = df.iloc[:, 1:]  # omit first col
 
     # print(df.head())
     for col in df.columns:
@@ -170,6 +169,7 @@ def custom_standardize(
 
 def gaussian_smooth(df, sigma: float = 1.5):
     from scipy.ndimage import gaussian_filter1d
+    df = df.iloc[:, 1:]  # omit first col
 
     return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
 

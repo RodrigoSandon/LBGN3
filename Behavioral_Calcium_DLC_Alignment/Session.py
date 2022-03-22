@@ -382,16 +382,16 @@ class EventTrace(Neuron):  # for one combo
 
                 ### Add on analysis here ###
                 df = pd.read_csv(csv_path)
-                print(df.head())
-                df = df.iloc[1:, 1:] #omit first row and col
-                print(df.head())
+                #print(df.head())
+                #df = df.iloc[:, 1:]  # omit first row and col
+                #print(df.head())
 
                 # 1) Zscore
                 df = Utilities.custom_standardize(
                     df,
-                    unknown_time_min=-5.0,
+                    unknown_time_min=-10.0,
                     unknown_time_max=0.0,
-                    reference_pair={0: 50},
+                    reference_pair={0: 100},
                     hertz=10,
                 )
 
@@ -399,7 +399,7 @@ class EventTrace(Neuron):  # for one combo
                 df = df.T
                 # 2) Average Z score per each trial
                 Utilities.avg_cell_eventrace(
-                    csv_path, self.cell_name, plot=True, export_avg=True
+                    df, csv_path, self.cell_name, plot=True, export_avg=True
                 )
                 # make sure the events omitted resets after ever subcombo within an eventtrace
                 self.events_omitted = 0
