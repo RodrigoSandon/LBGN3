@@ -26,7 +26,10 @@ def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
 
     avg_of_col_lst = []
     for col_name, col_data in df.iteritems():
-        avg_dff_of_timewindow_of_event = df[col_name].mean()
+        if stats.tmean(list(df[col_name])) > 10000:
+            print(col_name)
+            print(list(df[col_name]))
+        avg_dff_of_timewindow_of_event = stats.tmean(list(df[col_name]))
         avg_of_col_lst.append(avg_dff_of_timewindow_of_event)
 
     if plot == True:
@@ -39,7 +42,8 @@ def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
         plt.close()
 
     if export_avg == True:
-        path_to_save = csv_path.replace("plot_ready_z.csv", "avg_plot_ready_z.csv")
+        path_to_save = csv_path.replace(
+            "plot_ready_z.csv", "avg_plot_ready_z.csv")
         export_avg_cell_eventraces(cell_name, avg_of_col_lst, path_to_save)
 
 
@@ -144,7 +148,7 @@ def convert_secs_to_idx(
 def custom_standardize(
     df: pd.DataFrame, unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int
 ):
-    #df = df.iloc[:, 1:]  # omit first col
+    # df = df.iloc[:, 1:]  # omit first col
 
     # print(df.head())
     for col in df.columns:
@@ -169,7 +173,7 @@ def custom_standardize(
 
 def gaussian_smooth(df, sigma: float = 1.5):
     from scipy.ndimage import gaussian_filter1d
-    #df = df.iloc[:, 1:]  # omit first col
+    # df = df.iloc[:, 1:]  # omit first col
 
     return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
 
