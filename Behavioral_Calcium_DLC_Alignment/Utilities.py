@@ -15,18 +15,18 @@ def create_combos(event_name_list_input: List):
         combs = combinations(event_name_list_input, to_select)
 
 
-def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
+def avg_cell_eventrace(df, col_to_save, csv_path, cell_name, plot: bool, export_avg: bool):
     """Plots the figure from the csv file given"""
-    path_to_save = csv_path.replace("plot_ready.csv", "avg_plot.png")
-    df_sub = df.iloc[:, 1:]
+    path_to_save = csv_path.replace("plot_ready_z.csv", "avg_plot_z.png")
+    #df_sub = df.iloc[:, 1:]
     # print(df_sub.head())
-    xaxis = list(df_sub.columns)
+    xaxis = list(df.columns)
 
-    row_count = len(df_sub)
+    row_count = len(df)
 
     avg_of_col_lst = []
-    for col_name, col_data in df_sub.iteritems():
-        avg_dff_of_timewindow_of_event = df_sub[col_name].mean()
+    for col_name, col_data in df.iteritems():
+        avg_dff_of_timewindow_of_event = df[col_name].mean()
         avg_of_col_lst.append(avg_dff_of_timewindow_of_event)
 
     if plot == True:
@@ -39,7 +39,7 @@ def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
         plt.close()
 
     if export_avg == True:
-        path_to_save = csv_path.replace("plot_ready.csv", "avg_plot_ready.csv")
+        path_to_save = csv_path.replace("plot_ready_z.csv", "avg_plot_ready_z.csv")
         export_avg_cell_eventraces(cell_name, avg_of_col_lst, path_to_save)
 
 
@@ -144,7 +144,7 @@ def convert_secs_to_idx(
 def custom_standardize(
     df: pd.DataFrame, unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int
 ):
-    df = df.iloc[:, 1:]  # omit first col
+    #df = df.iloc[:, 1:]  # omit first col
 
     # print(df.head())
     for col in df.columns:
@@ -169,7 +169,7 @@ def custom_standardize(
 
 def gaussian_smooth(df, sigma: float = 1.5):
     from scipy.ndimage import gaussian_filter1d
-    df = df.iloc[:, 1:]  # omit first col
+    #df = df.iloc[:, 1:]  # omit first col
 
     return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
 

@@ -488,7 +488,7 @@ def new_main():
     ROOT_PATH = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
     # ROOT_PATH = r"/Users/rodrigosandon/Documents/GitHub/LBGN/SampleData/truncating_bug"
 
-    to_look_for_originally = "all_concat_cells.csv"
+    to_look_for_originally = "all_concat_cells_z.csv"
     # would only look for this is the file causing the conditional statement didn't exist
     to_look_for_conditional = "all_concat_cells_truncated.csv"
 
@@ -818,7 +818,7 @@ def shock_one_mouse():
 
 
 if __name__ == "__main__":
-    main()
+    new_main()
     # shock()
     # process_one_table()
     # shock_one_mouse()
