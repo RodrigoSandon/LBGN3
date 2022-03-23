@@ -373,7 +373,7 @@ def main():
                     # Make sure output files don't already exist- else an error
                     to_delete = [
                         ".",
-                        "dff_traces.csv",
+                        "dff_traces_updated.csv",
                         "gpio.csv",
                         "dff_traces_preprocessed_gpio.csv",
                     ]
@@ -384,7 +384,7 @@ def main():
                     for i in range(len(cellsets)):
                         util.export_session_dff(
                             cellsets[i],
-                            os.path.join(roots[i], "dff_traces.csv"),
+                            os.path.join(roots[i], "dff_traces_updated.csv"),
                             os.path.join(roots[i], "cell_"),
                             "start",
                             "",
@@ -443,7 +443,7 @@ def main():
                         print("LONG REG COULD NOT BE PERFORMED IN THIS MOUSE")
 
                     # preprocess dff traces now and export
-                    dff_file_paths = util.find_recursively("dff_traces.csv")
+                    dff_file_paths = util.find_recursively("dff_traces_updated.csv")
                     preprocessed_dff_filepaths = []
                     # the order of dff paths should correspond to that of roots, so
                     # the output should direct it to the right location
@@ -550,7 +550,7 @@ def run_per_mouse():
     # Make sure output files don't already exist- else an error
     to_delete = [
         ".",
-        "dff_traces.csv",
+        "dff_traces_updated.csv",
         "gpio.csv",
         "dff_traces_preprocessed_gpio.csv",
     ]
@@ -561,7 +561,7 @@ def run_per_mouse():
     for i in range(len(cellsets)):
         util.export_session_dff(
             cellsets[i],
-            os.path.join(roots[i], "dff_traces.csv"),
+            os.path.join(roots[i], "dff_traces_updated.csv"),
             os.path.join(roots[i], "cell_"),
             "start",
             "",
@@ -608,7 +608,7 @@ def run_per_mouse():
         print("LONG REG COULD NOT BE PERFORMED IN THIS MOUSE")
 
     # preprocess dff traces now and export
-    dff_file_paths = util.find_recursively("dff_traces.csv")
+    dff_file_paths = util.find_recursively("dff_traces_updated.csv")
     preprocessed_dff_filepaths = []
     # the order of dff paths should correspond to that of roots, so
     # the output should direct it to the right location

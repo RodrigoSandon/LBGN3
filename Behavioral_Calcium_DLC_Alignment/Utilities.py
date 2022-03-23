@@ -17,7 +17,7 @@ def create_combos(event_name_list_input: List):
 
 def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
     """Plots the figure from the csv file given"""
-    path_to_save = csv_path.replace("plot_ready_z.csv", "avg_plot_z.png")
+    path_to_save = csv_path.replace("plot_ready_z_pre.csv", "avg_plot_z_pre.png")
     #df_sub = df.iloc[:, 1:]
     # print(df_sub.head())
     xaxis = list(df.columns)
@@ -43,7 +43,7 @@ def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
 
     if export_avg == True:
         path_to_save = csv_path.replace(
-            "plot_ready_z.csv", "avg_plot_ready_z.csv")
+            "plot_ready_z_pre.csv", "avg_plot_ready_z_pre.csv")
         export_avg_cell_eventraces(cell_name, avg_of_col_lst, path_to_save)
 
 

@@ -29,8 +29,8 @@ def get_input_cell_set_files(root_path: Path):
                 cell_set_files.append(path_to_cellset)
                 root_paths_to_cell_set_files.append(root)
     # now have all paths to the cellset isxds
-    print(*cell_set_files, sep="\n")
-    print("Number of cell sets: %s" % (len(cell_set_files)))
+    #print(*cell_set_files, sep="\n")
+    #print("Number of cell sets: %s" % (len(cell_set_files)))
     return cell_set_files, root_paths_to_cell_set_files
 
 
@@ -39,14 +39,30 @@ def main():
     cellsets, roots = get_input_cell_set_files(root_path)  # should have the same index
 
     for i in range(len(cellsets)):
+        dff_path = os.path.join(roots[i], "dff_traces_updated.csv")
+        print(dff_path)
+        try:
+            get_dff_and_tiff(
+                cellsets[i],
+                dff_path,
+                os.path.join(roots[i], "cell_"),
+                "start",
+                "",
+            )
+        except:
+            if " " in dff_path:
+                dff_path = dff_path.replace(" ", "\ ")
 
-        get_dff_and_tiff(
-            cellsets[i],
-            os.path.join(roots[i], "dff_traces.csv"),
-            os.path.join(roots[i], "cell_"),
-            "start",
-            "",
-        )
+            cmd = f"gvfs-trash {dff_path}"
+            os.system(cmd)
+            get_dff_and_tiff(
+                cellsets[i],
+                dff_path,
+                os.path.join(roots[i], "cell_"),
+                "start",
+                "",
+            )
+
 
 
 def process_one_isxd():
@@ -65,5 +81,5 @@ def process_one_isxd():
         )
 
 
-#main()
-process_one_isxd()
+main()
+#process_one_isxd()

@@ -43,10 +43,12 @@ class Driver:
         session_types = [
 
             "RDT D1",
+            "RDT D2",
+            "RDT D3"
 
         ]  # 1/3/22 ->DONT INCLUDE SHOCK SESSIONS IN THIS PROCESS
 
-        """list_of_combos_we_care_about = [
+        list_of_combos_we_care_about = [
             "Block_Choice Time (s)",
             "Block_Learning Stratergy_Choice Time (s)",
             "Block_Omission_Choice Time (s)",
@@ -67,9 +69,6 @@ class Driver:
             "Learning Stratergy_Choice Time (s)",
             "Omission_Choice Time (s)",
             "Reward Size_Choice Time (s)",
-        ]"""
-        list_of_combos_we_care_about = [
-            "Shock Ocurred_Choice Time (s)",
         ]
 
         MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/"
@@ -216,7 +215,7 @@ class Driver:
         # print(session_1.behavioral_df.head())
 
     def run_one_session_one_neuron():
-        list_of_combos_we_care_about = [
+        """list_of_combos_we_care_about = [
             "Block_Choice Time (s)",
             "Block_Learning Stratergy_Choice Time (s)",
             "Block_Omission_Choice Time (s)",
@@ -237,10 +236,15 @@ class Driver:
             "Learning Stratergy_Choice Time (s)",
             "Omission_Choice Time (s)",
             "Reward Size_Choice Time (s)",
+        ]"""
+
+        list_of_combos_we_care_about = [
+
+            "Shock Ocurred_Choice Time (s)",
         ]
         
         SESSION_PATH = (
-            r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/RDT D2"
+            r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-7/RDT D1"
         )
 
         session_1 = Session(SESSION_PATH)
@@ -328,7 +332,7 @@ class Driver:
                         pass
             print("Time taken for %s: %s" %
                     (cell_name, time.time() - start))
-            break  # <- FOR RUNNING ONE NEURON
+            #break  # <- FOR RUNNING ONE NEURON
 
 
 if __name__ == "__main__":

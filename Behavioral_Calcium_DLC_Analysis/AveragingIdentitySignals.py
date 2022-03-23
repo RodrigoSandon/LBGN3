@@ -4,6 +4,8 @@ from scipy import stats
 import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import List
+from csv import writer
+import math
 
 def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
     files = glob.glob(
@@ -95,14 +97,17 @@ class Cell:
 
         if (sub_df_baseline_lst == sub_df_lst) == True:
             return "null"
+        try:
+            result_greater = stats.mannwhitneyu(
+                sub_df_lst, sub_df_baseline_lst, alternative="greater"
+            )
 
-        result_greater = stats.mannwhitneyu(
-            sub_df_lst, sub_df_baseline_lst, alternative="greater"
-        )
-
-        result_less = stats.mannwhitneyu(
-            sub_df_lst, sub_df_baseline_lst, alternative="less"
-        )
+            result_less = stats.mannwhitneyu(
+                sub_df_lst, sub_df_baseline_lst, alternative="less"
+            )
+        except ValueError:
+            print(sub_df_baseline_lst)
+            print(sub_df_lst)
 
         id = None
         if result_greater.pvalue < (self.alpha / self.number_cells):
@@ -137,13 +142,13 @@ class Cell:
 
 def main():
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
-    to_look_for = "all_concat_cells_zbaseline-10_0_gauss1.5_z_avgs.csv"
+    to_look_for = "all_concat_cells_z_pre.csv"
     #if_folder_includes_this_process_this_instead = "all_concat_cells_truncated.csv"
 
     """files = find_paths_conditional_endswith(
         ROOT, to_look_for, if_folder_includes_this_process_this_instead
     )"""
-    files = find_paths(ROOT, "RDT D1", to_look_for)
+    files = find_paths(ROOT, "RDT D2", to_look_for)
 
     for csv in files:
         # print(csv)
@@ -172,20 +177,40 @@ def main():
         hertz = 10
         alpha = 0.01
 
-        try:
-            df = pd.read_csv(csv)
-            print(csv)
-            number_cells = len(list(df.columns))
+        #try:
+        df = pd.read_csv(csv)
+        print(csv)
+        number_cells = len(list(df.columns))
 
-            out_path = "/".join(csv.split("/")[:-1]) + "/sorted_traces_z.png"
-            # print(out_path)
+        out_path = "/".join(csv.split("/")[:-1]) + "/sorted_traces_z_err_pre.png"
+        
+        # print(out_path)
 
-            # dict of lists of lists of dff_traces, would later be avg dff traces
-            d = {"+": [], "-": [], "Neutral": []}
+        # dict of lists of lists of dff_traces, would later be avg dff traces
+        d = {"+": [], "-": [], "Neutral": []}
+        d_description = {
+            "+": {
+                "mean":[],
+                "sem":[]
+            }, 
+            "-": {
+                "mean":[],
+                "sem":[]
+            }, 
+            "Neutral": {
+                "mean":[],
+                "sem":[]
+                }
+        }
 
-            # loop through this csv
-            for count, col in enumerate(list(df.columns)):
+        # loop through this csv
+        for count, col in enumerate(list(df.columns)):
+            if col == "BLA-Insc-1_C20" or col == "BLA-Insc-1_C21" or col == "BLA-Insc-7_C04" or col == "BLA-Insc-7_C05": #NUANCES
+                pass
+            else:
                 dff_traces = list(df[col])
+                # NUANCE: OMITTING CELL 4 FROM BLA 7 FOR NOW 3/22/22
+                #print(col)
                 cell = Cell(
                     dff_traces,
                     number_cells,
@@ -197,6 +222,7 @@ def main():
                     hertz,
                     alpha,
                 )
+                
                 # now have id for this cell in csv
                 if cell.id == "+":
                     d["+"].append(dff_traces)
@@ -205,47 +231,67 @@ def main():
                 elif cell.id == "Neutral":
                     d["Neutral"].append(dff_traces)
 
-            # Now have all cells sorted, find avg of lists of lists
-            for key in d.keys():
-                # print(*d[key], sep="\n")
-                num_traces_in_list = len(d[key])
-                """print(
-                    num_traces_in_list
-                )  # should add up to the num of total cells in that csv"""
-                # in which it does
-                zipped_dff_traces = zip(*d[key])
-                # d[key] is a list of lists
+        # Now have all cells sorted, find avg of lists of lists
+        for key in d.keys():
+            # print(*d[key], sep="\n")
+            num_traces_in_list = len(d[key])
+            """print(
+                num_traces_in_list
+            )  # should add up to the num of total cells in that csv"""
+            # in which it does
+            zipped_dff_traces = zip(*d[key])
+            # d[key] is a list of lists
 
-                """for_printing = zip(*d[key])
-                print(list(for_printing)[0])"""
+            """for_printing = zip(*d[key])
+            print(list(for_printing)[0])"""
 
-                avg_dff_traces = []
+            avg_dff_traces = []
 
-                for index, tuple in enumerate(zipped_dff_traces):
-                    avg = sum(list(tuple)) / num_traces_in_list
-                    avg_dff_traces.append(avg)
+            for index, tuple in enumerate(zipped_dff_traces):
+                
+                avg = sum(list(tuple)) / num_traces_in_list
+                sem = stats.tstd(list(tuple))/(math.sqrt(num_traces_in_list))
+                avg_dff_traces.append(avg)
 
-                """d[key] = cell.custom_standardize(
-                    avg_dff_traces, norm_base_min, norm_base_max
-                )"""
+                d_description[key]["mean"].append(avg)
+                d_description[key]["sem"].append(sem)
+                
 
-                d[key] = avg_dff_traces
+            """d[key] = cell.custom_standardize(
+                avg_dff_traces, norm_base_min, norm_base_max
+            )"""
 
-            for key in d.keys():
-                plt.plot(list(df.index), d[key], label=key)
+            d[key] = avg_dff_traces
 
-            plt.title(f"Z-Score of Averaged dF/F Cell Identities (n={number_cells})")
-            plt.locator_params(axis="x", nbins=20)
-            plt.xlabel("Time (s)")
-            plt.ylabel("Z-Score")
-            plt.legend()
-            plt.savefig(out_path)
-            plt.close()
-            # break
+        out_path_csv = out_path.replace("sorted_traces_z_err_pre.png", "sorted_traces_z_err_pre.csv")
 
-        except Exception as e:
+        new_d = {}
+        for key_1 in d_description:
+            for key_2 in d_description[key_1]:
+                new_key = f"{key_1}_{key_2}"
+                new_d[new_key] = d_description[key_1][key_2]
+
+        d_description_df = pd.DataFrame.from_dict(new_d)
+        d_description_df.to_csv(out_path_csv, index=False)
+        
+        for key in d.keys():
+            plt.plot(list(df.index), d_description[key]["mean"], label=key)
+            difference_1 = [d_description[key]["mean"][idx] - d_description[key]["sem"][idx] for idx,i in enumerate(d_description[key]["mean"])]
+            difference_2 = [d_description[key]["mean"][idx] + d_description[key]["sem"][idx] for idx,i in enumerate(d_description[key]["mean"])]
+            plt.fill_between(list(df.index), difference_1, difference_2)
+
+        plt.title(f"Z-Score of Averaged dF/F Cell Identities (n={number_cells})")
+        plt.locator_params(axis="x", nbins=20)
+        plt.xlabel("Time (s)")
+        plt.ylabel("Z-Score")
+        plt.legend()
+        plt.savefig(out_path)
+        plt.close()
+        # break
+
+        """except Exception as e:
             print(e)
-            pass
+            pass"""
 
 
 if __name__ == "__main__":

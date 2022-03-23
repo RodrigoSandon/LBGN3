@@ -376,7 +376,7 @@ class EventTrace(Neuron):  # for one combo
                 # self.aligned_dff_dict[self.get_event_traces_name] = group_df
 
                 os.makedirs(new_path, exist_ok=True)
-                name_of_csv = "plot_ready_z.csv"
+                name_of_csv = "plot_ready_z_pre.csv"
                 csv_path = os.path.join(new_path, name_of_csv)
                 group_df.to_csv(csv_path, index=False)
 
@@ -392,7 +392,7 @@ class EventTrace(Neuron):  # for one combo
                 df = Utilities.custom_standardize(
                     df,
                     unknown_time_min=-10.0,
-                    unknown_time_max=0.0,
+                    unknown_time_max=-5.0,
                     reference_pair={0: 100},
                     hertz=10,
                 )
