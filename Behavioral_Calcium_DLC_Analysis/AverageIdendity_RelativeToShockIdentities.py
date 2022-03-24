@@ -238,7 +238,7 @@ def main():
                 }
 
                 for count, col in enumerate(list(df.columns)):
-                    if col == "BLA-Insc-1_C20" or col == "BLA-Insc-1_C21" or col == "BLA-Insc-7_C04" or col == "BLA-Insc-7_C05": #NUANCES
+                    if col == "BLA-Insc-1_C20" or col == "BLA-Insc-1_C21" or col == "BLA-Insc-7_C04" or col == "BLA-Insc-7_C05" or col == "BLA-Insc-3_C16": #NUANCES
                         pass
                     else:
 

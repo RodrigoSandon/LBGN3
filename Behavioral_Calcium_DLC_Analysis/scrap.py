@@ -661,3 +661,126 @@ Driver.main2()
         for i in params_to_focus:
             specified_params = input(f"Which {i} are you focused on?")
 """
+def change_cell_names(df):
+
+    for col in df.columns:
+
+        df = df.rename(columns={col: col.replace("BLA-Insc-", "")})
+        # print(col)
+
+    return df
+
+def sort_cells(
+    df, unknown_time_min, unknown_time_max, reference_pair: dict, hertz: int
+):
+
+    # sorted_cells = {}
+    sorted_cells = []
+
+    for col in df.columns:
+        cell = Cell.Cell(
+            col,
+            list(df[col]),
+            unknown_time_min,
+            unknown_time_max,
+            reference_pair,
+            hertz,
+        )
+        # sorted_cells[cell.cell_name] = cell
+        sorted_cells.append(cell)
+
+    # SORT THE LIST of CELL OBJECTS BASE ON ITS Z_SCORE ATTRIBUTE
+    sorted_cells.sort(key=attrgetter("z_score"), reverse=True)
+
+    # ORDERED CELL OBJECTS, NOW TO DATA TYPE
+    # its list of cell objs
+    def convert_lst_to_d(lst):
+        res_dct = {}
+        for count, i in enumerate(lst):
+            # print("CURRENT CELL:", i.cell_name)
+            # print("CURRENT DFF TRACE BEING ADDED:", i.dff_traces[0:5])
+            # print(f"CURRENT {i.cell_name} Z score:", i.z_score)
+            res_dct[i.cell_name] = i.dff_traces
+
+        print(f"NUMBER OF CELLS: {len(lst)}")
+        return res_dct
+
+    sorted_cells_d = convert_lst_to_d(sorted_cells)
+
+    df_mod = pd.DataFrame.from_dict(
+        sorted_cells_d
+    )  # from_records automatically sorts by key smh
+    # print(df_mod)
+    return df_mod
+
+def heatmap(
+    df,
+    file_path,
+    out_path,
+    cols_to_plot: Optional[List[str]] = None,
+    cmap: str = "coolwarm",
+    vmin: Optional[float] = None,
+    vmax: Optional[float] = None,
+    **heatmap_kwargs,
+):
+
+    try:
+        if cols_to_plot is not None:
+            df = df[cols_to_plot]
+
+        ax = sns.heatmap(
+            df.transpose(), vmin=vmin, vmax=vmax, cmap=cmap, **heatmap_kwargs
+        )
+        ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize=8)
+        ax.set_yticklabels(ax.get_ymajorticklabels(), fontsize=5)
+        ax.tick_params(left=True, bottom=True)
+
+        ax.set_ylabel("Neuron #")
+        ax.set_xlabel("Time relative to choice (s)")
+
+        plt.title(
+            f"Smoothed Z-Scores of Neural Ca2+ Traces (n={len(list(df.columns))})"
+        )
+        plt.savefig(out_path)
+        plt.close()
+
+    except ValueError as e:
+
+        print("VALUE ERROR:", e)
+        print(f"VALUE ERROR FOR {file_path} --> MAKING HEATMAP")
+        pass
+
+
+def new_main():
+
+    csv_path = "_z_pre_3_16.csv"
+    try:
+        df = pd.read_csv(csv_path)
+        # df = truncate_past_len_threshold(df, len_threshold=200)
+
+        df = change_cell_names(df)
+
+        df_sorted = sort_cells(
+            df,
+            unknown_time_min=0.0,
+            unknown_time_max=3.0,
+            reference_pair={0: 100},
+            hertz=10,
+        )
+    
+
+        heatmap(
+            df_sorted,
+            csv_path,
+            out_path=csv_path.replace(
+                ".csv", "_hm_test1.png"),
+            vmin=-2.5,
+            vmax=2.5,
+            xticklabels=20,
+        )
+
+    except Exception as e:
+        print(e)
+        pass
+
+new_main()
