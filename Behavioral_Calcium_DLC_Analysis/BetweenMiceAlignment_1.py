@@ -193,14 +193,16 @@ def main():
         return files
 
     # file = open(f"{ROOT_PATH}/structure_of_between_mice_alignment.txt", "w+")
+    list_of_sessions = ["RDT D1", "RDT D2", "RDT D3"]
+    for i in list_of_sessions:
+        print(i)
+        lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, i, "concat_cells_z_pre.csv") #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
+        bw_mice_alignment_f_name = "BetweenMiceAlignmentData"
+        bw_mice_alignment_path = os.path.join(ROOT_PATH, bw_mice_alignment_f_name)
 
-    lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, 'RDT D1', "concat_cells_z_pre.csv") #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
-    bw_mice_alignment_f_name = "BetweenMiceAlignmentData"
-    bw_mice_alignment_path = os.path.join(ROOT_PATH, bw_mice_alignment_f_name)
-
-    concat_all_cells_across_similar_sessions(
-        lst_of_avg_cell_csv_paths, bw_mice_alignment_path
-    )
+        concat_all_cells_across_similar_sessions(
+            lst_of_avg_cell_csv_paths, bw_mice_alignment_path
+        )
     # file.write("\n".join(lst_of_avg_cell_csv_paths))
     # file.close()
 

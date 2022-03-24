@@ -37,6 +37,7 @@ def find_paths_conditional_endswith(
 class Cell:
     def __init__(
         self,
+        col,
         dff_trace: list,
         number_cells,
         base_lower_bound_time,
@@ -47,7 +48,7 @@ class Cell:
         hertz,
         alpha,
     ):
-
+        self.name = col
         self.number_cells = number_cells
         self.base_lower_bound_time = base_lower_bound_time
         self.base_upper_bound_time = base_upper_bound_time
@@ -141,62 +142,85 @@ class Cell:
 
 
 def main():
+    list_of_sessions = ["RDT D1", "RDT D2", "RDT D3"]
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
     to_look_for = "all_concat_cells_z_pre.csv"
-    if_folder_includes_this_process_this_instead = "all_concat_cells_z_pre_truncated.csv"
+    # specify only shock occured category for each within each sessioon
+    # then specify the +/-/Neutral cells within each session for all events
+    for session in list_of_sessions:
+        IDENTITY_DETERMINATOR = f"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/{session}/Shock Ocurred_Choice Time (s)/True/all_concat_cells_z_pre.csv"
 
-    """files = find_paths_conditional_endswith(
-        ROOT, to_look_for, if_folder_includes_this_process_this_instead
-    )"""
+        base_lower_bound_time = -10
+        base_upper_bound_time = -5
+        lower_bound_time = 0
+        upper_bound_time = 3
+        reference_pair = {0: 100}
 
-    list_of_sessions = ["RDT D1", "RDT D2", "RDT D3"]
-    
-    for i in list_of_sessions:
-        print(i)
-        files = find_paths(ROOT, i, to_look_for)
-        """files : list
-        files = find_paths_conditional_endswith(
-        ROOT, to_look_for, if_folder_includes_this_process_this_instead
-    )"""
+        hertz = 10
+        alpha = 0.01
+
+        #try:
+        df = pd.read_csv(IDENTITY_DETERMINATOR)
+        #print(IDENTITY_DETERMINATOR)
+        number_cells = len(list(df.columns))
+        
+        # print(out_path)
+
+        # dict of lists of lists of dff_traces, would later be avg dff traces
+        d_cells = {"+": [], "-": [], "Neutral": []}
+
+        # loop through this csv
+        for count, col in enumerate(list(df.columns)):
+            if col == "BLA-Insc-1_C20" or col == "BLA-Insc-1_C21" or col == "BLA-Insc-7_C04" or col == "BLA-Insc-7_C05": #NUANCES
+                pass
+            else:
+                dff_traces = list(df[col])
+                # NUANCE: OMITTING CELL 4 FROM BLA 7 FOR NOW 3/22/22
+                #print(col)
+                cell = Cell(
+                    col,
+                    dff_traces,
+                    number_cells,
+                    base_lower_bound_time,
+                    base_upper_bound_time,
+                    lower_bound_time,
+                    upper_bound_time,
+                    reference_pair,
+                    hertz,
+                    alpha,
+                )
+                
+                # now have id for this cell in csv
+                if cell.id == "+":
+                    d_cells["+"].append(cell.name)
+                elif cell.id == "-":
+                    d_cells["-"].append(cell.name)
+                elif cell.id == "Neutral":
+                    d_cells["Neutral"].append(cell.name)
+        print(d_cells)
+        
+        print(session)
+        files = find_paths(ROOT, session, to_look_for)
         
         for csv in files:
             # print(csv)
             try:
-                if "Shock Test" not in csv:
-                    base_lower_bound_time = -10
-                    base_upper_bound_time = -5
-                    lower_bound_time = 0
-                    upper_bound_time = 3
-                    reference_pair = {0: 100}
-
-                    # for normalizing ater averaging
-                    norm_base_min = -10
-                    norm_base_max = -1
-                elif "Shock Test" in csv:
-                    base_lower_bound_time = -3
-                    base_upper_bound_time = 0
-                    lower_bound_time = 0
-                    upper_bound_time = 3
-                    reference_pair = {0: 50}
-
-                    # for normalizing ater averaging
-                    norm_base_min = -5
-                    norm_base_max = 0
-
+                base_lower_bound_time = -10
+                base_upper_bound_time = -5
+                lower_bound_time = 0
+                upper_bound_time = 3
+                reference_pair = {0: 100}
+                
                 hertz = 10
                 alpha = 0.01
 
-                #try:
                 df = pd.read_csv(csv)
                 print(csv)
-                print(len(df))
                 number_cells = len(list(df.columns))
 
-                out_path = "/".join(csv.split("/")[:-1]) + "/sorted_traces_z_err_pre.png"
+                out_path = "/".join(csv.split("/")[:-1]) + "/sorted_traces_z_err_pre_shock_relative.png"
                 
-                # print(out_path)
 
-                # dict of lists of lists of dff_traces, would later be avg dff traces
                 d = {"+": [], "-": [], "Neutral": []}
                 d_description = {
                     "+": {
@@ -213,15 +237,14 @@ def main():
                         }
                 }
 
-                # loop through this csv
                 for count, col in enumerate(list(df.columns)):
                     if col == "BLA-Insc-1_C20" or col == "BLA-Insc-1_C21" or col == "BLA-Insc-7_C04" or col == "BLA-Insc-7_C05": #NUANCES
                         pass
                     else:
+
                         dff_traces = list(df[col])
-                        # NUANCE: OMITTING CELL 4 FROM BLA 7 FOR NOW 3/22/22
-                        #print(col)
                         cell = Cell(
+                            col,
                             dff_traces,
                             number_cells,
                             base_lower_bound_time,
@@ -232,28 +255,18 @@ def main():
                             hertz,
                             alpha,
                         )
-                        
-                        # now have id for this cell in csv
-                        if cell.id == "+":
-                            d["+"].append(dff_traces)
-                        elif cell.id == "-":
-                            d["-"].append(dff_traces)
-                        elif cell.id == "Neutral":
-                            d["Neutral"].append(dff_traces)
+                        # if curr cell is in an identity, place it's dff trace on the corresponding
+                        # identity in "d"
+                        for identity in d_cells:
+                            if cell.name in d_cells[identity]:
+                                d[identity].append(cell.dff_trace)
+
 
                 # Now have all cells sorted, find avg of lists of lists
                 for key in d.keys():
-                    # print(*d[key], sep="\n")
                     num_traces_in_list = len(d[key])
-                    """print(
-                        num_traces_in_list
-                    )  # should add up to the num of total cells in that csv"""
-                    # in which it does
                     zipped_dff_traces = zip(*d[key])
-                    # d[key] is a list of lists
 
-                    """for_printing = zip(*d[key])
-                    print(list(for_printing)[0])"""
 
                     avg_dff_traces = []
 
@@ -265,15 +278,10 @@ def main():
 
                         d_description[key]["mean"].append(avg)
                         d_description[key]["sem"].append(sem)
-                        
-
-                    """d[key] = cell.custom_standardize(
-                        avg_dff_traces, norm_base_min, norm_base_max
-                    )"""
 
                     d[key] = avg_dff_traces
 
-                out_path_csv = out_path.replace("sorted_traces_z_err_pre.png", "sorted_traces_z_err_pre.csv")
+                out_path_csv = out_path.replace("sorted_traces_z_err_pre_shock_relative.png", "sorted_traces_z_err_pre_shock_relative.csv")
 
                 new_d = {}
                 for key_1 in d_description:

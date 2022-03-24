@@ -135,7 +135,7 @@ def main():
         ]  # UPDATE 1/3/22 -> SHOCK SESSIONS ARE PROCESSED IN ANOTHER PY FILE"""
         session_types = [
         
-            "RDT D1",
+            "RDT D1", "RDT D2", "RDT D3"
             
         ]  # UPDATE 1/3/22 -> SHOCK SESSIONS ARE PROCESSED IN ANOTHER PY FILE
 

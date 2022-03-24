@@ -88,7 +88,7 @@ class Table(TableDatabase):
         self.df.to_csv(new_path, index=False)
 
     def truncate_past_len_threshold(self):
-
+        print(len(self.df))
         if len(self.df) > self.len_threshold:
             print(
                 f"File {self.path} is not jagged, but higher than threshold: {len(self.df)}"
@@ -106,7 +106,7 @@ def main():
     # ROOT_PATH = r"/Users/rodrigosandon/Documents/GitHub/LBGN/SampleData/truncating_bug"
 
     truncate_csvs_in_root(
-        ROOT_PATH, name_of_files_to_trunc="all_concat_cells.csv", len_threshold=200
+        ROOT_PATH, name_of_files_to_trunc="all_concat_cells_z_pre.csv", len_threshold=200
     )
 
 
