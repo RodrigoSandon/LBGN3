@@ -18,7 +18,7 @@ def find_paths_startswith_and_endswith(root_path, startswith, endswith) -> List:
 
 
 def main():
-    ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
+    ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5"
     """11/12/21 : going through entire mouse to check if there's an abet file that needs to be preprocessed."""
     """Give a list of the strings that have another string --> these ones don't include in analysis"""
     to_not_include_in_preprocessing = [
@@ -28,8 +28,15 @@ def main():
     ]
 
     files = find_paths_startswith_and_endswith(ROOT, "BLA", ".csv")
+    acc_files = []
+    for f in files:
+        df = pd.read_csv(f)
+        if list(df.columns)[0] == "Evnt_Time":
+            acc_files.append(f)
+    print(len(files))
+    print(len(acc_files))
 
-    for abet_path in files:
+    for abet_path in acc_files:
 
         if any(
             abet_path.find(mystr) != -1 for mystr in to_not_include_in_preprocessing
@@ -74,8 +81,7 @@ def main():
                     index=True,
                 )
             except Exception as e:
-                print("AN ERROR OCURRED!")
-                print(e)
+                print(f"ERROR: {e}")
                 pass
 
 

@@ -18,7 +18,7 @@ def find_paths_startswith_and_endswith(root_path, startswith, endswith) -> List:
 
 def main():
 
-    ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
+    ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5"
 
     files = find_paths_startswith_and_endswith(
         ROOT, "BLA", "_ABET_GPIO_processed.csv")
