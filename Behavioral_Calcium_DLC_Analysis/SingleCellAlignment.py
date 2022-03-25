@@ -15,7 +15,7 @@ from pathlib import Path
 def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
     """Plots the figure from the csv file given"""
     path_to_save = csv_path.replace(
-        "plot_ready.csv", "avg_plot_z_pre_3_16.png")
+        "plot_ready.csv", "avg_plot_z_fullwindow.png")
     #df_sub = df.iloc[:, 1:]
     # print(df_sub.head())
     xaxis = list(df.columns)
@@ -41,7 +41,7 @@ def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
 
     if export_avg == True:
         path_to_save = csv_path.replace(
-            "plot_ready.csv", "avg_plot_ready_z_pre_3_16.csv")
+            "plot_ready.csv", "avg_plot_ready_z_fullwindow.csv")
         export_avg_cell_eventraces(cell_name, avg_of_col_lst, path_to_save)
 
 
@@ -81,22 +81,21 @@ def custom_standardize_limit_fixed(
 # betweencellalignment already covered, just need to output name for this step
 
 
-def find_paths_endswith(root_path, endswith) -> List:
-
+def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
     files = glob.glob(
-        os.path.join(root_path, "**", "*%s") % (endswith), recursive=True,
+        os.path.join(root_path, "**", middle, "**", endswith), recursive=True,
     )
-
     return files
 
 
 def main():
     MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
 
-    files = find_paths_endswith(MASTER_ROOT, "plot_ready.csv")
+    files = find_paths(MASTER_ROOT, "SingleCellAlignmentData","plot_ready.csv")
 
     for csv in files:
         print(f"CURR CSV: {csv}")
+        cell_name = csv.split("/")[9]
         df: pd.DataFrame
         df = pd.read_csv(csv)
         # print(df.head())
@@ -125,10 +124,13 @@ def main():
 
         # 2) Average Z score per each trial
         avg_cell_eventrace(
-            df, csv, "3_C16", plot=True, export_avg=True
+            df, csv, cell_name, plot=True, export_avg=True
         )
 
         df.insert(0, "Event #", col_to_save)
 
         csv_moded_out_path = csv.replace(".csv", "_z_fullwindow.csv")
         df.to_csv(csv_moded_out_path, index=False)
+
+if __name__ == "__main__":
+    main()
