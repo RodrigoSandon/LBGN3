@@ -121,74 +121,68 @@ class Driver:
             print(session_paths)
             for session_path in session_paths:
                 print(f"Working on... {session_path}")
-                try:
 
-                    session_1 = Session(session_path)
+                session_1 = Session(session_path)
 
-                    for (
-                        cell_name,
-                        neuron_obj,
-                    ) in session_1.get_neurons().items():
-                        print(
-                            "################################ Cell name:",
-                            cell_name,
-                            " ################################",
-                        )
-
-                        neuron_obj.add_aligned_dff_traces(
-                            "Shock Time (s)",
-                            half_of_time_window=6,
-                            shock_intensity="Bin",
-                        )
-                        # time always goes first, everything else goes in order (time window not included in name)
-                        # print(neuron_obj.categorized_dff_traces)
-                        number_of_event_traces = 0
-                        start = time.time()
-                        for (
-                            event_name,
-                            eventraces,
-                        ) in neuron_obj.get_categorized_dff_traces().items():
-                            print(
-                                "Event traces name: ",
-                                eventraces.get_event_traces_name(),
-                            )
-                            if (
-                                "_Choice Time (s)"
-                                != eventraces.get_event_traces_name()
-                                and "_Start Time (s)"
-                                != eventraces.get_event_traces_name()
-                                and "_Collection Time (s)"
-                                != eventraces.get_event_traces_name()
-                                and "_Shock Time (s)"
-                                != eventraces.get_event_traces_name()
-                            ):  # omitting an anomaly, we don't want just times to be a grouping
-                                is_eventname_in_list_we_care_about = [
-                                    ele
-                                    for ele in list_of_combos_we_care_about
-                                    if (
-                                        ele
-                                        == eventraces.get_event_traces_name()
-                                    )
-                                ]
-
-                                if (
-                                    bool(is_eventname_in_list_we_care_about)
-                                    == True
-                                ):
-                                    number_of_event_traces += 1
-
-                                    eventraces.process_dff_traces_by()  # returns path of csv
-                                else:
-                                    pass
-                        print(
-                            "Time taken for %s: %s"
-                            % (cell_name, time.time() - start)
-                        )
-                except Exception as e:
+                for (
+                    cell_name,
+                    neuron_obj,
+                ) in session_1.get_neurons().items():
                     print(
-                        "NO ABET TABLE FOUND, SO SINGLE CELL ALIGNMENT & ANALYSIS CAN'T BE DONE!"
+                        "################################ Cell name:",
+                        cell_name,
+                        " ################################",
                     )
-                    print(e)
+
+                    neuron_obj.add_aligned_dff_traces(
+                        "Shock Time (s)",
+                        half_of_time_window=6,
+                        shock_intensity="Bin",
+                    )
+                    # time always goes first, everything else goes in order (time window not included in name)
+                    # print(neuron_obj.categorized_dff_traces)
+                    number_of_event_traces = 0
+                    start = time.time()
+                    for (
+                        event_name,
+                        eventraces,
+                    ) in neuron_obj.get_categorized_dff_traces().items():
+                        print(
+                            "Event traces name: ",
+                            eventraces.get_event_traces_name(),
+                        )
+                        if (
+                            "_Choice Time (s)"
+                            != eventraces.get_event_traces_name()
+                            and "_Start Time (s)"
+                            != eventraces.get_event_traces_name()
+                            and "_Collection Time (s)"
+                            != eventraces.get_event_traces_name()
+                            and "_Shock Time (s)"
+                            != eventraces.get_event_traces_name()
+                        ):  # omitting an anomaly, we don't want just times to be a grouping
+                            is_eventname_in_list_we_care_about = [
+                                ele
+                                for ele in list_of_combos_we_care_about
+                                if (
+                                    ele
+                                    == eventraces.get_event_traces_name()
+                                )
+                            ]
+
+                            if (
+                                bool(is_eventname_in_list_we_care_about)
+                                == True
+                            ):
+                                number_of_event_traces += 1
+
+                                eventraces.process_dff_traces_by()  # returns path of csv
+                            else:
+                                pass
+                    print(
+                        "Time taken for %s: %s"
+                        % (cell_name, time.time() - start)
+                    )
 
 
 if __name__ == "__main__":

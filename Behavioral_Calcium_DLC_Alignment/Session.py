@@ -376,7 +376,7 @@ class EventTrace(Neuron):  # for one combo
                 # self.aligned_dff_dict[self.get_event_traces_name] = group_df
 
                 os.makedirs(new_path, exist_ok=True)
-                name_of_csv = "plot_ready_z_pre.csv"
+                name_of_csv = "plot_ready.csv"
                 csv_path = os.path.join(new_path, name_of_csv)
                 group_df.to_csv(csv_path, index=False)
 
@@ -385,7 +385,8 @@ class EventTrace(Neuron):  # for one combo
                 #print(df.head())
                 df = df.T
                 df = df.iloc[1:, :]  # omit first col
-                
+                df = df.T
+                """
                 #print(df.head())
 
                 # 1) Zscore
@@ -397,7 +398,7 @@ class EventTrace(Neuron):  # for one combo
                     hertz=10,
                 )
                 df = df.T
-                df = Utilities.gaussian_smooth(df)
+                df = Utilities.gaussian_smooth(df)"""
                 
                 # 2) Average Z score per each trial
                 Utilities.avg_cell_eventrace(

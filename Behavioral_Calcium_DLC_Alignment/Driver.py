@@ -213,8 +213,8 @@ class Driver:
         # Does it identify the ABET file for this session? yes
         # print(session_1.behavioral_df.head())
 
-    def run_one_session_one_neuron():
-        """list_of_combos_we_care_about = [
+    def run_one_session():
+        list_of_combos_we_care_about = [
             "Block_Choice Time (s)",
             "Block_Learning Stratergy_Choice Time (s)",
             "Block_Omission_Choice Time (s)",
@@ -235,26 +235,14 @@ class Driver:
             "Learning Stratergy_Choice Time (s)",
             "Omission_Choice Time (s)",
             "Reward Size_Choice Time (s)",
-        ]"""
-
-        list_of_combos_we_care_about = [
-
-            "Shock Ocurred_Choice Time (s)",
         ]
         
         SESSION_PATH = (
-            r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-7/RDT D1"
+            r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/RDT D2"
         )
 
         session_1 = Session(SESSION_PATH)
 
-        # now make individual neuron objects for each of the columns
-        # print("Dict of all neurons in session: ", session_1.neurons)
-
-        # Go into one neuron obj from the neuron dict, call its method that returns a list
-        # but only getting values 0-10 (exclusive)
-
-        # Looping into all neuron objects in neurons dict from session
         for cell_name, neuron_obj in session_1.get_neurons().items():
             print(
                 "################################ Cell name:",
@@ -262,14 +250,6 @@ class Driver:
                 " ################################",
             )
 
-            # print(neuron_obj.get_sample_dff_times())
-            # print(neuron_obj.get_dff_trace())
-            """            neuron_obj.add_aligned_dff_traces(
-                    "Choice Time (s)",
-                    half_of_time_window=10,
-                    trial_type="Trial Type",
-                    reward_size="Reward Size",
-                )"""
             neuron_obj.add_aligned_dff_traces(
                 "Choice Time (s)",
                 half_of_time_window=10,
@@ -335,5 +315,5 @@ class Driver:
 
 
 if __name__ == "__main__":
-    Driver.main()
-    #Driver.run_one_session_one_neuron()
+    #Driver.main()
+    Driver.run_one_session()
