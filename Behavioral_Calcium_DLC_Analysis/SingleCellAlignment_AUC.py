@@ -7,10 +7,11 @@ from numpy.core.fromnumeric import mean
 import pandas as pd
 import seaborn as sns
 from scipy import stats
+from sklearn.metrics import auc
 import Cell
 from operator import attrgetter
 from pathlib import Path
-
+from sklearn import metrics
 
 def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
     """Plots the figure from the csv file given"""
@@ -52,29 +53,16 @@ def export_avg_cell_eventraces(
     df.to_csv(out_path, index=False)
 
 
-def zscore(obs_value, mu, sigma):
-    return (obs_value - mu) / sigma
+def subwindow_auc(df: pd.DataFrame, x_coords: list, min, max, auc_list: list):
 
+    for col in df:
+        subwindow = list(df[col])[min:max + 1]
+        auc = metrics.auc(x_coords, subwindow)
+        auc_list.append(auc)
 
-def custom_standardize_limit_fixed(
-        df: pd.DataFrame, baseline_min, baseline_max, limit_idx):
-    """A limit indicates when to stop z-scoring based off of the baseline."""
-    for col in df.columns:
-        subwindow = list(df[col])[baseline_min: baseline_max + 1]
+    # len of auc_list should correspond to number of trials
+    return auc_list
 
-        mean_for_cell = stats.tmean(subwindow)
-        stdev_for_cell = stats.tstd(subwindow)
-
-        new_col_vals = []
-        for count, ele in enumerate(list(df[col])):
-            if count >= baseline_min and count <= limit_idx:
-                z_value = zscore(ele, mean_for_cell, stdev_for_cell)
-            else:  # if outside limits of zscoring, don't zscore
-                z_value = ele
-            new_col_vals.append(z_value)
-
-        df[col] = new_col_vals
-    return df
 # case 1: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/RDT D1/SingleCellAlignmentData/C01/Shock Ocurred_Choice Time (s)/True/plot_ready.csv
 # case 2: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/RDT D1/SingleCellAlignmentData/C01/Shock Ocurred_Choice Time (s)/True/plot_ready.csv
 # - nvm, the same, but then transfer all cells into corresponding session/event into betweencellalignment
@@ -87,6 +75,25 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
     )
     return files
 
+def wilcoxon_analysis(postchoice_list: list, prechoice_list: list, alpha = 0.01) -> str:
+
+        result_greater = stats.mannwhitneyu(
+            postchoice_list, prechoice_list, alternative="greater"
+        )
+
+        result_less = stats.mannwhitneyu(
+            postchoice_list, prechoice_list, alternative="less"
+        )
+
+        id = None
+        if result_greater.pvalue < (alpha / len(prechoice_list)):
+            id = "+"
+        elif result_less.pvalue < (alpha / len(prechoice_list)):
+            id = "-"
+        else:
+            id = "Neutral"
+
+        return id
 
 def main():
     MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
@@ -95,7 +102,7 @@ def main():
 
     for mouse in mice:
         for session in sessions:
-            files = find_paths(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData","plot_ready.csv")
+            files = find_paths(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData","plot_ready_z_fullwindow.csv")
 
             for csv in files:
                 print(f"CURR CSV: {csv}")
@@ -109,32 +116,28 @@ def main():
                 df = df.iloc[1:, :]  # omit first row
 
                 # print(df.head())
+                # one col is 1 trial now
+                x_coords = list(range(len(df)))
+                
+                auc_prechoice = subwindow_auc(df, x_coords, 21, 51) # -8 to -5
+                auc_postchoice = subwindow_auc(df, x_coords, 101, 131) # 0 to 3
 
-                # 1) Zscore
-                df = custom_standardize_limit_fixed(
-                    df,
-                    baseline_min=0,
-                    baseline_max=200,
-                    limit_idx=200
-                )
-                df = df.T
+                d_to_save = {
+                    "Trial #": col_to_save,
+                    "Prechoice AUC": auc_prechoice,
+                    "Postchoice AUC": auc_postchoice
+                }
 
-                def gaussian_smooth(df, sigma: float = 1.5):
-                    from scipy.ndimage import gaussian_filter1d
-                    # df = df.iloc[:, 1:]  # omit first col
+                auc_df = pd.DataFrame.from_records(d_to_save)
+                auc_df_out = csv.replace(".csv", "_aucs.csv")
+                auc_df.to_csv(auc_df_out, index = False)
+                
+                id = wilcoxon_analysis(auc_postchoice, auc_prechoice)
 
-                    return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
-                df = gaussian_smooth(df)
-
-                # 2) Average Z score per each trial
-                avg_cell_eventrace(
-                    df, csv, cell_name, plot=True, export_avg=True
-                )
-
-                df.insert(0, "Event #", col_to_save)
-
-                csv_moded_out_path = csv.replace(".csv", "_z_fullwindow.csv")
-                df.to_csv(csv_moded_out_path, index=False)
+                id_d = {"id": id}
+                id_df = pd.DataFrame.from_records(id_d)
+                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", "fullwindow_z_auc_id.csv")
+                id_df.to_csv(id_df_out, index=False)
 
 if __name__ == "__main__":
     main()

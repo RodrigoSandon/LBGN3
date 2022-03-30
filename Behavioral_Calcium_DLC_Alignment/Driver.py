@@ -20,7 +20,7 @@ class Driver:
         dff traces for a given time window for each accepted cell for each session in each mouse, for a given PTP Inscopix folder
         """
 
-        session_types = [
+        """session_types = [
             "PR D1",
             "PR D2",
             "Pre-RDT RM",
@@ -39,14 +39,14 @@ class Driver:
             "Late Shock D1",
             "Late Shock D2",
         ]  # 1/3/22 ->DONT INCLUDE SHOCK SESSIONS IN THIS PROCESS
-
-        """session_types = [
+"""
+        session_types = [
 
             "RDT D1",
             "RDT D2",
             "RDT D3"
 
-        ]  # 1/3/22 ->DONT INCLUDE SHOCK SESSIONS IN THIS PROCESS"""
+        ]  # 1/3/22 ->DONT INCLUDE SHOCK SESSIONS IN THIS PROCESS
 
         list_of_combos_we_care_about = [
             "Block_Choice Time (s)",
@@ -315,5 +315,5 @@ class Driver:
 
 
 if __name__ == "__main__":
-    #Driver.main()
-    Driver.run_one_session()
+    Driver.main()
+    #Driver.run_one_session()
