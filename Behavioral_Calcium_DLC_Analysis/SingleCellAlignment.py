@@ -90,7 +90,23 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
 
 def main():
     MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
-    mice = ["BLA-Insc-14","BLA-Insc-15","BLA-Insc-16","BLA-Insc-18","BLA-Insc-19",]
+    mice = [
+        "BLA-Insc-1",
+        "BLA-Insc-2",
+        "BLA-Insc-3",
+        "BLA-Insc-5",
+        "BLA-Insc-6",
+        "BLA-Insc-7",
+        "BLA-Insc-8",
+        "BLA-Insc-9",
+        "BLA-Insc-11",
+        "BLA-Insc-13",
+        "BLA-Insc-14",
+        "BLA-Insc-15",
+        "BLA-Insc-16",
+        "BLA-Insc-18",
+        "BLA-Insc-19",
+        ]
     sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
     for mouse in mice:

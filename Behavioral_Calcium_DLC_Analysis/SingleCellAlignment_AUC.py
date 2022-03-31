@@ -17,8 +17,6 @@ def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
     """Plots the figure from the csv file given"""
     path_to_save = csv_path.replace(
         "plot_ready.csv", "avg_plot_z_fullwindow.png")
-    #df_sub = df.iloc[:, 1:]
-    # print(df_sub.head())
     xaxis = list(df.columns)
 
     row_count = len(df)
@@ -134,9 +132,9 @@ def main():
                 
                 id = wilcoxon_analysis(auc_postchoice, auc_prechoice)
 
-                id_d = {"id": id}
+                id_d = {cell_name : id}
                 id_df = pd.DataFrame.from_records(id_d)
-                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", "fullwindow_z_auc_id.csv")
+                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", "id_fullwindow_z_auc.csv")
                 id_df.to_csv(id_df_out, index=False)
 
 if __name__ == "__main__":
