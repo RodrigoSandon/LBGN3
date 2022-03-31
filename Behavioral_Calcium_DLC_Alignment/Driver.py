@@ -72,7 +72,7 @@ class Driver:
         ]
 
         MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/"
-        folder_name = "PTP_Inscopix_#5"
+        folder_name = "PTP_Inscopix_#4"
         
         BATCH_ROOT = os.path.join(MASTER_ROOT, folder_name)
         mouse_paths = [
@@ -238,7 +238,7 @@ class Driver:
         ]
         
         SESSION_PATH = (
-            r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/RDT D2"
+            r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4/BLA-Insc-9/RDT D3"
         )
 
         session_1 = Session(SESSION_PATH)
@@ -315,5 +315,5 @@ class Driver:
 
 
 if __name__ == "__main__":
-    Driver.main()
-    #Driver.run_one_session()
+    #Driver.main()
+    Driver.run_one_session()
