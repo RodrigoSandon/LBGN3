@@ -488,9 +488,9 @@ def new_main():
     ROOT_PATH = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
     # ROOT_PATH = r"/Users/rodrigosandon/Documents/GitHub/LBGN/SampleData/truncating_bug"
 
-    to_look_for_originally = "all_concat_cells_z.csv"
+    to_look_for_originally = "all_concat_cells_z_fullwindow.csv"
     # would only look for this is the file causing the conditional statement didn't exist
-    to_look_for_conditional = "all_concat_cells_truncated.csv"
+    to_look_for_conditional = "all_concat_cells_z_fullwindow_truncated.csv"
 
     csv_list = find_paths_conditional_endswith(
         ROOT_PATH, to_look_for_originally, to_look_for_conditional
@@ -518,9 +518,9 @@ def new_main():
             )
             # print(df.head())
             # Saving norm df as csv
-            new_csv = csv_path.replace(
+            """new_csv = csv_path.replace(
                 ".csv", "baseline-10_0_gauss1.5_z_avgs.csv")
-            df_sorted.to_csv(new_csv, index=False)
+            df_sorted.to_csv(new_csv, index=False)"""
             try:
                 df_sorted = insert_time_index_to_df(
                     df_sorted, range_min=-10.0, range_max=10.0, step=0.1
@@ -538,7 +538,7 @@ def new_main():
                 df_sorted,
                 csv_path,
                 out_path=csv_path.replace(
-                    ".csv", "_hm_baseline-10_0_gauss1.5_z_avgs.png"),
+                    ".csv", "_hm.png"),
                 vmin=-2.5,
                 vmax=2.5,
                 xticklabels=20,
@@ -548,7 +548,7 @@ def new_main():
                 df_sorted,
                 csv_path,
                 out_path=csv_path.replace(
-                    ".csv", "_spaghetti_baseline-10_0_gauss1.5_z_avgs.png"
+                    ".csv", "_spaghetti.png"
                 ),
             )
         except FileNotFoundError:

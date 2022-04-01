@@ -51,11 +51,11 @@ def export_avg_cell_eventraces(
     df.to_csv(out_path, index=False)
 
 
-def subwindow_auc(df: pd.DataFrame, x_coords: list, min, max, auc_list: list):
-
+def subwindow_auc(df: pd.DataFrame, x_coords: list, min, max):
+    auc_list = []
     for col in df:
         subwindow = list(df[col])[min:max + 1]
-        auc = metrics.auc(x_coords, subwindow)
+        auc = metrics.auc(x_coords[min:max + 1], subwindow)
         auc_list.append(auc)
 
     # len of auc_list should correspond to number of trials
@@ -84,9 +84,9 @@ def wilcoxon_analysis(postchoice_list: list, prechoice_list: list, alpha = 0.01)
         )
 
         id = None
-        if result_greater.pvalue < (alpha / len(prechoice_list)):
+        if result_greater.pvalue < (alpha):
             id = "+"
-        elif result_less.pvalue < (alpha / len(prechoice_list)):
+        elif result_less.pvalue < (alpha):
             id = "-"
         else:
             id = "Neutral"
@@ -95,15 +95,32 @@ def wilcoxon_analysis(postchoice_list: list, prechoice_list: list, alpha = 0.01)
 
 def main():
     MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
-    mice = ["BLA-Insc-14","BLA-Insc-15","BLA-Insc-16","BLA-Insc-18","BLA-Insc-19",]
+    mice = [
+        "BLA-Insc-1",
+        "BLA-Insc-2",
+        "BLA-Insc-3",
+        "BLA-Insc-5",
+        "BLA-Insc-6",
+        "BLA-Insc-7",
+        "BLA-Insc-8",
+        "BLA-Insc-9",
+        "BLA-Insc-11",
+        "BLA-Insc-13",
+        "BLA-Insc-14",
+        "BLA-Insc-15",
+        "BLA-Insc-16",
+        "BLA-Insc-18",
+        "BLA-Insc-19",
+        ]
     sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
     for mouse in mice:
+        print(mouse)
         for session in sessions:
             files = find_paths(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData","plot_ready_z_fullwindow.csv")
-
+            print(session)
             for csv in files:
-                print(f"CURR CSV: {csv}")
+                #print(f"CURR CSV: {csv}")
                 cell_name = csv.split("/")[9]
                 df: pd.DataFrame
                 df = pd.read_csv(csv)
@@ -126,15 +143,15 @@ def main():
                     "Postchoice AUC": auc_postchoice
                 }
 
-                auc_df = pd.DataFrame.from_records(d_to_save)
-                auc_df_out = csv.replace(".csv", "_aucs.csv")
+                auc_df = pd.DataFrame.from_records(d_to_save, index=range(len(col_to_save)))
+                auc_df_out = csv.replace(".csv", "_auc_info.csv")
                 auc_df.to_csv(auc_df_out, index = False)
                 
                 id = wilcoxon_analysis(auc_postchoice, auc_prechoice)
 
                 id_d = {cell_name : id}
-                id_df = pd.DataFrame.from_records(id_d)
-                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", "id_fullwindow_z_auc.csv")
+                id_df = pd.DataFrame.from_records(id_d, index=[0])
+                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", "id_z_fullwindow_auc.csv")
                 id_df.to_csv(id_df_out, index=False)
 
 if __name__ == "__main__":
