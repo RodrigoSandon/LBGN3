@@ -4,7 +4,7 @@ import os, glob
 from typing import List, Optional
 from pathlib import Path
 from csv import writer
-from itertools import combinations
+from itertools import combinations_with_replacement
 from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -41,6 +41,26 @@ def find_paths_v2(root_path: Path, endswith: str) -> List[str]:
     )
     return files
 
+def get_max_of_df(df: pd.DataFrame):
+    global_max = 0
+    max_vals = list(df.max())
+
+    for i in max_vals:
+        if i > global_max:
+            global_max = i
+ 
+    return global_max
+
+def get_min_of_df(df: pd.DataFrame):
+    global_min = 9999999
+    min_vals = list(df.min())
+
+    for i in min_vals:
+        if i < global_min:
+            global_min = i
+ 
+    return global_min
+
 class Trial:
     def __init__(
         self,
@@ -75,8 +95,8 @@ def find_different_subevents(csv_paths: list, subevent_at: int) -> list:
 
 def fill_points_for_hm(df):
     transposed_df = df.transpose()
-    print(df.head())
-    print(transposed_df.head())
+    #print(df.head())
+    #print(transposed_df.head())
 
     for row in list(transposed_df.columns):
         for col in list(transposed_df.columns):
@@ -137,10 +157,11 @@ def preparation():
         "BLA-Insc-15",
         "BLA-Insc-16",
         "BLA-Insc-18",
-        "BLA-Insc-19",
+        "BLA-Insc-19"
+        
         ]
 
-    session = "RDT D1"
+    sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
     event = "Shock Ocurred_Choice Time (s)"
     subevents = ["True", "False"]
@@ -154,48 +175,48 @@ def preparation():
         """files = find_paths_mid(os.path.join(ROOT, f"{batch}/{mouse}/{session}/SingleCellAlignmentData"), event, "plot_ready_z_fullwindow.csv")
 
         subevents = find_different_subevents(files, 11)"""
+        for session in sessions:
+            for subevent in subevents:
+                
+                files_of_same_group = find_paths(f"{ROOT}/{batch}/{mouse}/{session}/SingleCellAlignmentData",f"{event}/{subevent}/plot_ready_z_fullwindow.csv")
 
-        for subevent in subevents:
-            
-            files_of_same_group = find_paths(f"{ROOT}/{batch}/{mouse}/{session}/SingleCellAlignmentData",f"{event}/{subevent}/plot_ready_z_fullwindow.csv")
+                # create folders whre results will go into
+                new_dir = f"{DST_ROOT}/{mouse}/{session}/{event}/{subevent}"
+                print(f"Dir being created: {new_dir}")
+                os.makedirs(new_dir, exist_ok=True)
 
-            # create folders whre results will go into
-            new_dir = f"{DST_ROOT}/{mouse}/{session}/{event}/{subevent}"
-            print(f"Dir being created: {new_dir}")
-            os.makedirs(new_dir, exist_ok=True)
+                #print(*files_of_same_group, sep="\n")
+                for f in files_of_same_group:
+                    # we are now going through cell csv that are all in same group
+                    cell = f.split("/")[9]
+                    df: pd.DataFrame
+                    df = pd.read_csv(f)
+                    df = df.iloc[:, 1:]
+                    # Indicate subwindow you want to decode
+                    # 0 is at idx 100
+                    min = 100
+                    max = 131
 
-            #print(*files_of_same_group, sep="\n")
-            for f in files_of_same_group:
-                # we are now going through cell csv that are all in same group
-                cell = f.split("/")[9]
-                df: pd.DataFrame
-                df = pd.read_csv(f)
-                df = df.iloc[:, 1:]
-                # Indicate subwindow you want to decode
-                # 0 is at idx 100
-                min = 100
-                max = 131
+                    for i in range(len(df)):
+                        trial_num = i + 1
+                        new_trial = Trial(
+                            mouse,
+                            session,
+                            event,
+                            subevent,
+                            trial_num,
+                            cell,
+                            list(df.iloc[i, :])[min:max],
+                        )
 
-                for i in range(len(df)):
-                    trial_num = i + 1
-                    new_trial = Trial(
-                        mouse,
-                        session,
-                        event,
-                        subevent,
-                        trial_num,
-                        cell,
-                        list(df.iloc[i, :])[min:max],
-                    )
+                        # How the csv will look like: a triangle that are pearson values (not what i have below currently)
+                        data = [cell] + new_trial.trial_dff_trace
 
-                    # How the csv will look like: a triangle that are pearson values (not what i have below currently)
-                    data = [cell] + new_trial.trial_dff_trace
-
-                    trial_csv_path = os.path.join(new_dir, f"trial_{trial_num}.csv")
-                    with open(trial_csv_path, "a") as csv_obj:
-                        writer_obj = writer(csv_obj)
-                        writer_obj.writerow(data)
-                        csv_obj.close()
+                        trial_csv_path = os.path.join(new_dir, f"trial_{trial_num}.csv")
+                        with open(trial_csv_path, "a") as csv_obj:
+                            writer_obj = writer(csv_obj)
+                            writer_obj.writerow(data)
+                            csv_obj.close()
 
 def make_pearson_corrmaps():
     ####### Making the pearson corr map #######
@@ -215,86 +236,96 @@ def make_pearson_corrmaps():
         "BLA-Insc-15",
         "BLA-Insc-16",
         "BLA-Insc-18",
-        "BLA-Insc-19",
+        "BLA-Insc-19"
         ]
 
-    session = "RDT D1"
+    sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
     event = "Shock Ocurred_Choice Time (s)"
     subevents = ["True", "False"]
 
     for mouse in mice:
+        for session in sessions:
+            for subevent in subevents:
 
-        for subevent in subevents:
+                root_dir = f"{DST_ROOT}/{mouse}/{session}/{event}/{subevent}/"
+                trial_csvs = find_paths_v2(root_dir,"trial_*.csv")
+                #print(trial_csvs)
+        
+                for csv in trial_csvs:
+                    print(f"CURR CSV: {csv}")
+                    df: pd.DataFrame
+                    df = pd.read_csv(csv)
+                    temp_cols = list(range(0,len(df.columns)))
+                    df = pd.read_csv(csv, header=None, names=temp_cols)
+                    
 
-            root_dir = f"{DST_ROOT}/{mouse}/{session}/{event}/{subevent}/"
-            trial_csvs = find_paths_v2(root_dir,"trial_*.csv")
-            #print(trial_csvs)
-            df_d = {}
-            for csv in trial_csvs:
-                print(f"CURR CSV: {csv}")
-                df: pd.DataFrame
-                df = pd.read_csv(csv)
-                temp_cols = list(range(0,len(df.columns)))
-                df = pd.read_csv(csv, header=None, names=temp_cols)
+                    df = df.T
+                    df.columns = df.loc[0]
+                    df = df.iloc[1:, :]
 
-                df = df.T
-                df.columns = df.loc[0]
-                df = df.iloc[1:, :]
-                #print(list(df.columns))
-                #print(df.head())
+                    cells_list = list(df.columns)
+                    #print(cells_list)
 
-                cells_list = list(df.columns)
+                    combos = list(combinations_with_replacement(cells_list, 2))
+                    #print(combos)
 
-                combos = list(combinations(cells_list, 2))
+                    # SETUP SKELETON DATAFRAME
+                    col_number = len(list(df.columns))
+                    pearson_corrmap = pd.DataFrame(
+                        data=np.zeros((col_number, col_number)),
+                        index=list(df.columns),
+                        columns=list(df.columns),
+                    )
 
-                # SETUP SKELETON DATAFRAME
-                col_number = len(list(df.columns))
-                pearson_corrmap = pd.DataFrame(
-                    data=np.zeros((col_number, col_number)),
-                    index=list(df.columns),
-                    columns=list(df.columns),
-                )
+                    for count, combo in enumerate(combos):
+                        #print(f"Working on combo {count}/{len(combos)}: {combo}")
 
-                for count, combo in enumerate(combos):
-                    #print(f"Working on combo {count}/{len(combos)}: {combo}")
+                        cell_x = list(combo)[0]
+                        cell_y = list(combo)[1]
+                        #print(cell_x)
 
-                    cell_x = list(combo)[0]
-                    cell_y = list(combo)[1]
+                        # 4/4/22: why is getting the list from this df so weird (as below)?
+                        # i actually don't know, but it must be bc of the prior editing i did
+                        # either way, it works - think it's bc we double ran it - bc error when not double runned
+                        x = list(df[cell_x])
+                        y = list(df[cell_y])
+                        #print(x)
 
-                    x = np.array(list(df[cell_x]))
-                    y = np.array(list(df[cell_y]))
+                        result = stats.pearsonr(x, y)
+                        corr_coef = list(result)[0]
+                        pval = list(result)[1]
 
-                    result = stats.pearsonr(x, y)
-                    corr_coef = list(result)[0]
-                    pval = list(result)[1]
+                        #print(corr_coef)
+                        pearson_corrmap.loc[cell_x, cell_y] = corr_coef
 
-                    pearson_corrmap[cell_x, cell_y] = corr_coef
+                    #Save plot rdy corrmap
+                    pearson_corrmap_plt_rdy = fill_points_for_hm(pearson_corrmap)
+                    #print(pearson_corrmap_plt_rdy)
 
-                #Save plot rdy corrmap
-                pearson_corrmap_plt_rdy = fill_points_for_hm(pearson_corrmap)
-                heatmap(
-                    pearson_corrmap_plt_rdy,
-                    csv,
-                    out_path=csv.replace(".csv", "_corrmap.png"),
-                    vmin=0.5,
-                    vmax=0,
-                    xticklabels=2,
-                )
-                
-                #Save unflattened one-way corrmap
-                pearson_corrmap.to_csv(csv.replace(".csv", "_corrmap.csv"))
+                    max = get_max_of_df(pearson_corrmap_plt_rdy)
+                    min = get_min_of_df(pearson_corrmap_plt_rdy)
 
-                #Save flattened one-way corrmap
-                pearson_corrmap_flat = pearson_corrmap.to_numpy().flatten().tolist()
-                df_flat = pd.DataFrame(data=pearson_corrmap_flat,index=None,columns=["pearson_corrs"])
-                df_flat.to_csv(csv.replace(".csv","_flat_corrmap.csv"), index=False)
-                break
-            break
-        break
+                    heatmap(
+                        pearson_corrmap_plt_rdy,
+                        csv,
+                        out_path=csv.replace(".csv", "_corrmap.png"),
+                        vmin=min,
+                        vmax=max,
+                        xticklabels=2,
+                    )
+                    
+                    #Save unflattened one-way corrmap
+                    pearson_corrmap.to_csv(csv.replace(".csv", "_corrmap.csv"))
+
+                    """#Save flattened one-way corrmap
+                    pearson_corrmap_flat = pearson_corrmap.to_numpy().flatten().tolist()
+                    df_flat = pd.DataFrame(data=pearson_corrmap_flat,index=None,columns=["pearson_corrs"])
+                    df_flat.to_csv(csv.replace(".csv","_flat_corrmap.csv"), index=False)"""
 
 
 
 if __name__ == "__main__":
+    # CAN ONLY RUN PREPARATION() ONCE OR ELSE WE GET DOUBLE THE CELLS IN EACH CSV
     preparation()
     make_pearson_corrmaps()
