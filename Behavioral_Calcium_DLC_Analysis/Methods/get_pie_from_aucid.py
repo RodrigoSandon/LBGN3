@@ -72,10 +72,10 @@ class CellClassification():
 
         pie_chart(
             self.csv_path,
-            f"Wilcoxon Rank Sum Test (n={number_cells})",
+            f"Mann-Whitney U Test (n={number_cells})",
             list(d.values()),
             list(d.keys()),
-            replace_name=f"fullwindow_z_id_auc_manwhitney_pie.png",
+            replace_name=f"_manwhitney_pie.png",
         )
 
 def find_paths(root_path: Path, middle: str, endswith: str):
@@ -90,7 +90,7 @@ def main_allcells():
     sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
     for session in sessions: 
-        files = find_paths(ROOT, session, "all_concat_cells_z_fullwindow_id_auc.csv")
+        files = find_paths(ROOT, session, "all_concat_cells_z_fullwindow_id_auc_bonf0.05.csv")
 
         for f in files:
             df = pd.read_csv(f)

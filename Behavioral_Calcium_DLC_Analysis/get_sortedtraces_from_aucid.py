@@ -38,22 +38,18 @@ def find_paths_conditional_endswith(
 def main():
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
     #dff_csv = "all_concat_cells_fullwindow_z_auc.csv"
-    look_for = "all_concat_cells_z_fullwindow_id_auc.csv"
+    look_for = "all_concat_cells_z_fullwindow_id_auc_bonf0.05.csv"
+    dff_to_look_for = "all_concat_cells_z_fullwindow.csv" # bc unchanged by bonf correction
     #if_folder_includes_this_process_this_instead = "all_concat_cells_z_pre_truncated.csv"
-
-    """files = find_paths_conditional_endswith(
-        ROOT, to_look_for, if_folder_includes_this_process_this_instead
-    )"""
-
     list_of_sessions = ["RDT D1", "RDT D2", "RDT D3"]
     
     for i in list_of_sessions:
         print(i)
         files = find_paths(f"{ROOT}/{i}", look_for)
-
-        
         for id_csv in files:
-            dff_csv = id_csv.replace("_id_auc","")
+            #dff_csv = id_csv.replace("_id_auc","")
+            root_id_csv_path = "/".join(id_csv.split("/")[:len(id_csv.split("/")) - 1])
+            dff_csv = f"{root_id_csv_path}/{dff_to_look_for}"
             print(f"CURR ID CSV: {id_csv}")
             print(f"CORRESPONDING DFF CSV: {dff_csv}")
             try:
@@ -64,7 +60,7 @@ def main():
 
                 number_cells = len(list(id_df.columns))
 
-                out_path = "/".join(id_csv.split("/")[:-1]) + "/sorted_traces_z_fullwindow_id_auc.png"
+                out_path = "/".join(id_csv.split("/")[:-1]) + "/sorted_traces_z_fullwindow_id_auc_bonf0.05.png"
                 
                 # print(out_path)
 
@@ -116,7 +112,7 @@ def main():
 
                     d[key] = avg_dff_traces
 
-                out_path_csv = out_path.replace("sorted_traces_z_fullwindow_id_auc.png", "sorted_traces_z_fullwindow_id_auc.csv")
+                out_path_csv = out_path.replace(".png", ".csv")
 
                 new_d = {}
                 for key_1 in d_description:

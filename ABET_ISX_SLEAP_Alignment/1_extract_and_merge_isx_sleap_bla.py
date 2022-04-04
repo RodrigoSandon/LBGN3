@@ -52,6 +52,80 @@ def slp_file_parsing(slp_filename: str):
         print(e)
         pass
 
+# e1: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4/BLA-Insc-8/RDT D1/Session-20211021-093007_BLA-INSC-8-RDT-D1
+# e2: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/RDT D1 <- (bla1-3)
+# structure1: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#{}/BLA-Insc-{}/{}
+# structure2: /media/rory/Padlock_DT/BLA_Analysis/{}/BLA-Insc-{}/{}/{}
+#                                     {if blax-x -> pertain to this ptp}    {y}{y}{startswith "session"}/->GO
+
+    # 1) Find ptp folder
+def ptp_autoencoder(mouse_tolower: str) -> str:
+    """Gives you a ptp #, based on mouse name."""
+    mouse_tolower = mouse_tolower.lower()
+    d = {
+        "PTP_Inscopix_#1": ["bla-insc-1", "bla-insc-2", "bla-insc-3"],
+        "PTP_Inscopix_#3": ["bla-insc-5", "bla-insc-6", "bla-insc-7"],
+        "PTP_Inscopix_#4": ["bla-insc-8", "bla-insc-9", "bla-insc-11", "bla-insc-13"]
+    }
+
+    for key in d.keys():
+        if mouse_tolower in d[key]:
+            return key
+
+def find_dst_for_mouse_and_session(base, mouse: str, session: str) -> str:
+    # base = /media/rory/Padlock_DT/BLA_Analysis/
+
+    # 2) Find the appropriate mouse #, since capitalization is diff in the dst dir
+    def mouse_name_autoencoder(mouse) -> int:
+        """Gives you a number based on the number that's in the input."""
+        num = int(mouse.split("-")[-1])
+        # print(num)
+        return num
+
+    # 3) Session str is already properly formatted, nothing to do here.
+    # 4) Need to find the interfolder (only exists for bla5-13)
+    def add_interfolder(curr_dir) -> str:
+        # So far have this: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4/BLA-Insc-8/RDT D1/
+        
+        dir_found = None
+        for dir in os.listdir(curr_dir):
+            # if the substrings that identified a interfolder are present, then add that to dst
+            print(dir)
+            if dir.find("-") != -1:
+                dir_found = dir
+        
+        if dir_found == None:
+            print("CAN'T FIND INTERFOLDER!!")
+
+        return dir_found
+
+    ptp_folder = ptp_autoencoder(mouse)
+
+    # Add ptp folder specification
+    dst = os.path.join(base, ptp_folder)
+    # Add mouse folder specification
+    dst = os.path.join(
+        dst, f"BLA-Insc-{mouse_name_autoencoder(mouse)}")
+    # Add session type specification
+    dst = os.path.join(dst, session)
+
+    # Because only the other PTP folders have interfolders
+    if ptp_folder != "PTP_Inscopix_#1":
+        dst = os.path.join(dst, add_interfolder(dst))
+
+    # print(dst)
+    return dst
+
+
+def create_bla_dst_path(base, file):
+    # gets the mouse and session
+    mouse, session = slp_file_parsing(file)
+    #mouse = mouse.lower()
+    #session = session.lower()
+    dst = find_dst_for_mouse_and_session(base, mouse, session)
+    #print(f"SLP destination for {mouse} {session}: {dst}")
+
+    return dst
 
 
 def send_all_other_files_somewhere(other_slp_files: list):
@@ -403,26 +477,34 @@ def merge_isx_and_speed_data(bodypart: str, root_dir: str, speed_filepath: str):
 
 
 def main():
-    ROOT = r"/media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/to_be_analyzed/"
-    DST_ROOT = r"/media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/to_be_analyzed/"
+    ROOT = r"/media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only"
+    BLA_DST_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
 
     slp_files = find_paths_endswith(ROOT, ".slp")
 
-    """Other folders will go into a new root folder"""
-    print("===== PROCESSING OTHER FILES =====")
+    print("===== PROCESSING BLA FILES =====")
     print(f"Number of SLP files: {len(slp_files)}")
 
-    for count, j in enumerate(slp_files):
-        print(f"Processing {count + 1}: {j}")
+    # Will be actually putting the bla's into existing folders
+    for count, i in enumerate(slp_files):
+        print(f"Processing {count + 1}: {i}")
         # 1) move the slp file
-        slp_filename = j.split("/")[-1]
-        mouse, session = slp_file_parsing(j)
-        SESSION_ROOT = os.path.join(DST_ROOT, mouse, session)
-        new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
-        os.makedirs(SESSION_ROOT, exist_ok=True)
-        print(f"old path: {j} || new path: {new_slp_path}")
-
-        shutil.copy(j, new_slp_path)
+        slp_filename = i.split("/")[-1]
+        try:
+            ses_root = create_bla_dst_path(BLA_DST_ROOT, i)
+            new_slp_path = os.path.join(ses_root, slp_filename)
+            print(f"old path: {i} || new path: {new_slp_path}")
+            shutil.copy(i, new_slp_path)
+        #videos in which make session that don't exists for BLA
+        except FileNotFoundError as e:
+            print(e)
+            print("THIS SESSION DOESN'T CONTAIN ABET NOR ISX DATA")
+            mouse, session = slp_file_parsing(i)
+            ptp = ptp_autoencoder(mouse)
+            ses_root = os.path.join(BLA_DST_ROOT, ptp, mouse, session)
+            new_slp_path = os.path.join(ses_root, slp_filename)
+            os.makedirs(ses_root, exist_ok=True)
+            shutil.copy(i, new_slp_path)
 
         # 2) Convert .slp to .h5
         h5_path = new_slp_path.replace(".slp", ".h5")
@@ -430,7 +512,20 @@ def main():
 
         # 3) Extract speed
         #meta_data(h5_path)
-        export_sleap_data_mult_nodes(h5_path, SESSION_ROOT, fps=30)
+        export_sleap_data_mult_nodes(h5_path, ses_root, fps=30)
+
+        # 4) Preprocess the speed file
+
+        bodypart = "body"
+        speed_filepath = os.path.join(
+            ses_root, bodypart, f"{bodypart}_sleap_data.csv")
+
+        try:
+            merge_isx_and_speed_data(bodypart, ses_root, speed_filepath)
+            # ^ will EXPORT a dff_and_{bodypart}_sleap_data.csv and gpio corrected sleap data file"""
+        except FileNotFoundError as e:
+            print(e)
+            pass
 
 
 

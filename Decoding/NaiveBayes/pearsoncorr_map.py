@@ -112,41 +112,19 @@ def main():
     sessions = ["RDT D1"]
 
     event = "Shock Ocurred_Choice Time (s)"
+    # ex of file: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4/BLA-Insc-13/RDT D1/SingleCellAlignmentData/C05/Shock Ocurred_Choice Time (s)/True/plot_ready_z_fullwindow.csv
 
-
-    # ex: /media/rory/Padlock_DT/BLA_Analysis/{batch}/{mouse}/{session}/SingleCellAlignmentData/**/{event}/**/plot_ready_z_pre.csv
-        # for trial in csv
-        # stay within same session to make a new csv
-
-    # will find plot ready files for all cells in a session for a given event
     for mouse in mice:
         batch = which_batch(mouse)
         for session in sessions:
-            # find the subevents, cell doesnt matter yet bc all cells have same subevent categories
+        
             files = find_paths_mid(os.path.join(ROOT, f"{batch}/{mouse}/{session}/SingleCellAlignmentData"), event, "plot_ready_z_fullwindow.csv")
-            # ex of file: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4/BLA-Insc-13/RDT D1/SingleCellAlignmentData/C05/Shock Ocurred_Choice Time (s)/True/plot_ready_z_fullwindow.csv
-            # the files' only difference will be different cells
-            # but need to specify subevent as well
+
+            for csv_path in files:
             df: pd.DataFrame
             df = pd.read_csv(csv_path)
             df = df.iloc[:, 1:]
 
-            timepoints = [
-                float(i.replace("-", "")) for i in list(df.columns) if "-" in i
-            ] + [float(i) for i in list(df.columns) if "-" not in i]
-
-            idx_at_time_zero: int
-            for idx, i in enumerate(timepoints):
-                # forcing numbers to be negative as we go since they were initially negative
-                timepoints[idx] = -abs(i)
-                if i > 1000000:  # timepoint values will not change so ur good
-                    idx_at_time_zero = idx
-                    # changing last number to be zero b/c it is in fact zero (not some v. high number)
-                    timepoints[idx] = 0
-
-            print(timepoints)
-            print("idx: ", idx_at_time_zero)
-            print("timepoint: ", timepoints[idx_at_time_zero])
 
             for i in range(len(df)):
                 trial_num = i + 1
