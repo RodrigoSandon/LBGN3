@@ -1,8 +1,13 @@
 import pandas as pd
 import numpy as np
 import os, glob
-from typing import List
+from typing import List, Optional
 from pathlib import Path
+from csv import writer
+from itertools import combinations
+from scipy import stats
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def which_batch(mouse: str) -> str:
     mouse_num = mouse.split("-")[2]
@@ -30,63 +35,89 @@ def find_paths(root_path: Path, endswith: str) -> List[str]:
     )
     return files
 
-def custom_dissect_path(path: Path):
-    parts = list(path.parts)
-    event_category = parts[10]
-    block, outcome = strip_outcome(parts[11])
-    mouse = parts[6]
-    session = parts[7]
-    cell = parts[9]
-    # Now you actually need to go into the the csv file to get the events you want.
-    # Do this in another process
-    return block, event_category, outcome, mouse, session, cell
+def find_paths_v2(root_path: Path, endswith: str) -> List[str]:
+    files = glob.glob(
+        os.path.join(root_path, endswith), recursive=True,
+    )
+    return files
 
 class Trial:
     def __init__(
         self,
-        block,
-        event_category,
-        outcome,
         mouse,
         session,
+        event,
+        subevent,
         trial_number,
         cell,
         dff_trace,
-        timepoints,
-        idx_at_time_zero,
     ):
-        self.block = block
-        self.event_category = event_category
-        self.outcome = outcome
         self.mouse = mouse
         self.session = session
+        self.event = event
+        self.subevent = subevent
+
+
         self.trial_number = trial_number
         self.cell = cell
         self.trial_dff_trace = dff_trace
-        self.timepoints = timepoints
-        self.idx_at_time_zero = idx_at_time_zero
 
-        self.prechoice_dff_trace = self.get_prechoice_dff_trace()
-        self.postchoice_dff_trace = self.get_postchoice_dff_trace()
+def find_different_subevents(csv_paths: list, subevent_at: int) -> list:
+    subevents = []
+    curr = None
+    for csv in csv_paths:
+        part = csv.split("/")[subevent_at]
+        if part != curr:
+            subevents.append(part)
+            curr = part
+    
+    return subevents
 
-        self.prechoice_timepoints = self.get_prechoice_timepoints()
-        self.postchoice_timepoints = self.get_postchoice_timepoints()
+def fill_points_for_hm(df):
+    transposed_df = df.transpose()
+    print(df.head())
+    print(transposed_df.head())
 
-        def get_prechoice_dff_trace(self):
-            """Gives you activity at beginning (-10s) to 0"""
-            return self.trial_dff_trace[0 : self.idx_at_time_zero + 1]
+    for row in list(transposed_df.columns):
+        for col in list(transposed_df.columns):
+            if int(transposed_df.loc[row, col]) == 0:
+                transposed_df.loc[row, col] = df.loc[row, col]
 
-        def get_postchoice_dff_trace(self):
-            """Gives you activity at 0 to 10s"""
-            return self.trial_dff_trace[self.idx_at_time_zero + 1 : -1]
+    return df
 
-        def get_prechoice_timepoints(self):
-            return self.timepoints[0 : self.idx_at_time_zero + 1]
+def heatmap(
+    df,
+    file_path,
+    out_path,
+    cols_to_plot: Optional[List[str]] = None,
+    cmap: str = "coolwarm",
+    vmin: Optional[float] = None,
+    vmax: Optional[float] = None,
+    **heatmap_kwargs,
+):
 
-        def get_postchoice_timepoints(self):
-            return self.timepoints[self.idx_at_time_zero + 1 : -1]
+    try:
+        if cols_to_plot is not None:
+            df = df[cols_to_plot]
 
-def main():
+        ax = sns.heatmap(
+            df.transpose(), vmin=vmin, vmax=vmax, cmap=cmap, **heatmap_kwargs
+        )
+        ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize=5)
+        ax.set_yticklabels(ax.get_ymajorticklabels(), fontsize=5)
+        ax.tick_params(left=True, bottom=True)
+
+        plt.title("Pearson Correlation Map")
+        plt.savefig(out_path)
+        plt.close()
+
+    except ValueError as e:
+
+        print("VALUE ERROR:", e)
+        print(f"VALUE ERROR FOR {file_path} --> MAKING CORRMAP")
+        pass
+
+def preparation():
 
     # ex: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5/BLA-Insc-19/RDT D1/SingleCellAlignmentData/C03/Shock Ocurred_Choice Time (s)/True/plot_ready_z_pre.csv
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
@@ -109,56 +140,161 @@ def main():
         "BLA-Insc-19",
         ]
 
-    sessions = ["RDT D1"]
+    session = "RDT D1"
 
     event = "Shock Ocurred_Choice Time (s)"
+    subevents = ["True", "False"]
     # ex of file: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4/BLA-Insc-13/RDT D1/SingleCellAlignmentData/C05/Shock Ocurred_Choice Time (s)/True/plot_ready_z_fullwindow.csv
+    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets"
+
 
     for mouse in mice:
         batch = which_batch(mouse)
-        for session in sessions:
-        
-            files = find_paths_mid(os.path.join(ROOT, f"{batch}/{mouse}/{session}/SingleCellAlignmentData"), event, "plot_ready_z_fullwindow.csv")
+            
+        """files = find_paths_mid(os.path.join(ROOT, f"{batch}/{mouse}/{session}/SingleCellAlignmentData"), event, "plot_ready_z_fullwindow.csv")
 
-            for csv_path in files:
-            df: pd.DataFrame
-            df = pd.read_csv(csv_path)
-            df = df.iloc[:, 1:]
+        subevents = find_different_subevents(files, 11)"""
 
+        for subevent in subevents:
+            
+            files_of_same_group = find_paths(f"{ROOT}/{batch}/{mouse}/{session}/SingleCellAlignmentData",f"{event}/{subevent}/plot_ready_z_fullwindow.csv")
 
-            for i in range(len(df)):
-                trial_num = i + 1
-                new_trial = Trial(
-                    block,
-                    event_category,
-                    outcome,
-                    mouse,
-                    session,
-                    trial_num,
-                    cell,
-                    list(df.iloc[i, :]),
-                    timepoints,
-                    idx_at_time_zero,
+            # create folders whre results will go into
+            new_dir = f"{DST_ROOT}/{mouse}/{session}/{event}/{subevent}"
+            print(f"Dir being created: {new_dir}")
+            os.makedirs(new_dir, exist_ok=True)
+
+            #print(*files_of_same_group, sep="\n")
+            for f in files_of_same_group:
+                # we are now going through cell csv that are all in same group
+                cell = f.split("/")[9]
+                df: pd.DataFrame
+                df = pd.read_csv(f)
+                df = df.iloc[:, 1:]
+                # Indicate subwindow you want to decode
+                # 0 is at idx 100
+                min = 100
+                max = 131
+
+                for i in range(len(df)):
+                    trial_num = i + 1
+                    new_trial = Trial(
+                        mouse,
+                        session,
+                        event,
+                        subevent,
+                        trial_num,
+                        cell,
+                        list(df.iloc[i, :])[min:max],
+                    )
+
+                    # How the csv will look like: a triangle that are pearson values (not what i have below currently)
+                    data = [cell] + new_trial.trial_dff_trace
+
+                    trial_csv_path = os.path.join(new_dir, f"trial_{trial_num}.csv")
+                    with open(trial_csv_path, "a") as csv_obj:
+                        writer_obj = writer(csv_obj)
+                        writer_obj.writerow(data)
+                        csv_obj.close()
+
+def make_pearson_corrmaps():
+    ####### Making the pearson corr map #######
+    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets"
+    mice = [
+        "BLA-Insc-1",
+        "BLA-Insc-2",
+        "BLA-Insc-3",
+        "BLA-Insc-5",
+        "BLA-Insc-6",
+        "BLA-Insc-7",
+        "BLA-Insc-8",
+        "BLA-Insc-9",
+        "BLA-Insc-11",
+        "BLA-Insc-13",
+        "BLA-Insc-14",
+        "BLA-Insc-15",
+        "BLA-Insc-16",
+        "BLA-Insc-18",
+        "BLA-Insc-19",
+        ]
+
+    session = "RDT D1"
+
+    event = "Shock Ocurred_Choice Time (s)"
+    subevents = ["True", "False"]
+
+    for mouse in mice:
+
+        for subevent in subevents:
+
+            root_dir = f"{DST_ROOT}/{mouse}/{session}/{event}/{subevent}/"
+            trial_csvs = find_paths_v2(root_dir,"trial_*.csv")
+            #print(trial_csvs)
+            df_d = {}
+            for csv in trial_csvs:
+                print(f"CURR CSV: {csv}")
+                df: pd.DataFrame
+                df = pd.read_csv(csv)
+                temp_cols = list(range(0,len(df.columns)))
+                df = pd.read_csv(csv, header=None, names=temp_cols)
+
+                df = df.T
+                df.columns = df.loc[0]
+                df = df.iloc[1:, :]
+                #print(list(df.columns))
+                #print(df.head())
+
+                cells_list = list(df.columns)
+
+                combos = list(combinations(cells_list, 2))
+
+                # SETUP SKELETON DATAFRAME
+                col_number = len(list(df.columns))
+                pearson_corrmap = pd.DataFrame(
+                    data=np.zeros((col_number, col_number)),
+                    index=list(df.columns),
+                    columns=list(df.columns),
                 )
 
-                trial_csv_name = os.path.join(new_dirs, f"trial_{trial_num}.csv")
-                header = ["Cell"] + new_trial.get_prechoice_timepoints()
-                data = [cell] + new_trial.get_prechoice_dff_trace()
+                for count, combo in enumerate(combos):
+                    #print(f"Working on combo {count}/{len(combos)}: {combo}")
 
-                # look if the csv for this trial exists already
-                if os.path.exists(trial_csv_name) == True:
-                    with open(trial_csv_name, "a") as csv_obj:
-                        writer_obj = writer(csv_obj)
-                        writer_obj.writerow(data)
-                        csv_obj.close()
+                    cell_x = list(combo)[0]
+                    cell_y = list(combo)[1]
 
-                # else (if the csv doesn't exist):
-                # make new csv, add the header row (cell + timepoints in a list), and append data
-                else:
-                    with open(trial_csv_name, "w+") as csv_obj:
-                        writer_obj = writer(csv_obj)
-                        writer_obj.writerow(header)
-                        writer_obj.writerow(data)
-                        csv_obj.close()
+                    x = np.array(list(df[cell_x]))
+                    y = np.array(list(df[cell_y]))
+
+                    result = stats.pearsonr(x, y)
+                    corr_coef = list(result)[0]
+                    pval = list(result)[1]
+
+                    pearson_corrmap[cell_x, cell_y] = corr_coef
+
+                #Save plot rdy corrmap
+                pearson_corrmap_plt_rdy = fill_points_for_hm(pearson_corrmap)
+                heatmap(
+                    pearson_corrmap_plt_rdy,
+                    csv,
+                    out_path=csv.replace(".csv", "_corrmap.png"),
+                    vmin=0.5,
+                    vmax=0,
+                    xticklabels=2,
+                )
+                
+                #Save unflattened one-way corrmap
+                pearson_corrmap.to_csv(csv.replace(".csv", "_corrmap.csv"))
+
+                #Save flattened one-way corrmap
+                pearson_corrmap_flat = pearson_corrmap.to_numpy().flatten().tolist()
+                df_flat = pd.DataFrame(data=pearson_corrmap_flat,index=None,columns=["pearson_corrs"])
+                df_flat.to_csv(csv.replace(".csv","_flat_corrmap.csv"), index=False)
+                break
+            break
+        break
 
 
+
+if __name__ == "__main__":
+    preparation()
+    make_pearson_corrmaps()
