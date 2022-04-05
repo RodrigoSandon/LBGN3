@@ -1,16 +1,24 @@
 from tslearn.metrics import dtw
 from matplotlib.patches import ConnectionPatch
+from itertools import combinations_with_replacement
 import scipy.spatial.distance as dist
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
 from itertools import combinations
+from operator import attrgetter
+from statistics import mean
 import time
 from typing import List, Optional
 import seaborn as sns
 import os, glob
 
+class Cell:
+    def __init__(self,cell_name, dff_trace):
+        self.cell_name = cell_name
+        self.dff_trace = dff_trace
+        self.mean = mean(dff_trace)
 
 def dp(dist_mat):
     """
@@ -153,17 +161,18 @@ def heatmap(
         )
         ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize=5)
         ax.set_yticklabels(ax.get_ymajorticklabels(), fontsize=5)
-        ax.tick_params(left=True, bottom=True)
+        ax.tick_params(left=True, top=True, labeltop = True, bottom=False, labelbottom=False)
 
-        plt.title("Similarity Map")
+        plt.title("DTW: Alignment Cost Map")
         plt.savefig(out_path)
         plt.close()
 
     except ValueError as e:
 
         print("VALUE ERROR:", e)
-        print(f"VALUE ERROR FOR {file_path} --> MAKING HEATMAP")
+        print(f"VALUE ERROR FOR {file_path} --> MAKING CORRMAP")
         pass
+
 
 
 def change_cell_names(df):
@@ -188,6 +197,56 @@ def fill_points_for_hm(df):
 
     return df
 
+def sort_cells(
+    df
+):
+    sorted_cells = []
+
+    for col in list(df.columns):
+        cell = Cell(cell_name=col, dff_trace=list(df[col]))
+        
+        sorted_cells.append(cell)
+
+    sorted_cells.sort(key=attrgetter("mean"), reverse=True)
+
+    def convert_lst_to_d(lst):
+        res_dct = {}
+        for count, i in enumerate(lst):
+            i: Cell
+            res_dct[i.cell_name] = i.dff_trace
+
+        print(f"NUMBER OF CELLS: {len(lst)}")
+        return res_dct
+
+    sorted_cells_d = convert_lst_to_d(sorted_cells)
+
+    df_mod = pd.DataFrame.from_dict(
+        sorted_cells_d
+    )  
+    # from_records automatically sorts by key
+    # from_dict keeps original order intact
+    # print(df_mod)
+    return df_mod
+
+def get_max_of_df(df: pd.DataFrame):
+    global_max = 0
+    max_vals = list(df.max())
+
+    for i in max_vals:
+        if i > global_max:
+            global_max = i
+ 
+    return global_max
+
+def get_min_of_df(df: pd.DataFrame):
+    global_min = 9999999
+    min_vals = list(df.min())
+
+    for i in min_vals:
+        if i < global_min:
+            global_min = i
+ 
+    return global_min
 
 def main():
     def find_paths_endswith(root_path, endswith) -> List:
@@ -298,6 +357,90 @@ def main():
             end = time.time()
             print(f"Time taken: {end - start}")
 
+def one_csv():
+
+    csv = "/media/rory/Padlock_DT/Scrap/trial_1.csv"
+
+    start = time.time()
+
+    print(f"Currently working on ... {csv}")
+    df : pd.DataFrame
+    df = pd.read_csv(csv)
+    temp_cols = list(range(0,len(df.columns)))
+    df = pd.read_csv(csv, header=None, names=temp_cols)
+    
+
+    df = df.T
+    df.columns = df.loc[0]
+    df = df.iloc[1:, :]
+    print(df.head())
+
+    df_sorted = sort_cells(df)
+    print(df_sorted.head())
+
+    cells_list = list(df_sorted.columns)
+    
+
+    combos = list(combinations_with_replacement(cells_list, 2))
+    #print(combos)
+
+    # SETUP SKELETON DATAFRAME
+    col_number = len(list(df_sorted.columns))
+    cell_hm = pd.DataFrame(
+        data=np.zeros((col_number, col_number)),
+        index=list(df_sorted.columns),
+        columns=list(df_sorted.columns),
+    )
+
+    for count, combo in enumerate(combos):
+        print(f"Working on combo {count}/{len(combos)}: {combo}")
+
+        cell_x = list(combo)[0]
+        cell_y = list(combo)[1]
+
+        x = np.array(list(df_sorted[cell_x]))
+        y = np.array(list(df_sorted[cell_y]))
+
+        N = x.shape[0]
+        M = y.shape[0]
+
+        dist_mat = np.zeros((N, M))
+        for i in range(N):
+            for j in range(M):
+                dist_mat[i, j] = abs(x[i] - y[j])
+
+        path, cost_mat = dp(dist_mat)
+
+        alignment_cost = cost_mat[N - 1, M - 1]
+        norm_alignment_cost = cost_mat[N - 1, M - 1] / (N + M)
+
+        # <- the closer the alignment cost is to zero, the more similar
+        cell_hm.loc[cell_x, cell_y] = norm_alignment_cost
+
+        print("Alignment cost: {:.4f}".format(alignment_cost))
+        print("Normalized alignment cost: {:.4f}".format(norm_alignment_cost))
+
+    cell_hm = fill_points_for_hm(cell_hm)
+
+    cell_hm.to_csv(
+        csv.replace(".csv", "_dtw.csv"), index=False,
+    )
+
+    max = get_max_of_df(cell_hm)
+    min = get_min_of_df(cell_hm)
+
+    heatmap(
+        cell_hm,
+        csv,
+        out_path=csv.replace(".csv", "_dtw.png"),
+        vmin=min,
+        vmax=max,
+        xticklabels=1,
+    )
+
+    end = time.time()
+    print(f"Time taken: {end - start}")
 
 if __name__ == "__main__":
-    main()
+    #main()
+    one_csv()
