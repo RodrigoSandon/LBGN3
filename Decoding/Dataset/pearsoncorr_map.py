@@ -4,10 +4,18 @@ import os, glob
 from typing import List, Optional
 from pathlib import Path
 from csv import writer
+from statistics import mean
+from operator import attrgetter
 from itertools import combinations_with_replacement
 from scipy import stats
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+class Cell:
+    def __init__(self,cell_name, dff_trace):
+        self.cell_name = cell_name
+        self.dff_trace = dff_trace
+        self.mean = mean(dff_trace)
 
 def which_batch(mouse: str) -> str:
     mouse_num = mouse.split("-")[2]
@@ -125,7 +133,7 @@ def heatmap(
         )
         ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize=5)
         ax.set_yticklabels(ax.get_ymajorticklabels(), fontsize=5)
-        ax.tick_params(left=True, bottom=True)
+        ax.tick_params(left=True, top=True, labeltop = True, bottom=False, labelbottom=False)
 
         plt.title("Pearson Correlation Map")
         plt.savefig(out_path)
@@ -136,6 +144,35 @@ def heatmap(
         print("VALUE ERROR:", e)
         print(f"VALUE ERROR FOR {file_path} --> MAKING CORRMAP")
         pass
+
+def sort_cells(df):
+    sorted_cells = []
+
+    for col in list(df.columns):
+        cell = Cell(cell_name=col, dff_trace=list(df[col]))
+        
+        sorted_cells.append(cell)
+
+    sorted_cells.sort(key=attrgetter("mean"), reverse=True)
+
+    def convert_lst_to_d(lst):
+        res_dct = {}
+        for count, i in enumerate(lst):
+            i: Cell
+            res_dct[i.cell_name] = i.dff_trace
+
+        print(f"NUMBER OF CELLS: {len(lst)}")
+        return res_dct
+
+    sorted_cells_d = convert_lst_to_d(sorted_cells)
+
+    df_mod = pd.DataFrame.from_dict(
+        sorted_cells_d
+    )  
+    # from_records automatically sorts by key
+    # from_dict keeps original order intact
+
+    return df_mod
 
 def preparation():
 
@@ -192,6 +229,7 @@ def preparation():
                     df: pd.DataFrame
                     df = pd.read_csv(f)
                     df = df.iloc[:, 1:]
+
                     # Indicate subwindow you want to decode
                     # 0 is at idx 100
                     min = 100
@@ -265,18 +303,21 @@ def make_pearson_corrmaps():
                         df.columns = df.loc[0]
                         df = df.iloc[1:, :]
 
-                        cells_list = list(df.columns)
+                        # Sort cells
+                        df_sorted = sort_cells(df)
+
+                        cells_list = list(df_sorted.columns)
                         #print(cells_list)
 
                         combos = list(combinations_with_replacement(cells_list, 2))
                         #print(combos)
 
                         # SETUP SKELETON DATAFRAME
-                        col_number = len(list(df.columns))
+                        col_number = len(list(df_sorted.columns))
                         pearson_corrmap = pd.DataFrame(
                             data=np.zeros((col_number, col_number)),
-                            index=list(df.columns),
-                            columns=list(df.columns),
+                            index=list(df_sorted.columns),
+                            columns=list(df_sorted.columns),
                         )
 
                         for count, combo in enumerate(combos):
@@ -289,8 +330,8 @@ def make_pearson_corrmaps():
                             # 4/4/22: why is getting the list from this df so weird (as below)?
                             # i actually don't know, but it must be bc of the prior editing i did
                             # either way, it works - think it's bc we double ran it - bc error when not double runned
-                            x = list(df[cell_x])
-                            y = list(df[cell_y])
+                            x = list(df_sorted[cell_x])
+                            y = list(df_sorted[cell_y])
                             #print(x)
 
                             result = stats.pearsonr(x, y)
@@ -313,7 +354,7 @@ def make_pearson_corrmaps():
                             out_path=csv.replace(".csv", "_corrmap.png"),
                             vmin=min,
                             vmax=max,
-                            xticklabels=2,
+                            xticklabels=1,
                         )
                         
                         #Save unflattened one-way corrmap
@@ -332,5 +373,5 @@ def make_pearson_corrmaps():
 
 if __name__ == "__main__":
     # CAN ONLY RUN PREPARATION() ONCE OR ELSE WE GET DOUBLE THE CELLS IN EACH CSV
-    preparation()
+    #preparation()
     make_pearson_corrmaps()
