@@ -253,75 +253,80 @@ def make_pearson_corrmaps():
                 #print(trial_csvs)
         
                 for csv in trial_csvs:
-                    print(f"CURR CSV: {csv}")
-                    df: pd.DataFrame
-                    df = pd.read_csv(csv)
-                    temp_cols = list(range(0,len(df.columns)))
-                    df = pd.read_csv(csv, header=None, names=temp_cols)
-                    
+                    try:
+                        print(f"CURR CSV: {csv}")
+                        df: pd.DataFrame
+                        df = pd.read_csv(csv)
+                        temp_cols = list(range(0,len(df.columns)))
+                        df = pd.read_csv(csv, header=None, names=temp_cols)
+                        
 
-                    df = df.T
-                    df.columns = df.loc[0]
-                    df = df.iloc[1:, :]
+                        df = df.T
+                        df.columns = df.loc[0]
+                        df = df.iloc[1:, :]
 
-                    cells_list = list(df.columns)
-                    #print(cells_list)
+                        cells_list = list(df.columns)
+                        #print(cells_list)
 
-                    combos = list(combinations_with_replacement(cells_list, 2))
-                    #print(combos)
+                        combos = list(combinations_with_replacement(cells_list, 2))
+                        #print(combos)
 
-                    # SETUP SKELETON DATAFRAME
-                    col_number = len(list(df.columns))
-                    pearson_corrmap = pd.DataFrame(
-                        data=np.zeros((col_number, col_number)),
-                        index=list(df.columns),
-                        columns=list(df.columns),
-                    )
+                        # SETUP SKELETON DATAFRAME
+                        col_number = len(list(df.columns))
+                        pearson_corrmap = pd.DataFrame(
+                            data=np.zeros((col_number, col_number)),
+                            index=list(df.columns),
+                            columns=list(df.columns),
+                        )
 
-                    for count, combo in enumerate(combos):
-                        #print(f"Working on combo {count}/{len(combos)}: {combo}")
+                        for count, combo in enumerate(combos):
+                            #print(f"Working on combo {count}/{len(combos)}: {combo}")
 
-                        cell_x = list(combo)[0]
-                        cell_y = list(combo)[1]
-                        #print(cell_x)
+                            cell_x = list(combo)[0]
+                            cell_y = list(combo)[1]
+                            #print(cell_x)
 
-                        # 4/4/22: why is getting the list from this df so weird (as below)?
-                        # i actually don't know, but it must be bc of the prior editing i did
-                        # either way, it works - think it's bc we double ran it - bc error when not double runned
-                        x = list(df[cell_x])
-                        y = list(df[cell_y])
-                        #print(x)
+                            # 4/4/22: why is getting the list from this df so weird (as below)?
+                            # i actually don't know, but it must be bc of the prior editing i did
+                            # either way, it works - think it's bc we double ran it - bc error when not double runned
+                            x = list(df[cell_x])
+                            y = list(df[cell_y])
+                            #print(x)
 
-                        result = stats.pearsonr(x, y)
-                        corr_coef = list(result)[0]
-                        pval = list(result)[1]
+                            result = stats.pearsonr(x, y)
+                            corr_coef = list(result)[0]
+                            pval = list(result)[1]
 
-                        #print(corr_coef)
-                        pearson_corrmap.loc[cell_x, cell_y] = corr_coef
+                            #print(corr_coef)
+                            pearson_corrmap.loc[cell_x, cell_y] = corr_coef
 
-                    #Save plot rdy corrmap
-                    pearson_corrmap_plt_rdy = fill_points_for_hm(pearson_corrmap)
-                    #print(pearson_corrmap_plt_rdy)
+                        #Save plot rdy corrmap
+                        pearson_corrmap_plt_rdy = fill_points_for_hm(pearson_corrmap)
+                        #print(pearson_corrmap_plt_rdy)
 
-                    max = get_max_of_df(pearson_corrmap_plt_rdy)
-                    min = get_min_of_df(pearson_corrmap_plt_rdy)
+                        max = get_max_of_df(pearson_corrmap_plt_rdy)
+                        min = get_min_of_df(pearson_corrmap_plt_rdy)
 
-                    heatmap(
-                        pearson_corrmap_plt_rdy,
-                        csv,
-                        out_path=csv.replace(".csv", "_corrmap.png"),
-                        vmin=min,
-                        vmax=max,
-                        xticklabels=2,
-                    )
-                    
-                    #Save unflattened one-way corrmap
-                    pearson_corrmap.to_csv(csv.replace(".csv", "_corrmap.csv"))
+                        heatmap(
+                            pearson_corrmap_plt_rdy,
+                            csv,
+                            out_path=csv.replace(".csv", "_corrmap.png"),
+                            vmin=min,
+                            vmax=max,
+                            xticklabels=2,
+                        )
+                        
+                        #Save unflattened one-way corrmap
+                        pearson_corrmap.to_csv(csv.replace(".csv", "_corrmap.csv"))
 
-                    """#Save flattened one-way corrmap
-                    pearson_corrmap_flat = pearson_corrmap.to_numpy().flatten().tolist()
-                    df_flat = pd.DataFrame(data=pearson_corrmap_flat,index=None,columns=["pearson_corrs"])
-                    df_flat.to_csv(csv.replace(".csv","_flat_corrmap.csv"), index=False)"""
+                        """#Save flattened one-way corrmap
+                        pearson_corrmap_flat = pearson_corrmap.to_numpy().flatten().tolist()
+                        df_flat = pd.DataFrame(data=pearson_corrmap_flat,index=None,columns=["pearson_corrs"])
+                        df_flat.to_csv(csv.replace(".csv","_flat_corrmap.csv"), index=False)"""
+                    except ValueError as e:
+                        # Means the csv contains Nans or infinites, don't process the csv then
+                        print(e)
+                        pass
 
 
 
