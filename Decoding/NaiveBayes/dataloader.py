@@ -10,7 +10,8 @@ class DataLoader:
        # print("New Dataloader")
         self.path = path
         self.data = self.convertToDataFrame(self.path)
-        #self.data, self.test = self.cross_validation_split(self.data, 0.75)
+        # fix validation split
+        self.train, self.test = self.cross_validation_split(self.data, 0.5)
         self.summaries = dict()
         self.class_count = dict()
         self.imp_features = self.all_features() 
@@ -20,7 +21,7 @@ class DataLoader:
     
     def all_features(self):
         features = []
-        for i in range(0, 1024):
+        for i in range(0, len(self.data)*len(self.data)):
             features.append((i, 0, 0))
         return features
             
@@ -52,8 +53,8 @@ class DataLoader:
     
     
     def summarizeData(self, label, important_features):
-        mean_matrix = np.zeros([32, 32])
-        std_matrix = np.zeros([32, 32])
+        mean_matrix = np.zeros([len(self.data), len(self.data)])
+        std_matrix = np.zeros([len(self.data), len(self.data)])
         label_count = 0
         
         for index, row in self.data.iterrows():   
@@ -92,6 +93,6 @@ class DataLoader:
         
                     
    
-loader = DataLoader("Data\\allBrainRegionsraw", ["visal", "visam", "visl", "visp", "vispm", "visrl"])
+loader = DataLoader("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Naive_Bayes/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/train", ["False", "True"])
 loader.generateClassSummaries()
 print(loader.summaries)

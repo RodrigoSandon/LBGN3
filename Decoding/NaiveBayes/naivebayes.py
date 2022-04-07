@@ -33,9 +33,9 @@ class NaiveBayes:
 
     	return probabilities
     
-all_regions = ["visal", "visam", "visl", "visp", "vispm", "visrl"]
-to_search = ["visal", "visp"]
-nb = NaiveBayes("Data\\allBrainRegionsraw", to_search)
+all_regions = ["False", "True"]
+to_search = ["False", "True"]
+nb = NaiveBayes("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Naive_Bayes/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)", to_search)
 accurate = 0
 total = 0
 
