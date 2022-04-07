@@ -3,7 +3,7 @@ import shutil
 import random
 import math
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 def find_paths(root_path: Path, endswith: str) -> List[str]:
     files = glob.glob(
@@ -25,19 +25,25 @@ def find_paths_num_paths_all_mice(root_path: Path, endswith: str) -> int:
 
 class TrialSet:
     def __init__(self, train_prop, val_prop, test_prop):
+        self.csv_set = []
+
         self.num_trials = 0
         self.train_prop = train_prop
         self.val_prop = val_prop
         self.test_prop = test_prop
 
-        self.csv_set = []
+        self.train_num = 0
+        self.val_num = 0
+        self.test_num = 0
+
+        self.train_set = []
+        self.val_set = []
+        self.test_set = []
     
-    def calculate_dataset_proportions(self) -> int:
-        train_num = math.trunc(self.num_trials * self.train_prop)
-        val_num = math.trunc(self.num_trials * self.val_prop)
-        test_num = self.num_trials - (train_num + val_num)
-        
-        return train_num, val_num, test_num
+    def calculate_dataset_proportions(self):
+        self.train_num = math.trunc(self.num_trials * self.train_prop)
+        self.val_num = math.trunc(self.num_trials * self.val_prop)
+        self.test_num = self.num_trials - (self.train_num + self.val_num)
 
     def check(self) -> None:
         if self.csv_set:
@@ -45,14 +51,25 @@ class TrialSet:
         else:
             print("List is empty!")
 
-    def load_dataset(self, num) -> list:
-        rand_sample = random.sample(self.csv_set, num)
-        self.csv_set.remove(rand_sample)
-        return rand_sample
+    def load_train(self):
+        self.train_set = random.sample(self.csv_set, self.train_num)
+        for i in self.train_set:
+            self.csv_set.remove(i)
+
+    def load_test(self):
+        self.test_set = random.sample(self.csv_set, self.test_num)
+        for i in self.test_set:
+            self.csv_set.remove(i)
+
+    def load_val(self):
+        self.val_set = random.sample(self.csv_set, self.val_num)
+        for i in self.val_set:
+            self.csv_set.remove(i)
 
     def add_csv(self, file):
         self.csv_set.append(file)
         self.num_trials += 1
+        return self
 
 
 def main():
@@ -61,8 +78,8 @@ def main():
     # ex input: /media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/True/trial_1_corrmap.csv
     # ex output: /media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/train/True/trial_1_corrmap.csv
     
-    # mouse: session: event: subevent: number_of_trials
-    d = {}
+    # session: event: subevent: number_of_trials
+    d: dict[str, dict[str, dict[str, TrialSet]]] = {}
 
     files = find_paths(ROOT, f"trial_*_corrmap.csv")
     
@@ -94,6 +111,10 @@ def main():
     for key, value in d.items():
         print(key, value)"""
     ##### GETTING ALL MOUSE TRIAL COUNTS #####
+    train_prop = 0.7
+    val_prop = 0.1
+    test_prop = 0.2
+
     for f in files:
         # need to count how many trials are in each subevent
         # to find out limiting factor
@@ -106,16 +127,37 @@ def main():
         if session in d:
             if event in d[session]:
                 if subevent in d[session][event]:
-                    d[session][event][subevent] += 1
+                    d[session][event][subevent].add_csv(f)
                 else:
-                    d[session][event][subevent] = 1
+                    trial_set = TrialSet(train_prop, val_prop, test_prop)
+                    d[session][event][subevent] = trial_set.add_csv(f)
             else:
                 d[session][event] = {}
         else:
             d[session] = {}
 
-    for key, value in d.items():
-        print(key, value)
+    for session, event in d.items():
+        for event, subevent in d[session].items():
+            for subevent, set in d[session][event].items():
+                # in the TrialSet now
+                set: TrialSet
+                print(session, event, subevent, set.num_trials)
+
+                set.calculate_dataset_proportions()
+                print(f"Train: {set.train_num} | Validation: {set.val_num} | Test: {set.test_num}")
+
+                set.load_train()
+                set.load_val()
+                set.load_test()
+                set.check()
+                # the sample of csv paths randomly chosen for train/val/test are not
+                # repeats because we remove those samples that were randomly chosen
+                # right after loading it onto the train/val/test_set (list)
+    
+    ##### NOW COPY/PASTE THOSE RANDOMLY CHOSEN CSV FILES TO APPROPRIATE DIRS #####
+    # Reminder: each session type is it's own decoding session
+    
+
     
     
     # Option 1: Combine all trial corrmaps of specific subevent for training and val, test for any corrmap of any mouse (most data, most generalizable)
