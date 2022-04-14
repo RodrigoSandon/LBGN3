@@ -166,9 +166,9 @@ class FeatureDataset(Dataset):
   def __getitem__(self, idx):
     return self.X_train[idx], self.Y_train[idx]
 
-train_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/train")
-test_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/test")
-val_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/validation")
+train_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/RDT D1/Shock Ocurred_Choice Time (s)/train")
+test_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/RDT D1/Shock Ocurred_Choice Time (s)/test")
+val_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/RDT D1/Shock Ocurred_Choice Time (s)/val")
 
 test_set.X_train
 
