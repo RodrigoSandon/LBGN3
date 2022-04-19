@@ -6,9 +6,9 @@ from pathlib import Path
 from csv import writer, DictWriter
 
 
-def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
+def find_paths(root_path: Path, middle_1, middle_2, endswith: str) -> List[str]:
     files = glob.glob(
-        os.path.join(root_path, "**", middle, "**", endswith), recursive=True,
+        os.path.join(root_path, "**", middle_1, "**",middle_2, "**", endswith), recursive=True,
     )
     return files
 
@@ -61,15 +61,15 @@ class Trial:
         self.postchoice_timepoints = self.get_postchoice_timepoints()
 
     def get_prechoice_dff_trace(self):
-        """Gives you activity at beginning (-10s) to 0"""
-        return self.trial_dff_trace[0 : self.idx_at_time_zero + 1]
+        """Gives you activity at beginning (-3s) to 0"""
+        return self.trial_dff_trace[70 : self.idx_at_time_zero + 1]
 
     def get_postchoice_dff_trace(self):
         """Gives you activity at 0 to 10s"""
         return self.trial_dff_trace[self.idx_at_time_zero + 1 : -1]
 
     def get_prechoice_timepoints(self):
-        return self.timepoints[0 : self.idx_at_time_zero + 1]
+        return self.timepoints[70 : self.idx_at_time_zero + 1]
 
     def get_postchoice_timepoints(self):
         return self.timepoints[self.idx_at_time_zero + 1 : -1]
@@ -178,15 +178,19 @@ def main():
     ROOT_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis")
     DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset")
 
-    files_1 = find_paths(
-        ROOT_PATH, middle="Block_Reward Size_Choice Time (s)", endswith="plot_ready.csv"
-    )
+    sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
-    files_2 = find_paths(
-        ROOT_PATH, middle="Block_Omission_Choice Time (s)", endswith="plot_ready.csv"
-    )
-    all_csv_paths = files_1 + files_2
+    all_csv_paths = []
 
+    for session in sessions:
+
+        files = find_paths(
+            ROOT_PATH, middle_1=f"{session}/SingleCellAlignmentData", middle_2="Block_Reward Size_Choice Time (s)", endswith="plot_ready_z_fullwindow.csv"
+        )
+
+        all_csv_paths += files
+
+    #print( all_csv_paths)
     for csv_path in all_csv_paths:
         try:
             csv_path = Path(csv_path)
@@ -205,6 +209,8 @@ def main():
             df = pd.read_csv(csv_path)
             df = df.iloc[:, 1:]
 
+
+
             timepoints = [
                 float(i.replace("-", "")) for i in list(df.columns) if "-" in i
             ] + [float(i) for i in list(df.columns) if "-" not in i]
@@ -218,7 +224,7 @@ def main():
                     # changing last number to be zero b/c it is in fact zero (not some v. high number)
                     timepoints[idx] = 0
 
-            print(timepoints)
+            #print(timepoints)
             print("idx: ", idx_at_time_zero)
             print("timepoint: ", timepoints[idx_at_time_zero])
 
@@ -378,6 +384,6 @@ def tester():
 
 
 if __name__ == "__main__":
-    # main()
-    main_shock()
+    main()
+    # main_shock()
     # tester()
