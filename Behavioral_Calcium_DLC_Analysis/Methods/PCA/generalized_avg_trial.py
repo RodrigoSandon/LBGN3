@@ -1,15 +1,13 @@
 import pandas as pd
 import numpy as np
 import os, glob
-from typing import List, Optional
+from typing import List
 from pathlib import Path
 from csv import writer
 from statistics import mean
 from operator import attrgetter
 from itertools import combinations_with_replacement
 from scipy import stats
-import matplotlib.pyplot as plt
-import seaborn  as sns
 
 def find_paths_endswith(root_path, endswith) -> List:
 
@@ -103,38 +101,6 @@ def fill_points_for_hm(df):
 
     return df
 
-def heatmap(
-    df,
-    file_path,
-    out_path,
-    cols_to_plot: Optional[List[str]] = None,
-    cmap: str = "coolwarm",
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,
-    **heatmap_kwargs,
-):
-
-    try:
-        if cols_to_plot is not None:
-            df = df[cols_to_plot]
-
-        ax = sns.heatmap(
-            df.transpose(), vmin=vmin, vmax=vmax, cmap=cmap, **heatmap_kwargs
-        )
-        ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize=5)
-        ax.set_yticklabels(ax.get_ymajorticklabels(), fontsize=5)
-        ax.tick_params(left=True, top=True, labeltop = True, bottom=False, labelbottom=False)
-
-        plt.title("Pearson Correlation Map")
-        plt.savefig(out_path)
-        plt.close()
-
-    except ValueError as e:
-
-        print("VALUE ERROR:", e)
-        print(f"VALUE ERROR FOR {file_path} --> MAKING CORRMAP")
-        pass
-
 def sort_cells(df):
     sorted_cells = []
 
@@ -164,7 +130,7 @@ def sort_cells(df):
 
     return df_mod
 
-def make_pearson_corrmaps():
+def main():
     ####### Making the pearson corr map #######
     blocks = ["1.0", "2.0", "3.0"]
     rew = ["Large", "Small"]
@@ -245,62 +211,9 @@ def make_pearson_corrmaps():
                 print(all_cells_df.head())
                 # Sort cells
                 df_sorted = sort_cells(all_cells_df)
-
-                cells_list = list(df_sorted.columns)
-                #print(cells_list)
-
-                combos = list(combinations_with_replacement(cells_list, 2))
-                #print(combos)
-
-                # SETUP SKELETON DATAFRAME
-                col_number = len(list(df_sorted.columns))
-                pearson_corrmap = pd.DataFrame(
-                    data=np.zeros((col_number, col_number)),
-                    index=list(df_sorted.columns),
-                    columns=list(df_sorted.columns),
-                )
-
-                for count, combo in enumerate(combos):
-                    #print(f"Working on combo {count}/{len(combos)}: {combo}")
-
-                    cell_x = list(combo)[0]
-                    cell_y = list(combo)[1]
-                    #print(cell_x)
-
-                    # 4/4/22: why is getting the list from this df so weird (as below)?
-                    # i actually don't know, but it must be bc of the prior editing i did
-                    # either way, it works - think it's bc we double ran it - bc error when not double runned
-                    x = list(df_sorted[cell_x])
-                    y = list(df_sorted[cell_y])
-                    #print(x)
-
-                    result = stats.pearsonr(x, y)
-                    corr_coef = list(result)[0]
-                    pval = list(result)[1]
-
-                    #print(corr_coef)
-                    pearson_corrmap.loc[cell_x, cell_y] = corr_coef
-
-                #Save plot rdy corrmap
-                pearson_corrmap_plt_rdy = fill_points_for_hm(pearson_corrmap)
-                #print(pearson_corrmap_plt_rdy)
-
-                max = get_max_of_df(pearson_corrmap_plt_rdy)
-                min = get_min_of_df(pearson_corrmap_plt_rdy)
-
-                heatmap(
-                    pearson_corrmap_plt_rdy,
-                    csv,
-                    out_path=os.path.join(dst,"all_cells_avg_trials_corrmap.png"),
-                    vmin=min,
-                    vmax=max,
-                    xticklabels=1,
-                )
                 
                 
-                pearson_corrmap_plt_rdy.to_csv(os.path.join(dst, "all_cells_avg_trials_corrmap.csv"))
+                df_sorted.to_csv(os.path.join(dst, "all_cells_avg_trials.csv"))
 
 if __name__ == "__main__":
-    # CAN ONLY RUN PREPARATION() ONCE OR ELSE WE GET DOUBLE THE CELLS IN EACH CSV
-    #preparation()
-    make_pearson_corrmaps()
+    main()
