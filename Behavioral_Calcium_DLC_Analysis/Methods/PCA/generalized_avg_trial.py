@@ -158,11 +158,11 @@ def main():
     for block in blocks:
         for r in rew:
             for session in sessions:
-                root = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/{block}/{r}"
+                root = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset_-3_5/{block}/{r}"
                 mice_files = find_paths_endswith(root, f"{session}/trials_average.csv")
                 #print(mice_files)
 
-                dst = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Generalized_PCA/{block}/{r}/{session}"
+                dst = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Generalized_PCA_-3_5/{block}/{r}/{session}"
                 os.makedirs(dst, exist_ok=True)
 
                 print(f"CURR CSV: {mice_files[0]}")

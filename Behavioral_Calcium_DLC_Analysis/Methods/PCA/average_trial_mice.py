@@ -46,7 +46,7 @@ def main():
             for mouse in mice:
                 for session in sessions:
 
-                    ROOT = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset/{block}/{r}/{mouse}/{session}"
+                    ROOT = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset_-3_5/{block}/{r}/{mouse}/{session}"
 
                     files = find_paths_endswith(ROOT, "trial_*.csv")
 

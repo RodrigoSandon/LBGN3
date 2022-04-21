@@ -54,11 +54,11 @@ class Trial:
         self.timepoints = timepoints
         self.idx_at_time_zero = idx_at_time_zero
 
-        self.prechoice_dff_trace = self.get_prechoice_dff_trace()
+        """self.prechoice_dff_trace = self.get_prechoice_dff_trace()
         self.postchoice_dff_trace = self.get_postchoice_dff_trace()
 
         self.prechoice_timepoints = self.get_prechoice_timepoints()
-        self.postchoice_timepoints = self.get_postchoice_timepoints()
+        self.postchoice_timepoints = self.get_postchoice_timepoints()"""
 
     def get_prechoice_dff_trace(self):
         """Gives you activity at beginning (-3s) to 0"""
@@ -176,7 +176,7 @@ def main():
     # a trial has it's own csv
 
     ROOT_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis")
-    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset")
+    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset_-3_5")
 
     sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
@@ -224,9 +224,15 @@ def main():
                     # changing last number to be zero b/c it is in fact zero (not some v. high number)
                     timepoints[idx] = 0
 
+            # setting pos values after zero
+            for idx, i in enumerate(timepoints):
+                if idx > idx_at_time_zero:
+                    timepoints[idx] = abs(i)
+                    
             #print(timepoints)
-            print("idx: ", idx_at_time_zero)
-            print("timepoint: ", timepoints[idx_at_time_zero])
+            #print("idx: ", idx_at_time_zero)
+            #
+            # print("timepoint: ", timepoints[idx_at_time_zero])
 
             for i in range(len(df)):
                 trial_num = i + 1
@@ -244,8 +250,9 @@ def main():
                 )
 
                 trial_csv_name = os.path.join(new_dirs, f"trial_{trial_num}.csv")
-                header = ["Cell"] + new_trial.get_prechoice_timepoints()
-                data = [cell] + new_trial.get_prechoice_dff_trace()
+                header = ["Cell"] + new_trial.timepoints[70:151]
+                ### CHANGE HERE TO GET SPECIFIC TIME WINDOW YOU WANT ###
+                data = [cell] + new_trial.trial_dff_trace[70:151]
 
                 # look if the csv for this trial exists already
                 if os.path.exists(trial_csv_name) == True:
@@ -274,7 +281,7 @@ def main_shock():
     ROOT_PATH = Path(
         r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pre-Arranged_Dataset"
     )
-    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset")
+    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset_-3_5")
 
     all_csv_paths = find_paths_endswith(ROOT_PATH, endswith="plot_ready.csv")
 
