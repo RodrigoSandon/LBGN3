@@ -85,8 +85,8 @@ class TrialSet:
 
 
 def main():
-    ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets/"
-    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net"
+    ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets_rew/"
+    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_2"
     # ex input: /media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datatrial_sets/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/True/trial_1_corrmap.csv
     # ex output: /media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datatrial_sets/Neural_Net/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/train/True/trial_1_corrmap.csv
     

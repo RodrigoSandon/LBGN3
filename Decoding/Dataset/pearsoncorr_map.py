@@ -200,10 +200,10 @@ def preparation():
 
     sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
-    event = "Shock Ocurred_Choice Time (s)"
-    subevents = ["True", "False"]
+    event = "Reward Size_Choice Time (s)"
+    subevents = ["Large", "Small"]
     # ex of file: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4/BLA-Insc-13/RDT D1/SingleCellAlignmentData/C05/Shock Ocurred_Choice Time (s)/True/plot_ready_z_fullwindow.csv
-    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets"
+    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets_rew"
 
 
     for mouse in mice:
@@ -232,8 +232,8 @@ def preparation():
 
                     # Indicate subwindow you want to decode
                     # 0 is at idx 100
-                    min = 100
-                    max = 131
+                    min = 70
+                    max = 100
 
                     for i in range(len(df)):
                         trial_num = i + 1
@@ -258,7 +258,7 @@ def preparation():
 
 def make_pearson_corrmaps():
     ####### Making the pearson corr map #######
-    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets"
+    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets_rew"
     mice = [
         "BLA-Insc-1",
         "BLA-Insc-2",
@@ -279,8 +279,8 @@ def make_pearson_corrmaps():
 
     sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
-    event = "Shock Ocurred_Choice Time (s)"
-    subevents = ["True", "False"]
+    event = "Reward Size_Choice Time (s)"
+    subevents = ["Large", "Small"]
 
     for mouse in mice:
         for session in sessions:
@@ -358,7 +358,7 @@ def make_pearson_corrmaps():
                         )
                         
                         #Save unflattened one-way corrmap
-                        pearson_corrmap.to_csv(csv.replace(".csv", "_corrmap.csv"))
+                        pearson_corrmap_plt_rdy.to_csv(csv.replace(".csv", "_corrmap.csv"))
 
                         """#Save flattened one-way corrmap
                         pearson_corrmap_flat = pearson_corrmap.to_numpy().flatten().tolist()
@@ -373,5 +373,5 @@ def make_pearson_corrmaps():
 
 if __name__ == "__main__":
     # CAN ONLY RUN PREPARATION() ONCE OR ELSE WE GET DOUBLE THE CELLS IN EACH CSV
-    #preparation()
+    preparation()
     make_pearson_corrmaps()

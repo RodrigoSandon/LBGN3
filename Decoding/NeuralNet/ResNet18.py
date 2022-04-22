@@ -128,8 +128,8 @@ class FeatureDataset(Dataset):
     count = 0
     
     name = {
-        'False': 0,
-        'True': 1,
+        'Large': 0,
+        'Small': 1,
     }
     """for root,dirs,files in os.walk(file_name):
       print(dirs)
@@ -166,9 +166,9 @@ class FeatureDataset(Dataset):
   def __getitem__(self, idx):
     return self.X_train[idx], self.Y_train[idx]
 
-train_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/RDT D1/Shock Ocurred_Choice Time (s)/train")
-test_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/RDT D1/Shock Ocurred_Choice Time (s)/test")
-val_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net/RDT D1/Shock Ocurred_Choice Time (s)/val")
+train_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_2/RDT D1/Reward Size_Choice Time (s)/train")
+test_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_2/RDT D1/Reward Size_Choice Time (s)/test")
+val_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_2/RDT D1/Reward Size_Choice Time (s)/val")
 
 test_set.X_train
 
@@ -176,7 +176,7 @@ mini_batch_size = 1
 trainloader = torch.utils.data.DataLoader(train_set, batch_size=mini_batch_size)
 testloader = torch.utils.data.DataLoader(test_set, batch_size=mini_batch_size)
 valloader = torch.utils.data.DataLoader(val_set, batch_size=mini_batch_size)
-classes = ("False", "True")
+cats = ["Large", "Small"]
 
 train_losses = []
 valid_losses = []
@@ -257,7 +257,7 @@ def train(epochs, model):
     print("\nTraining Time (in minutes) =", (time()-time0)/60)
 
 
-train(30, model)
+train(150, model)
 
 plt.plot(train_losses, label='Training loss')
 plt.plot(valid_losses, label='Validation loss')
@@ -286,3 +286,41 @@ print('Accuracy of the network test images: %d %%' % (
 
 torch.save(model.state_dict(), "model1")
 plt.show()
+
+#Confusion Matrix
+from sklearn.metrics import confusion_matrix
+import itertools
+
+def plot_confusion_matrix(cm, classes,
+                         normalize=False,
+                         title='Confusion matrix',
+                         cmap=plt.cm.Blues):
+    plt.imshow(cm, interpolation='nearest',cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+    
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:,np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print("Confusion matrix, without normalization")
+    print(cm)
+    
+    thresh = cm.max() / 2.
+    for i,j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j,i,cm[i,j],
+                horizontalalignment="center",
+                color="white" if cm[i,j] > thresh else "black")
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.show()
+
+cm = confusion_matrix(y_true=cats, y_pred=np.argmax(correct/total, axis=-1))
+valloader.class_indices
+
+
+plot_confusion_matrix(cm, classes=cats, title='Confusion Matrix')
