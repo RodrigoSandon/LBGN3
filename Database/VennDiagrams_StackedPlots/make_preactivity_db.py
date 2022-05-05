@@ -70,7 +70,7 @@ def create_subwindow_of_list(
     return subwindow_lst
 
 
-class WilcoxonIdentityTest:
+class IdentityGiver:
     def __init__(
         self,
         conn,
@@ -80,13 +80,6 @@ class WilcoxonIdentityTest:
         csv_path: str,
         session: str,
         event_type: str,
-        base_lower_bound_time: int,
-        base_upper_bound_time: int,
-        lower_bound_time: int,
-        upper_bound_time: int,
-        reference_pair: dict,
-        hertz: int,
-        alpha,
     ):
         #####SQL STUFF#####
         self.conn = conn
@@ -98,92 +91,34 @@ class WilcoxonIdentityTest:
         self.csv_path = csv_path
         self.session = session
         self.event_type = event_type
-
-        self.test = "mannwhitneyu"
         self.table_name = session
 
-        self.base_lower_bound_time = base_lower_bound_time
-        self.base_upper_bound_time = base_upper_bound_time
-        self.lower_bound_time = lower_bound_time
-        self.upper_bound_time = upper_bound_time
-        self.reference_pair = reference_pair
-        self.hertz = hertz
+        self.give_identity()
 
-        self.alpha = alpha
-
-        self.give_identity_wilcoxon()
-
-    def make_col_name(self, sample_size):
-        subwindow_base = f"{self.base_lower_bound_time}_to_{self.base_upper_bound_time}"
-        subwindow_post = f"{self.lower_bound_time}_to_{self.upper_bound_time}"
+    def make_col_name(self):
 
         self.event_type = self.event_type.replace(" ", "_")
-        lst = [
-            self.test,
-            self.event_type,
-            str(sample_size),
-            subwindow_base,
-            subwindow_post,
-        ]
+
         # SQL DOESNT LIKE THESE CHARACTERS
-        key_name = "_".join(lst)
-        if "." in key_name:
-            key_name = key_name.replace(".", "dot")
-        if "(" in key_name:
-            key_name = key_name.replace("(", "")
-        if ")" in key_name:
-            key_name = key_name.replace(")", "")
-        if "," in key_name:
-            key_name = key_name.replace(",", "")
-        if "'" in key_name:
-            key_name = key_name.replace("'", "")
-        if "-" in key_name:
-            key_name = key_name.replace("-", "minus")
-        return key_name
+        
+        if "." in self.event_type:
+            self.event_type = self.event_type.replace(".", "dot")
+        if "(" in self.event_type:
+            self.event_type = self.event_type.replace("(", "")
+        if ")" in self.event_type:
+            self.event_type = self.event_type.replace(")", "")
+        if "," in self.event_type:
+            self.event_type = self.event_type.replace(",", "")
+        if "'" in self.event_type:
+            self.event_type = self.event_type.replace("'", "")
+        if "-" in self.event_type:
+            self.event_type = self.event_type.replace("-", "minus")
+            
+        return self.event_type
 
-    def wilcoxon_rank_sum(self, number_cells, cell):
+    def give_identity(self):
 
-        sub_df_baseline_lst = create_subwindow_of_list(
-            list(self.df[cell]),
-            unknown_time_min=self.base_lower_bound_time,
-            unknown_time_max=self.base_upper_bound_time,
-            reference_pair=self.reference_pair,
-            hertz=self.hertz,
-        )
-
-        sub_df_lst = create_subwindow_of_list(
-            list(self.df[cell]),
-            unknown_time_min=self.lower_bound_time,
-            unknown_time_max=self.upper_bound_time,
-            reference_pair=self.reference_pair,
-            hertz=self.hertz,
-        )
-
-        if (sub_df_baseline_lst == sub_df_lst) == True:
-            return "null"
-
-        result_greater = stats.mannwhitneyu(
-            sub_df_lst, sub_df_baseline_lst, alternative="greater"
-        )
-
-        result_less = stats.mannwhitneyu(
-            sub_df_lst, sub_df_baseline_lst, alternative="less"
-        )
-
-        id = None
-        if result_greater.pvalue < (self.alpha / number_cells):
-            id = "+"
-        elif result_less.pvalue < (self.alpha / number_cells):
-            id = "-"
-        else:
-            id = "Neutral"
-
-        return id
-
-    def give_identity_wilcoxon(self):
-        number_cells = len(list(self.df.columns))
-
-        new_col_name = self.make_col_name(number_cells)
+        new_col_name = self.make_col_name()
         # add test, comes before all the identity giving to cells
         print(new_col_name)
         self.cursor.execute(
@@ -202,8 +137,7 @@ class WilcoxonIdentityTest:
                 result = row
 
             # then add it's id value
-            id = self.wilcoxon_rank_sum(number_cells, cell)
-            # print(id)
+            id = list(self.df[cell])[0]
 
             # cell doesn't exists: means we have an empty table
             if not isinstance(result, tuple):
@@ -230,10 +164,10 @@ def main():
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
 
     # Set db name and curr subevent path
-    db_name = "BLA_Cells_Post_Activity"
+    db_name = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Pre_Activity.db"
 
     # Create db connection
-    conn = sqlite3.connect(f"{db_name}.db")
+    conn = sqlite3.connect(db_name)
     c = conn.cursor()
 
     lst = os.listdir(ROOT)
@@ -242,7 +176,7 @@ def main():
         print(session)
         SESSION_PATH = os.path.join(ROOT, session)
 
-        csvs = find_paths_startswith(SESSION_PATH, "all_concat_cells_z_fullwindow.csv")
+        csvs = find_paths_startswith(SESSION_PATH, "all_concat_cells_z_fullwindow_id_auc_bonf0.05_pre.csv")
 
         # Create SQl table here
         table_name = session.replace(" ", "_")
@@ -273,7 +207,8 @@ def main():
             if "Shock Test" not in csv:
 
                 # Run a test on a subevent
-                WilcoxonIdentityTest(
+                # this is the cell identities so no more analysis, just placing
+                IdentityGiver(
                     conn,
                     c,
                     db_name,
@@ -281,17 +216,10 @@ def main():
                     CONCAT_CELLS_PATH,
                     session=table_name,
                     event_type="_".join(list_of_eventtype_name),
-                    base_lower_bound_time=-10,
-                    base_upper_bound_time=-5,
-                    lower_bound_time=0,
-                    upper_bound_time=3,
-                    reference_pair={0: 100},
-                    hertz=10,
-                    alpha=0.01,
                 )
             else:  # shock has a different structure, do accordingly
                 # shock is 100 idxs long
-                WilcoxonIdentityTest(
+                IdentityGiver(
                     conn,
                     c,
                     db_name,
@@ -299,13 +227,6 @@ def main():
                     CONCAT_CELLS_PATH,
                     session=table_name,
                     event_type="_".join(list_of_eventtype_name),
-                    base_lower_bound_time=-3,
-                    base_upper_bound_time=0,
-                    lower_bound_time=0,
-                    upper_bound_time=3,
-                    reference_pair={0: 50},
-                    hertz=10,
-                    alpha=0.01,
                 )
 
     conn.close()

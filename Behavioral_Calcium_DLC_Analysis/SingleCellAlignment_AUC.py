@@ -146,7 +146,7 @@ def main():
                 x_coords = list(range(len(df)))
                 
                 auc_prechoice = subwindow_auc(df, x_coords, 21, 51) # -8 to -5
-                auc_postchoice = subwindow_auc(df, x_coords, 101, 131) # 0 to 3
+                auc_postchoice = subwindow_auc(df, x_coords, 71, 101,) # 0 to 3 | changed to -3 to 0 5/5/22
 
                 d_to_save = {
                     "Trial #": col_to_save,
@@ -163,7 +163,7 @@ def main():
 
                 id_d = {cell_name : id}
                 id_df = pd.DataFrame.from_records(id_d, index=[0])
-                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", f"id_z_fullwindow_auc_bonf{alpha}.csv")
+                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", f"id_z_fullwindow_auc_bonf{alpha}_pre.csv")
                 id_df.to_csv(id_df_out, index=False)
 
 if __name__ == "__main__":
