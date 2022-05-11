@@ -71,7 +71,7 @@ class FeatureDataset(Dataset):
 """transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])"""
-print(torch.cuda.memory_summary(device=None, abbreviated=False))
+#print(torch.cuda.memory_summary(device=None, abbreviated=False))
 
 classes = ("Large", "Small")
 
@@ -85,6 +85,7 @@ model.eval()
 model.to(device)
 
 images, labels = next(iter(valloader))
+print(len(images))
 
 for ind in range(len(images)):
     img = images[ind].to(device)
@@ -112,43 +113,15 @@ for ind in range(len(images)):
                                                      **kwargs
                                                     )
             
-        return tensor_attributions     
-        
-    saliency = Saliency(model)
-    grads = saliency.attribute(input, target=labels[ind].item())
-        
-    grads = grads.view(1, img_shape[2], img_shape[3])
-    grads = np.transpose(grads.squeeze().cpu().detach().numpy())
-        
-        
-    ig = IntegratedGradients(model)
-    attr_ig, delta = attribute_image_features(ig, input, baselines=input * 0, return_convergence_delta=True)
-        
-  
-    attr_ig = attr_ig.view(1, img_shape[2], img_shape[3])
-    attr_ig = np.transpose(attr_ig.squeeze().cpu().detach().numpy())
-    print(torch.cuda.memory_summary(device=None, abbreviated=False))
-    print('Approximation delta: ', abs(delta))
-        
-    ig = IntegratedGradients(model)
-    nt = NoiseTunnel(ig)
-    attr_ig_nt = attribute_image_features(nt, input, baselines=input * 0, nt_type='smoothgrad_sq',
-                                              nt_samples=100, stdevs=0.2)
-    attr_ig_nt = attr_ig_nt.view(1, img_shape[2], img_shape[3])
-    attr_ig_nt = np.transpose(attr_ig_nt.squeeze(0).cpu().detach().numpy())
-        
-    dl = DeepLift(model)
-    attr_dl = attribute_image_features(dl, input, baselines=input * 0)
-    attr_dl = attr_dl.view(1, img_shape[2], img_shape[3])
-    attr_dl = np.transpose(attr_dl.squeeze(0).cpu().detach().numpy())
-        
+        return tensor_attributions
+
     occlusion = Occlusion(model)
     attributions_occ = occlusion.attribute(input,
                                                strides = 2,
                                                target=labels[ind].item(),
-                                               sliding_window_shapes= (3, 10, 10),
+                                               sliding_window_shapes= (1, img_shape[2], img_shape[3]),
                                                baselines=0)
-    attributions_occ = attributions_occ.view(1, img_shape[2], img_shape[3])
+    attributions_occ = attributions_occ.view(img_shape[2], img_shape[3], 1)
     attributions_occ = np.transpose(attributions_occ.squeeze(0).cpu().detach().numpy())
         
 
@@ -160,25 +133,10 @@ for ind in range(len(images)):
         
     fig1, _ = viz.visualize_image_attr(None, original_image, 
                               method="original_image", title="Original Image, Actual: " + str(labels[ind].cpu()) + " Predicted: " + str(classes[predicted[0]]))
-    
-        
-    fig2, _ = viz.visualize_image_attr(grads, original_image, method="blended_heat_map", sign="absolute_value",
-                                  show_colorbar=True, title="Overlayed Gradient Magnitudes (Saliency)")
-        
-    fig3, _ = viz.visualize_image_attr(attr_ig, original_image, method="blended_heat_map",sign="all",
-                                  show_colorbar=True, title="Overlayed Integrated Gradients")
-        
-    fig4, _ = viz.visualize_image_attr(attr_ig_nt, original_image, method="blended_heat_map", sign="absolute_value", 
-                                     outlier_perc=10, show_colorbar=True, 
-                                     title="Overlayed Integrated Gradients \n with SmoothGrad Squared")
-        
-    fig5, _ = viz.visualize_image_attr(attr_dl, original_image, method="blended_heat_map",sign="all",show_colorbar=True, 
-                                  title="Overlayed DeepLift")
         
     fig6, _  = viz.visualize_image_attr(attributions_occ,
-                                              original_image,
-                                              method="blended_heat_map",
-                                              title="occlusion",
+                                              method="heat_map",
+                                              title="Occlusion map",
                                               sign="positive",
                                               show_colorbar=True,
                                               outlier_perc=2,
@@ -191,14 +149,4 @@ for ind in range(len(images)):
         os.makedirs(path)
     
     fig1.savefig(path + "/OriginalImage.png")
-    fig2.savefig(path + "/OverlayedGradientMagnitudes.png")
-    fig3.savefig(path + "/OverlayedIntegratedGradients.png")
-    fig4.savefig(path + "/OverlayedIntegratedGradientsWithSmoothGradSquared.png")
-    fig5.savefig(path + "/OverlayedDeepLift.png")
     fig6.savefig(path + "/Occlusion.png")
-    
-"""
-Created on Sat Jan 23 10:02:59 2021
-
-@author: Matthew Chen
-"""
