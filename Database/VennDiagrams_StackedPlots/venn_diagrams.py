@@ -37,7 +37,6 @@ def main():
         df_2 = pd.DataFrame(sql_query2)
 
         chosen_cells = list(df_1["cell_name"])
-        chosen_cells_2 = list(df_2["cell_name"])
         num_chosen_cells = len(chosen_cells)
         neu_cells = list(df_2["cell_name"])
         num_neu_cells = len(neu_cells)
@@ -45,8 +44,8 @@ def main():
         chosen_cells_formatted = "("
 
         ##### CHANGE BETWEEN TYPES OF CHOSEN CELLS (RESP OR NONRESP) TO ANALYZE #####
-        for c in chosen_cells_2:
-            if c == chosen_cells_2[-1]: #at last one
+        for c in neu_cells:
+            if c == neu_cells[-1]: #at last one
                 chosen_cells_formatted += f"'{c}')"
             else:
                 chosen_cells_formatted += f"'{c}', "
@@ -177,7 +176,7 @@ def main():
                     set_labels=("Large", "Non-Responsive"),
                 )
 
-            plt.title(f"{session}: Identity Proportions of Shock Responsive Cells in {key}")
+            plt.title(f"{session}: Identity Proportions of Shock Non-Responsive Cells in {key}")
             plt.savefig(os.path.join(dst, f"venn_shock_nonresp_{session}_{key}.png"))
             plt.close()
 
