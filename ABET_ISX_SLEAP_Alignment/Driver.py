@@ -67,6 +67,8 @@ class Driver:
         for folder_name in os.listdir(MASTER_ROOT):
             print(folder_name)
             if "PTP" in folder_name:
+                #ONLY DOING ONE BATCH
+                
                 BATCH_ROOT = os.path.join(MASTER_ROOT, folder_name)
                 mouse_paths = [
                     os.path.join(BATCH_ROOT, dir)
@@ -197,6 +199,7 @@ class Driver:
                                     "Time taken for %s: %s"
                                     % (cell_name, time.time() - start)
                                 )
+                                break # for one neuron
                         except:
                             print(
                                 "NO ABET TABLE FOUND, SO SINGLE CELL ALIGNMENT & ANALYSIS CAN'T BE DONE!"
