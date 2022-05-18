@@ -66,9 +66,8 @@ class Driver:
         MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/"
         for folder_name in os.listdir(MASTER_ROOT):
             print(folder_name)
-            if "PTP" in folder_name:
-                #ONLY DOING ONE BATCH
-                
+            #if "PTP" in folder_name: #ONLY DOING ONE BATCH?
+            if "PTP_Inscopix_#5" in folder_name:
                 BATCH_ROOT = os.path.join(MASTER_ROOT, folder_name)
                 mouse_paths = [
                     os.path.join(BATCH_ROOT, dir)

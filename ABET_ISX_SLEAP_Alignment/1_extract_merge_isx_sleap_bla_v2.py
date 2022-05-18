@@ -477,8 +477,7 @@ def merge_isx_and_speed_data(bodypart: str, root_dir: str, speed_filepath: str):
 
 
 def main():
-    ROOT = r"/media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only"
-    BLA_DST_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/"
+    ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5"
 
     slp_files = find_paths_endswith(ROOT, ".slp")
 
@@ -488,27 +487,13 @@ def main():
     # Will be actually putting the bla's into existing folders
     for count, i in enumerate(slp_files):
         print(f"Processing {count + 1}: {i}")
-        # 1) move the slp file
         slp_filename = i.split("/")[-1]
-        try:
-            ses_root = create_bla_dst_path(BLA_DST_ROOT, i)
-            new_slp_path = os.path.join(ses_root, slp_filename)
-            print(f"old path: {i} || new path: {new_slp_path}")
-            shutil.copy(i, new_slp_path)
-        #videos in which make session that don't exists for BLA
-        except FileNotFoundError as e:
-            print(e)
-            print("THIS SESSION DOESN'T CONTAIN ABET NOR ISX DATA")
-            mouse, session = slp_file_parsing(i)
-            ptp = ptp_autoencoder(mouse)
-            ses_root = os.path.join(BLA_DST_ROOT, ptp, mouse, session)
-            new_slp_path = os.path.join(ses_root, slp_filename)
-            os.makedirs(ses_root, exist_ok=True)
-            shutil.copy(i, new_slp_path)
+        ses_root = i.replace(slp_filename, "")
+        print(f"folder root: {ses_root}")
 
         # 2) Convert .slp to .h5
-        h5_path = new_slp_path.replace(".slp", ".h5")
-        slp_to_h5(new_slp_path, h5_path)
+        h5_path = i.replace(".slp", ".h5")
+        slp_to_h5(i, h5_path)
 
         # 3) Extract speed
         #meta_data(h5_path)

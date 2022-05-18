@@ -97,7 +97,7 @@ axs[1].set_ylim(0, speed_max + 1)
 axs[1].set_ylabel("Speed (cm/s)")
 axs[1].set_xlabel("Time Relative to Choice (s)")
 
-"""########################################################################
+########################################################################
 
 hm_df_2 = pd.read_csv("/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Block_Reward Size_Choice Time (s)/(2.0, 'Large')/all_concat_cells_z_fullwindow.csv")
 hm_df_sort_2 = sort_cells(hm_df_2)
@@ -135,13 +135,6 @@ axs_2[1].set_ylabel("Speed (cm/s)")
 axs_2[1].set_xlabel("Time Relative to Choice (s)")
 
 ########################################################################
-
-# Create new figure and two subplots, sharing both axes
-fig_3, (ax3, ax4) = plt.subplots(1,2,sharey=True, sharex=True)
-
-# Plot data from fig1 and fig2
-ax3 = fig
-ax4 = fig_2
-plt.show()"""
+fig3, (axs, axs_2) = plt.subplots(1,2, sharey=True, sharex=True)
 
 plt.show()

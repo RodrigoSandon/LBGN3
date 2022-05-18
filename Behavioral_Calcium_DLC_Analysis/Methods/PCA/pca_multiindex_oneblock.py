@@ -70,8 +70,8 @@ def combiner_same_block(csvs_to_concat: list) -> pd.DataFrame:
 def main():
 
     csvs_to_concat = [
-        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Generalized_PCA_-3_5/1.0/Small/RDT D1/all_cells_avg_trials.csv",
-        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Generalized_PCA_-3_5/1.0/Large/RDT D1/all_cells_avg_trials.csv"
+        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Generalized_PCA_-3_0/1.0/Small/RDT D1/all_cells_avg_trials.csv",
+        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Generalized_PCA_-3_0/1.0/Large/RDT D1/all_cells_avg_trials.csv"
         ]
     
     concatenated_df = combiner_same_block(csvs_to_concat)
