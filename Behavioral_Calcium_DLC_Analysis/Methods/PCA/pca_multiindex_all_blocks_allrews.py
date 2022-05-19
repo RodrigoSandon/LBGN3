@@ -46,7 +46,7 @@ def pca_df(df: pd.DataFrame) :
 
 def combiner_same_block(csvs_to_concat: list) -> pd.DataFrame:
     # making empty arrays that will be filled with indicies later
-    multi_cols = [[],[]] # type: List[List[str]]
+    multi_cols = [[],[],[]] # type: List[List[str]]
     dfs_to_concat = []
   
     for csv in csvs_to_concat:
@@ -54,12 +54,15 @@ def combiner_same_block(csvs_to_concat: list) -> pd.DataFrame:
         df = df.iloc[:, 1:]
         df = df.T
         dfs_to_concat.append(df)
+        rew = csv.split("/")[8]
         block = csv.split("/")[7]
         num_cols = len(list(df.columns))
         for count in range(num_cols):
-            multi_cols[0].append(block)
+            multi_cols[0].append(rew)
+        for count in range(num_cols):
+            multi_cols[1].append(block)
         for col in list(df.columns):
-            multi_cols[1].append(col)
+            multi_cols[2].append(col)
     
     multi_cols = [np.asarray(mylist) for mylist in multi_cols]
     result = pd.concat(dfs_to_concat, axis=1)
@@ -70,14 +73,19 @@ def combiner_same_block(csvs_to_concat: list) -> pd.DataFrame:
 def main():
 
     csvs_to_concat = [
+        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_Generalized_PCA_-3_0/1.0/Small/RDT D1/all_cells_avg_trials.csv",
+        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_Generalized_PCA_-3_0/2.0/Small/RDT D1/all_cells_avg_trials.csv",
+        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_Generalized_PCA_-3_0/3.0/Small/RDT D1/all_cells_avg_trials.csv",
         "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_Generalized_PCA_-3_0/1.0/Large/RDT D1/all_cells_avg_trials.csv",
         "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_Generalized_PCA_-3_0/2.0/Large/RDT D1/all_cells_avg_trials.csv",
         "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_Generalized_PCA_-3_0/3.0/Large/RDT D1/all_cells_avg_trials.csv"
         ]
-    
+    # small then large
+    colors = ["#F5B7B1", "#E74C3C", "#78281F", "#AED6F1", "#3498DB", "#1B4F72"]
+
     concatenated_df = combiner_same_block(csvs_to_concat)
     print("CONCATENATED DF BEFORE STANDARDIZATION")
-    print(concatenated_df.head())
+    print(concatenated_df)
     #print(len(concatenated_df["Small"].columns))
     #print(len(concatenated_df["Large"].columns))
 
@@ -101,7 +109,6 @@ def main():
     ################## ZSCORE CONCATENATED DFS ##################
     print("CONCATENATED DF AFTER STANDARDIZATION")
     print(concatenated_df.head())
-    
 
     df, per_var, labels = pca_df(concatenated_df)
 
@@ -114,44 +121,40 @@ def main():
     plt.xlabel('Principal Component')
     plt.title('Scree Plot')
     plt.show()
-    #print(df)
+    
+    b1_s_idx = [i for i in list(df.index) if "1.0" in list(i) and "Small" in list(i)]
+    b2_s_idx = [i for i in list(df.index) if "2.0" in list(i) and "Small" in list(i)]
+    b3_s_idx = [i for i in list(df.index) if "3.0" in list(i) and "Small" in list(i)]
 
-    #df.index = [list(i) for i in list(df.index)]
-    #print(list(df.index))
-    #print(type(list(df.index)[0]))
-
-    b1_idx = [i for i in list(df.index) if "1.0" in list(i)]
-    b2_idx = [i for i in list(df.index) if "2.0" in list(i)]
-    b3_idx = [i for i in list(df.index) if "3.0" in list(i)]
-    print(b3_idx)
-    #print(large_rew_idx)
+    b1_l_idx = [i for i in list(df.index) if "1.0" in list(i) and "Large" in list(i)]
+    b2_l_idx = [i for i in list(df.index) if "2.0" in list(i) and "Large" in list(i)]
+    b3_l_idx = [i for i in list(df.index) if "3.0" in list(i) and "Large" in list(i)]
+    
 
     fig = plt.figure()
     ax = fig.add_subplot(111,projection="3d")
-   
-    ax.scatter(df.loc[b1_idx].PC1, df.loc[b1_idx].PC2,df.loc[b1_idx].PC3, c="royalblue", label="Block 1")
-    ax.scatter(df.loc[b2_idx].PC1, df.loc[b2_idx].PC2,df.loc[b2_idx].PC3, c="indianred", label="Block 2")
-    ax.scatter(df.loc[b3_idx].PC1, df.loc[b3_idx].PC2,df.loc[b3_idx].PC3, c="mediumseagreen", label="Block 3")
-    #print(len(df.PC1))
 
-    xAxisLine = ((min(df.loc[b1_idx].PC1), max(df.loc[b1_idx].PC1)), (0, 0), (0,0))
+    ax.scatter(df.loc[b1_s_idx].PC1, df.loc[b1_s_idx].PC2,df.loc[b1_s_idx].PC3, c=colors[0], label="S B1")
+    ax.scatter(df.loc[b1_s_idx].PC1, df.loc[b1_s_idx].PC2,df.loc[b1_s_idx].PC3, c=colors[1], label="S B2")
+    ax.scatter(df.loc[b1_s_idx].PC1, df.loc[b1_s_idx].PC2,df.loc[b1_s_idx].PC3, c=colors[2], label="S B3")
+
+    ax.scatter(df.loc[b1_l_idx].PC1, df.loc[b1_l_idx].PC2,df.loc[b1_l_idx].PC3, c=colors[3], label="L B1")
+    ax.scatter(df.loc[b1_l_idx].PC1, df.loc[b1_l_idx].PC2,df.loc[b1_l_idx].PC3, c=colors[4], label="L B2")
+    ax.scatter(df.loc[b1_l_idx].PC1, df.loc[b1_l_idx].PC2,df.loc[b1_l_idx].PC3, c=colors[5], label="L B3")
+
+    """xAxisLine = ((min(df.loc[b1_s_idx].PC1), max(df.loc[b1_s_idx].PC1)), (0, 0), (0,0))
     ax.plot(xAxisLine[0], xAxisLine[1], xAxisLine[2], 'r')
-    yAxisLine = ((0, 0), (min(df.loc[b1_idx].PC2), max(df.loc[b1_idx].PC2)), (0,0))
+    yAxisLine = ((0, 0), (min(df.loc[b1_s_idx].PC2), max(df.loc[b1_s_idx].PC2)), (0,0))
     ax.plot(yAxisLine[0], yAxisLine[1], yAxisLine[2], 'r')
-    zAxisLine = ((0, 0), (0,0), (min(df.loc[b1_idx].PC3), max(df.loc[b1_idx].PC3)))
-    ax.plot(zAxisLine[0], zAxisLine[1], zAxisLine[2], 'r')
+    zAxisLine = ((0, 0), (0,0), (min(df.loc[b1_s_idx].PC3), max(df.loc[b1_s_idx].PC3)))
+    ax.plot(zAxisLine[0], zAxisLine[1], zAxisLine[2], 'r')"""
 
-    
-    """plt.legend()
-    plt.title("PCA Graph")"""
+
     ax.legend()
     ax.set_title("PCA Graph")
     ax.set_xlabel(f"PC1 - {per_var[0]}%")
     ax.set_ylabel(f"PC2 - {per_var[1]}%")
     ax.set_zlabel(f"PC3 - {per_var[2]}%")
-    """plt.xlabel(f"PC1 - {per_var[0]}%")
-    plt.ylabel(f"PC2 - {per_var[1]}%")
-    plt.zlabel(f"PC3 - {per_var[2]}%")"""
 
     
     plt.show()

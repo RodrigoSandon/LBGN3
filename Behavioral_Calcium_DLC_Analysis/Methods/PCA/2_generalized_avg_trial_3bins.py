@@ -134,86 +134,72 @@ def main():
     ####### Making the pearson corr map #######
     blocks = ["1.0", "2.0", "3.0"]
     rew = ["Large", "Small"]
-    mice = [
-        "BLA-Insc-1",
-        "BLA-Insc-2",
-        "BLA-Insc-3",
-        "BLA-Insc-5",
-        "BLA-Insc-6",
-        "BLA-Insc-7",
-        "BLA-Insc-8",
-        "BLA-Insc-9",
-        "BLA-Insc-11",
-        "BLA-Insc-13",
-        "BLA-Insc-14",
-        "BLA-Insc-15",
-        "BLA-Insc-16",
-        "BLA-Insc-18",
-        "BLA-Insc-19"
-    ]
+    shock = ["False", "True"]
 
     sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
     # Want to generalize results, so include all mice
     for block in blocks:
         for r in rew:
-            for session in sessions:
-                root = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_Arranged_Dataset_-3_5/{block}/{r}"
-                mice_files = find_paths_endswith(root, f"{session}/trials_average.csv")
-                #print(mice_files)
+            for s in shock:
+                for session in sessions:
+                    root = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Arranged_Dataset_-3_5/{block}/{r}/{s}"
+                    mice_files = find_paths_endswith(root, f"{session}/trials_average.csv")
+                    #print(mice_files)
 
-                dst = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_Generalized_PCA_-3_5/{block}/{r}/{session}"
-                os.makedirs(dst, exist_ok=True)
+                    dst = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/{block}/{r}/{s}/{session}"
 
-                print(f"CURR CSV: {mice_files[0]}")
-                all_cells_df: pd.DataFrame
-                all_cells_df = pd.read_csv(mice_files[0])
-                mouse_num = mice_files[0].split("/")[9].split("-")[2]
-                temp_cols = list(range(0,len(all_cells_df.columns)))
-                all_cells_df = pd.read_csv(mice_files[0], header=None, names=temp_cols)
-                #print(df.head())
-                
+                    if mice_files:
+                        print(f"CURR CSV: {mice_files[0]}")
+                        os.makedirs(dst, exist_ok=True)
+                        all_cells_df: pd.DataFrame
+                        all_cells_df = pd.read_csv(mice_files[0])
+                        mouse_num = mice_files[0].split("/")[10].split("-")[2]
+                        temp_cols = list(range(0,len(all_cells_df.columns)))
+                        all_cells_df = pd.read_csv(mice_files[0], header=None, names=temp_cols)
+                        #print(df.head())
+                        
 
-                all_cells_df = all_cells_df.T
-                #df.columns = df.loc[0]
-                all_cells_df.columns = [f"{mouse_num}_{cell_name}" for cell_name in list(all_cells_df.loc[0])]
-                all_cells_df = all_cells_df.iloc[1:, 1:]
-                
-                for csv in mice_files[1:]:
-                    
-                    print(f"CURR CSV: {csv}")
-                    df: pd.DataFrame
-                    df = pd.read_csv(csv)
-                    mouse_num = csv.split("/")[9].split("-")[2]
-                    temp_cols = list(range(0,len(df.columns)))
-                    df = pd.read_csv(csv, header=None, names=temp_cols)
-                    #print(df.head())
-                    
-
-                    df = df.T
-                    df.columns = [f"{mouse_num}_{cell_name}" for cell_name in list(df.loc[0])]
-                    df = df.iloc[1:, 1:]
-                    
-                    # add cells to all_cells_df
-                    
-                    for col in df:
-                        nan_exists = False
-                        for i in list(df[col]):
-                            if pd.isna(i):
-                                nan_exists=True
+                        all_cells_df = all_cells_df.T
+                        #df.columns = df.loc[0]
+                        all_cells_df.columns = [f"{mouse_num}_{cell_name}" for cell_name in list(all_cells_df.loc[0])]
+                        all_cells_df = all_cells_df.iloc[1:, 1:]
+                        
+                        for csv in mice_files[1:]:
                             
-                        if nan_exists == False:
-                            all_cells_df[col] = list(df[col])
-                        else:
-                            print(f"nan exists in {col}!")
-                    
-                    
-                print(all_cells_df.head())
-                # Sort cells
-                df_sorted = sort_cells(all_cells_df)
-                
-                
-                df_sorted.to_csv(os.path.join(dst, "all_cells_avg_trials.csv"))
+                            print(f"CURR CSV: {csv}")
+                            df: pd.DataFrame
+                            df = pd.read_csv(csv)
+                            mouse_num = csv.split("/")[10].split("-")[2]
+                            temp_cols = list(range(0,len(df.columns)))
+                            df = pd.read_csv(csv, header=None, names=temp_cols)
+                            #print(df.head())
+                            
+
+                            df = df.T
+                            df.columns = [f"{mouse_num}_{cell_name}" for cell_name in list(df.loc[0])]
+                            df = df.iloc[1:, 1:]
+                            
+                            # add cells to all_cells_df
+                            
+                            for col in df:
+                                nan_exists = False
+                                for i in list(df[col]):
+                                    if pd.isna(i):
+                                        nan_exists=True
+                                    
+                                if nan_exists == False:
+                                    all_cells_df[col] = list(df[col])
+                                else:
+                                    print(f"nan exists in {col}!")
+                            
+                            
+                        print(all_cells_df.head())
+                        # Sort cells
+                        df_sorted = sort_cells(all_cells_df)
+                        
+                        
+                        df_sorted.to_csv(os.path.join(dst, "all_cells_avg_trials.csv"))
 
 if __name__ == "__main__":
     main()

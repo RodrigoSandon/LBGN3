@@ -176,16 +176,16 @@ def main():
     # a trial has it's own csv
 
     ROOT_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis")
-    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Arranged_Dataset_-3_0")
+    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_Arranged_Dataset_-3_5")
 
-    sessions = ["Pre-RDT RM"]
+    sessions = ["RDT D1", "RDT D2", "RDT D3"]
 
     all_csv_paths = []
 
     for session in sessions:
 
         files = find_paths(
-            ROOT_PATH, middle_1=f"{session}/SingleCellAlignmentData", middle_2="Block_Reward Size_Choice Time (s)", endswith="plot_ready_z_fullwindow.csv"
+            ROOT_PATH, middle_1=f"{session}/SingleCellAlignmentData", middle_2="Block_Reward Size_Shock Ocurred_Choice Time (s)", endswith="plot_ready.csv"
         )
 
         all_csv_paths += files
@@ -252,8 +252,8 @@ def main():
                 trial_csv_name = os.path.join(new_dirs, f"trial_{trial_num}.csv")
 
                 ### CHANGE HERE TO GET SPECIFIC TIME WINDOW YOU WANT ###
-                header = ["Cell"] + new_trial.timepoints[70:101]
-                data = [cell] + new_trial.trial_dff_trace[70:101]
+                header = ["Cell"] + new_trial.timepoints[70:151]
+                data = [cell] + new_trial.trial_dff_trace[70:151]
                 ### CHANGE HERE TO GET SPECIFIC TIME WINDOW YOU WANT ###
 
                 # look if the csv for this trial exists already

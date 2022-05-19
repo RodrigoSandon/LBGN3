@@ -96,6 +96,7 @@ for idx, subevent in enumerate(subevents):
     # of the same subevent
     hm_df = pd.read_csv(f"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Block_Reward Size_Choice Time (s)/{subevent}/all_concat_cells_z_fullwindow.csv")
     speed_df = pd.read_csv(f"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Block_Reward Size_Choice Time (s)/{subevent}/avg_unnorm_speed.csv")
+    avg_trace_df = pd.read_csv(f"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Block_Reward Size_Choice Time (s)/{subevent}/sorted_traces_z_fullwindow_id_auc.csv")
     hm_df_sort = sort_cells(hm_df)
     hm_yticks = list(hm_df_sort.columns)
     speed_list = list(speed_df["Avg. Speed (cm/s)"])
@@ -143,4 +144,4 @@ for idx, subevent in enumerate(subevents):
 
         fig.add_subplot(ax_2)
 
-plt.show()
+plt.savefig(f"/media/rory/Padlock_DT/BLA_Analysis/Results/all_blocks_L_hm_speed_avg_trace.png")
