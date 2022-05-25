@@ -2,6 +2,7 @@ import os, glob
 from pathlib import Path
 import pandas as pd
 from scipy import stats
+import math
 
 def find_paths_endswith(root_path, endswith) -> list:
 
@@ -50,10 +51,18 @@ def main2():
             list_of_traces.append(list(df[col]))
 
         zipped = zip(*list_of_traces)
-        avg = stats.zscore([sum(list(tup))/len(list(tup)) for tup in zipped])
+        #print(list(zipped))
 
-        avg_df = pd.DataFrame(avg, index = None, columns=["Avg dff trace"])
-        avg_df.to_csv(os.path.join(root, "avg_dff_trace.csv"), index=False)
+        #avg = stats.zscore([sum(list(tup))/len(list(tup)) for tup in list(zipped)])
+
+        for tup in list(zipped):
+            err = stats.tstd(list(tup))/math.sqrt(len(list(tup)))
+            print(err)
+
+        """d = {"Avg dff trace": avg, "SEM": sem}
+        avg_df = pd.DataFrame(data=d, index = None)
+        avg_df.to_csv(os.path.join(root, "avg_dff_trace_w_sem.csv"), index=False)"""
+        break
 
 
 if __name__ == "__main__":

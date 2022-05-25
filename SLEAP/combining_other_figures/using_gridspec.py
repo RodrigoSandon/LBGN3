@@ -61,8 +61,9 @@ def get_min_of_df(df: pd.DataFrame):
     return global_min
 
 event = "Block_Reward Size_Choice Time (s)"
-subevents = ["(1.0, 'Large')", "(2.0, 'Large')", "(3.0, 'Large')"]
-name_of_png = f"all_blocks_{event}_Large_hm_speed_avg_trace.png"
+rew_type = "Large"
+subevents = [f"(1.0, '{rew_type}')", f"(2.0, '{rew_type}')", f"(3.0, '{rew_type}')"]
+name_of_png = f"all_blocks_{event}_{rew_type}_hm_speed_avg_trace.png"
 
 fig = plt.figure(figsize=(15, 8))
 outer = gridspec.GridSpec(1, len(subevents), wspace=0.0, hspace=0.0)
@@ -79,6 +80,9 @@ for idx, subevent in enumerate(subevents):
     hm_yticks = list(hm_df_sort.columns)
     speed_list = stats.zscore(list(speed_df["Avg. Speed (cm/s)"])) # z scored
     avg_dff_list = list(avg_trace_df["Avg dff trace"]) # already z-scored (avg zscores)
+    result = stats.pearsonr(speed_list, avg_dff_list)
+    corr_coef = list(result)[0]
+    print(f"{subevent} corr coef: {corr_coef}")
     max_val = round(max(speed_list), 0)
     min_val = round(min(speed_list + avg_dff_list), 0)
     speed_yticks = np.arange(min_val, max_val + 1, 1)
@@ -105,7 +109,8 @@ for idx, subevent in enumerate(subevents):
         ax_2.set_ylim(min_val, max_val + 1)
         if idx == 1:
             ax_2.set_xlabel("Time Relative to Choice (s)")
-
+        else:
+            ax_2.set_xticks([])
         fig.add_subplot(ax_2)
     else:   
         ax_1 = plt.Subplot(fig, inner[0])
@@ -123,6 +128,7 @@ for idx, subevent in enumerate(subevents):
         ax_2.plot(t, avg_dff_list, c="indianred", label="Norm. Avg. DF/F")
         ax_2.legend()
         ax_2.set_yticks(speed_yticks)
+        ax_2.set_xticks([])
         ax_2.set_ylim(min_val, max_val + 1)
         ax_2.set_ylabel("Z-score")
 
