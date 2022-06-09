@@ -23,7 +23,7 @@ def squared_dist(p_ith, q_ith) -> float:
     return ((q_ith - p_ith)**2)
 
 
-def euclid_dist(p, q) -> float:
+def euclid_dist(p, q):
     n = vectors_dim(p, q)
     sum = 0
 

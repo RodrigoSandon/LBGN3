@@ -54,18 +54,20 @@ def pull_block_from_string(mystring):
 def main():
 
     # BASED ON SHOCK TRUE, REGARDLESS OF BLOCK
-    shock_excited_cells = ["1_C02", "1_C07", "1_C10", "1_C11", "1_C18"]
-    shock_inhibited_cells = ["1_C01", "1_C06", "1_C08", "1_C09", "1_C14"]
-    shock_neutral_cells = ["1_C03", "1_C04", "1_C05", "1_C12", "1_C13"]
+    shock_excited_cells = ["9_C09", "1_C11", "6_C06", "14_C07", "6_C19"]
+    shock_inhibited_cells = ["1_C08", "13_C06", "13_C02", "6_C07", "9_C06"]
+    shock_neutral_cells = ["15_C05", "1_C04", "1_C12", "15_C23", "6_C10"]
     all_cells = shock_excited_cells + shock_inhibited_cells + shock_neutral_cells
     dst = r"/media/rory/Padlock_DT/Rodrigo/Database/VennDiagrams_StackedPlots/results_2"
     os.makedirs(dst, exist_ok=True)
 
     # Will have to connect to two dbs: post for shock responsive and pre for L/S reward responsive
-    db_post = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Post_Activity.db"
+    specifics = "NOBONF_NOAUC_-10_2"
+    db_post = f"/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Post_Activity_{specifics}.db"
+
     conn = sqlite3.connect(db_post)
 
-    sessions = ["RDT_D1", "RDT_D2", "RDT_D3"]
+    sessions = ["RDT_D1",]
     for session in sessions:
         print(F"CURRENT SESSION: {session}")
         session_mod = session.replace("_"," ")
@@ -150,7 +152,7 @@ def main():
                             df.at[idx, col] = df.at[idx, col] + count*4
 
         
-                inner = gridspec.GridSpecFromSubplotSpec(1, 2,
+                inner = gridspec.GridSpecFromSubplotSpec(1, 1,
                     subplot_spec=outer[subevent_count], wspace=0.0, hspace=0.0)
                 subevent_count += 1
 
@@ -161,7 +163,10 @@ def main():
                 ax.spines['left'].set_visible(False)
                 ax.set_title(curr_mod_subevent)
                 ax.set_yticks([])
-                ax.set_ylabel("Neuron #")
+                if subevent_count == 1:
+                    ax.set_ylabel("Neuron #")
+                if subevent_count == 2:
+                    ax.set_xlabel("Time relative to reward choice (s)")
                 ax.get_xaxis().set_visible(True) # doesn't override the off selection of axis
 
                 #print(list(df.columns))
@@ -175,49 +180,51 @@ def main():
                         colour = 'green'
 
                     ax.plot(t, list(df[col]), marker='', color=colour, linewidth=2, label=col)
-                    ax.text(-10.0, list(df[col])[0] + 2, col)
+                    if subevent_count == 1:
+                        ax.text(-10.0, list(df[col])[0] + 2, col)
                 fig.add_subplot(ax)
 
-            df_shock = pd.read_csv(concat_cells_file_shock)
-            df_shock.columns = [col.replace("BLA-Insc-", "") for col in list(df_shock.columns)]
-            df_shock = df_shock[all_cells] # color code
+        df_shock = pd.read_csv(concat_cells_file_shock)
+        df_shock.columns = [col.replace("BLA-Insc-", "") for col in list(df_shock.columns)]
+        df_shock = df_shock[all_cells] # color code
 
-            for count, col in enumerate(list(df_shock.columns)):
-                    if count > 0:
-                        for idx in range(len(list(df_shock.index))):
-                            df_shock.at[idx, col] = df_shock.at[idx, col] + count*4
+        for count, col in enumerate(list(df_shock.columns)):
+                if count > 0:
+                    for idx in range(len(list(df_shock.index))):
+                        df_shock.at[idx, col] = df_shock.at[idx, col] + count*4
 
-            inner_2 = gridspec.GridSpecFromSubplotSpec(1, 1,
-                subplot_spec=outer_2[0], wspace=0.0, hspace=0.0)
-            ax = plt.Subplot(fig_2, inner_2[0])
-            #fig.patch.set_visible(False)
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
-            ax.spines['left'].set_visible(False)
-            #ax.set_title("Excited: " + subevent)
-            ax.set_yticks([])
-            #ax.set_ylabel("Neuron #")
-            ax.get_xaxis().set_visible(True) # doesn't override the off selection of axis
+        inner_2 = gridspec.GridSpecFromSubplotSpec(1, 1,
+            subplot_spec=outer_2[0], wspace=0.0, hspace=0.0)
+        ax = plt.Subplot(fig_2, inner_2[0])
+        #fig.patch.set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        #ax.set_title("Excited: " + subevent)
+        ax.set_yticks([])
+        #ax.set_ylabel("Neuron #")
+        ax.get_xaxis().set_visible(True) # doesn't override the off selection of axis
 
-            #print(df.head())
-            for col in list(df_shock.columns):
-                colour = None
-                if col in shock_excited_cells:
-                    colour = 'red'
-                elif col in shock_inhibited_cells:
-                    colour = 'blue'
-                else:
-                    colour = 'green'
-                
-                ax.plot(t, list(df_shock[col]), marker='', color=colour, linewidth=2, label=col)
-                ax.text(-10.0, list(df[col])[0] + 2, col)
-            fig_2.add_subplot(ax)
+        #print(df.head())
+        for col in list(df_shock.columns):
+            colour = None
+            if col in shock_excited_cells:
+                colour = 'red'
+            elif col in shock_inhibited_cells:
+                colour = 'blue'
+            else:
+                colour = 'green'
+            
+            ax.plot(t, list(df_shock[col]), marker='', color=colour, linewidth=2, label=col)
+            ax.text(-10.0, list(df[col])[5] + .5, col)
+        fig_2.add_subplot(ax)
 
 
         #plt.legend()
-        dst = f"/media/rory/Padlock_DT/BLA_Analysis/Results/shock_true_example_cells_tracking_large_shockfalse.png"
+        
+        dst = f"/media/rory/Padlock_DT/BLA_Analysis/Results/shock_true_example_cells_tracking_large_shockfalse_{specifics}.png"
         fig.savefig(dst)
-        dst_2 = f"/media/rory/Padlock_DT/BLA_Analysis/Results/shock_true_example_cells_tracking.png"
+        dst_2 = f"/media/rory/Padlock_DT/BLA_Analysis/Results/shock_true_example_cells_tracking_{specifics}.png"
         fig_2.savefig(dst_2)
 
         #plot shock outcomes for these same cells, across blocks, you need to finds it's concat cells file based on what block it is

@@ -73,7 +73,7 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
     )
     return files
 
-def wilcoxon_analysis(postchoice_list: list, prechoice_list: list, total_num_cells: int, alpha) -> str:
+def wilcoxon_analysis(postchoice_list: list, prechoice_list: list,total_num_cells, alpha) -> str:
 
         result_greater = stats.mannwhitneyu(
             postchoice_list, prechoice_list, alternative="greater"
@@ -119,7 +119,7 @@ def main():
     for mouse in mice:
         print(mouse)
         for session in sessions:
-            files = find_paths(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData","plot_ready_z_fullwindow.csv")
+            files = find_paths(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData","avg_plot_ready_z_fullwindow.csv")
             print(session)
             for csv in files:
                 #print(f"CURR CSV: {csv}")
@@ -135,35 +135,18 @@ def main():
                 cell_name = csv.split("/")[9]
                 df: pd.DataFrame
                 df = pd.read_csv(csv)
-                # print(df.head())
-                # save col that u will omit once transposed
-                col_to_save = list(df["Event #"])
-                df = df.T
-                df = df.iloc[1:, :]  # omit first row
 
-                # print(df.head())
-                # one col is 1 trial now
                 x_coords = list(range(len(df)))
                 
-                auc_prechoice = subwindow_auc(df, x_coords, 71, 101) # -8 to -5 | TO -3 TO 0
-                auc_postchoice = subwindow_auc(df, x_coords, 101, 131,) # 0 to 3 | changed to -3 to 0 5/5/22 | TO 0 TO 3
-
-                d_to_save = {
-                    "Trial #": col_to_save,
-                    "Prechoice AUC": auc_prechoice,
-                    "Postchoice AUC": auc_postchoice
-                }
-
-                auc_df = pd.DataFrame.from_records(d_to_save, index=range(len(col_to_save)))
-                auc_df_out = csv.replace(".csv", "_auc_info.csv")
-                auc_df.to_csv(auc_df_out, index = False)
+                prechoice = list(df[cell_name])[0:101 + 1]
+                postchoice = list(df[cell_name])[101:121 + 1]
                 
                 alpha = 0.05
-                id = wilcoxon_analysis(auc_postchoice, auc_prechoice, total_num_cells, alpha)
+                id = wilcoxon_analysis(postchoice, prechoice, total_num_cells, alpha)
 
                 id_d = {cell_name : id}
                 id_df = pd.DataFrame.from_records(id_d, index=[0])
-                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", f"id_z_fullwindow_auc_bonf{alpha}_-3_0_0_3.csv")
+                id_df_out = csv.replace("avg_plot_ready_z_fullwindow.csv", f"id_z_fullwindow_bonf_-10_0_0_2.csv")
                 id_df.to_csv(id_df_out, index=False)
 
 if __name__ == "__main__":

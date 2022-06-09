@@ -69,11 +69,20 @@ def combiner_same_block(csvs_to_concat: list) -> pd.DataFrame:
 
 def main():
 
+    session = "Pre-RDT RM"
+    rew = "Large"
+    shock = "False"
+
     csvs_to_concat = [
-        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/1.0/Small/False/RDT D1/all_cells_avg_trials.csv",
-        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/2.0/Small/False/RDT D1/all_cells_avg_trials.csv",
-        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/3.0/Small/False/RDT D1/all_cells_avg_trials.csv"
+        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/1.0/{rew}/{shock}/{session}/all_cells_avg_trials.csv",
+        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/2.0/{rew}/{shock}/{session}/all_cells_avg_trials.csv",
+        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/3.0/{rew}/{shock}/{session}/all_cells_avg_trials.csv"
         ]
+    
+    t_pos = np.arange(0.0, 10.0, 0.1)
+    t_neg = np.arange(-10.0, 0.0, 0.1)
+    t = t_neg.tolist() + t_pos.tolist()
+    t = [round(i, 1) for i in t]
     
     concatenated_df = combiner_same_block(csvs_to_concat)
     print("CONCATENATED DF BEFORE STANDARDIZATION")
@@ -114,27 +123,38 @@ def main():
     plt.xlabel('Principal Component')
     plt.title('Scree Plot')
     plt.show()
-    #print(df)
 
     b1_idx = [i for i in list(df.index) if "1.0" in list(i)]
     b2_idx = [i for i in list(df.index) if "2.0" in list(i)]
     b3_idx = [i for i in list(df.index) if "3.0" in list(i)]
     #print(b3_idx)
     #print(large_rew_idx)
-    t_pos = np.arange(0.0, 5.1, 0.1)
-    t_neg = np.arange(-3.0, 0.0, 0.1)
-    t = t_neg.tolist() + t_pos.tolist()
-    t = [round(i, 1) for i in t]
 
-    plt.plot(t, df.loc[b1_idx].PC1, c="royalblue", label="Block 1")
-    plt.plot(t, df.loc[b2_idx].PC1, c="indianred", label="Block 2")
-    plt.plot(t, df.loc[b3_idx].PC1, c="mediumseagreen", label="Block 3")
+    fig = plt.figure()
+    ax = fig.add_subplot(111,projection="3d")
 
+    print(len(t))
+    print(len(df.loc[b1_idx].PC1))
+    print(len(df.loc[b1_idx].PC2))
+   
+    ax.scatter(t, df.loc[b1_idx].PC1, df.loc[b1_idx].PC2, c="royalblue", label="Block 1")
+    ax.scatter(t, df.loc[b2_idx].PC1, df.loc[b2_idx].PC2, c="indianred", label="Block 2")
+    ax.scatter(t, df.loc[b3_idx].PC1, df.loc[b3_idx].PC2, c="mediumseagreen", label="Block 3")
+    #print(len(df.PC1))
 
-    plt.legend()
-    plt.xlabel(f"Time Relative to Choice (s)")
-    plt.ylabel(f"PC1 - {per_var[0]}%")
+    """xAxisLine = ((min(df.loc[b1_idx].PC1), max(df.loc[b1_idx].PC1)), (0, 0), (0,0))
+    ax.plot(xAxisLine[0], xAxisLine[1], xAxisLine[2], 'r')
+    yAxisLine = ((0, 0), (min(df.loc[b1_idx].PC2), max(df.loc[b1_idx].PC2)), (0,0))
+    ax.plot(yAxisLine[0], yAxisLine[1], yAxisLine[2], 'r')
+    zAxisLine = ((0, 0), (0,0), (min(df.loc[b1_idx].PC3), max(df.loc[b1_idx].PC3)))
+    ax.plot(zAxisLine[0], zAxisLine[1], zAxisLine[2], 'r')"""
 
+    ax.legend()
+    ax.set_title("PCA Graph")
+    ax.set_ylabel(f"PC1 - {per_var[0]}%")
+    ax.set_zlabel(f"PC2 - {per_var[1]}%")
+    ax.set_xlabel(f"Time relative to choice (s)")
+    
     plt.show()
 
 

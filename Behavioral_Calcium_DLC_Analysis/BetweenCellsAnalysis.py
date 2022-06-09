@@ -512,10 +512,11 @@ def new_main():
             df_sorted = sort_cells(
                 df,
                 unknown_time_min=0.0,
-                unknown_time_max=3.0,
+                unknown_time_max=5.0,
                 reference_pair={0: 100},
                 hertz=10,
             )
+            print(list(df_sorted.columns))
             # print(df.head())
             # Saving norm df as csv
             """new_csv = csv_path.replace(
@@ -708,33 +709,26 @@ def shock_multiple_customs():
 
 def process_one_table():
 
-    csv_path = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Shock Ocurred_Choice Time (s)/True/all_concat_cells.csv"
+    csv_path = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Shock Ocurred_Choice Time (s)/True/all_concat_cells_z_fullwindow.csv"
     df = pd.read_csv(csv_path)
     # df = truncate_past_len_threshold(df, len_threshold=200)
 
     df = change_cell_names(df)
 
-    df = custom_standardize(
-        df,
-        unknown_time_min=-10.0,
-        unknown_time_max=-1.0,
-        reference_pair={0: 100},
-        hertz=10,
-    )
-
-    df = gaussian_smooth(df.T)
-    df = df.T
+    #df = gaussian_smooth(df.T)
+    #df = df.T
     # print(df.head())
     # We're essentially gettin the mean of z-score for a time frame to sort
     df_sorted = sort_cells(
         df,
         unknown_time_min=0.0,
-        unknown_time_max=3.0,
+        unknown_time_max=5.0,
         reference_pair={0: 100},
         hertz=10,
     )
+    print(list(df_sorted.columns))
     # print(df.head())
-    try:
+    """try:
         df_sorted = insert_time_index_to_df(
             df_sorted, range_min=-10.0, range_max=10.0, step=0.1
         )
@@ -754,7 +748,7 @@ def process_one_table():
         vmin=-2.5,
         vmax=2.5,
         xticklabels=20,
-    )
+    )"""
 
 
 def shock_one_mouse():
@@ -818,8 +812,8 @@ def shock_one_mouse():
 
 
 if __name__ == "__main__":
-    new_main()
+    #new_main()
     # shock()
-    # process_one_table()
+    process_one_table()
     # shock_one_mouse()
     # shock_multiple_customs()

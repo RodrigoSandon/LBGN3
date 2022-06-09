@@ -73,7 +73,7 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
     )
     return files
 
-def wilcoxon_analysis(postchoice_list: list, prechoice_list: list, total_num_cells: int, alpha) -> str:
+def wilcoxon_analysis(postchoice_list: list, prechoice_list: list, alpha) -> str:
 
         result_greater = stats.mannwhitneyu(
             postchoice_list, prechoice_list, alternative="greater"
@@ -84,9 +84,9 @@ def wilcoxon_analysis(postchoice_list: list, prechoice_list: list, total_num_cel
         )
 
         id = None
-        if result_greater.pvalue < (alpha/total_num_cells):
+        if result_greater.pvalue < alpha:
             id = "+"
-        elif result_less.pvalue < (alpha/total_num_cells):
+        elif result_less.pvalue < alpha:
             id = "-"
         else:
             id = "Neutral"
@@ -127,11 +127,6 @@ def main():
                 event = csv.split("/")[10]
                 subevent = csv.split("/")[11]
 
-                corresponding_all_concat_cells_csv = f"{MASTER_ROOT}/BetweenMiceAlignmentData/{session}/{event}/{subevent}/all_concat_cells_z_fullwindow_id_auc.csv"
-                corresponding_all_concat_cells_df = pd.read_csv(corresponding_all_concat_cells_csv)
-                total_num_cells = len(list(corresponding_all_concat_cells_df.columns))
-                print(total_num_cells)
-
                 cell_name = csv.split("/")[9]
                 df: pd.DataFrame
                 df = pd.read_csv(csv)
@@ -159,11 +154,11 @@ def main():
                 auc_df.to_csv(auc_df_out, index = False)
                 
                 alpha = 0.05
-                id = wilcoxon_analysis(auc_postchoice, auc_prechoice, total_num_cells, alpha)
+                id = wilcoxon_analysis(auc_postchoice, auc_prechoice, alpha)
 
                 id_d = {cell_name : id}
                 id_df = pd.DataFrame.from_records(id_d, index=[0])
-                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", f"id_z_fullwindow_auc_bonf{alpha}_-3_0_0_3.csv")
+                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", f"id_z_fullwindow_auc_-3_0_0_3.csv")
                 id_df.to_csv(id_df_out, index=False)
 
 if __name__ == "__main__":

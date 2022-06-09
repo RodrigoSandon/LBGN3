@@ -1,4 +1,3 @@
-from cgitb import small
 import os, glob
 import pandas as pd
 import numpy as np
@@ -7,9 +6,55 @@ from sklearn import preprocessing
 import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Dict, List
+import math
 
-from matplotlib import animation 
-from IPython.display import HTML
+def is_same_vector_dim(p, q) -> bool:
+    if len(p) == len(q):
+        return True
+    else:
+        return False
+
+
+def vectors_dim(p, q):
+    length = None
+    if is_same_vector_dim(p, q) == True:
+        length = len(p)
+    else:
+        pass
+
+    return length
+
+
+def squared_dist(p_ith, q_ith) -> float:
+    return ((q_ith - p_ith)**2)
+
+
+def euclid_dist(p, q):
+    n = vectors_dim(p, q)
+    sum = 0
+
+    try:
+        res = []
+        for i in range(n):
+            sum += squared_dist(p[i], q[i])
+            sqrt = math.sqrt(sum)
+            res.append(sqrt)
+        return res
+    except TypeError:
+        print(f"Vectors are not of same dimensions!")
+
+def distance(p, q):
+    length = len(p)
+
+    dists = []
+    for i in range(length):
+        dist = p[i] - q[i]
+        dists.append(abs(dist))
+    return dists
+
+
+def euclid_dist_alex(t1, t2):
+    return math.sqrt(sum((t1-t2)**2))
 
 def find_paths_endswith(root_path, endswith) -> list:
 
@@ -70,16 +115,17 @@ def combiner_same_block(csvs_to_concat: list) -> pd.DataFrame:
 def main():
 
     csvs_to_concat = [
-        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/1.0/Small/False/RDT D1/all_cells_avg_trials.csv",
-        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/2.0/Small/False/RDT D1/all_cells_avg_trials.csv",
-        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/3.0/Small/False/RDT D1/all_cells_avg_trials.csv"
+        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/1.0/Large/False/RDT D1/all_cells_avg_trials.csv",
+        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/2.0/Large/False/RDT D1/all_cells_avg_trials.csv",
+        "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_5/3.0/Large/False/RDT D1/all_cells_avg_trials.csv"
         ]
+
+    t_pos = np.arange(0.0, 5.1, 0.1)
+    t_neg = np.arange(-3.0, 0.0, 0.1)
+    t = t_neg.tolist() + t_pos.tolist()
+    t = [round(i, 1) for i in t]
     
     concatenated_df = combiner_same_block(csvs_to_concat)
-    print("CONCATENATED DF BEFORE STANDARDIZATION")
-    print(concatenated_df.head())
-    #print(len(concatenated_df["Small"].columns))
-    #print(len(concatenated_df["Large"].columns))
 
     ################## ZSCORE CONCATENATED DFS ##################
     def zscore(obs_value, mu, sigma):
@@ -99,41 +145,33 @@ def main():
             concatenated_df.iloc[idx][col] = zscore(concatenated_df.iloc[idx][col], mean, stdev)
 
     ################## ZSCORE CONCATENATED DFS ##################
-    print("CONCATENATED DF AFTER STANDARDIZATION")
-    print(concatenated_df.head())
     
-
     df, per_var, labels = pca_df(concatenated_df)
 
     print("PCA DF")
     print(df.head())
     per_var = per_var[0:10]
-    labels = labels[0:10]
-    plt.bar(x=range(1,len(per_var)+1), height=per_var, tick_label=labels)
-    plt.ylabel('Percentage of Explained Variance')
-    plt.xlabel('Principal Component')
-    plt.title('Scree Plot')
-    plt.show()
-    #print(df)
 
     b1_idx = [i for i in list(df.index) if "1.0" in list(i)]
     b2_idx = [i for i in list(df.index) if "2.0" in list(i)]
     b3_idx = [i for i in list(df.index) if "3.0" in list(i)]
-    #print(b3_idx)
-    #print(large_rew_idx)
-    t_pos = np.arange(0.0, 5.1, 0.1)
-    t_neg = np.arange(-3.0, 0.0, 0.1)
-    t = t_neg.tolist() + t_pos.tolist()
-    t = [round(i, 1) for i in t]
 
-    plt.plot(t, df.loc[b1_idx].PC1, c="royalblue", label="Block 1")
+
+    res_1 = distance(df.loc[b1_idx].PC1, df.loc[b2_idx].PC1)
+    res_2 = distance(df.loc[b1_idx].PC1, df.loc[b3_idx].PC1)
+    res_3 = distance(df.loc[b2_idx].PC1, df.loc[b3_idx].PC1)
+    plt.plot(t, res_1, c="#9D33FF", label="B1 & B2")
+    plt.plot(t, res_2, c="#33FFB0", label="B1 & B3")
+    plt.plot(t, res_3, c="#FFD633", label="B2 & B3")
+    print(f"Euclidean distance = {res_1}")
+    """plt.plot(t, df.loc[b1_idx].PC1, c="royalblue", label="Block 1")
     plt.plot(t, df.loc[b2_idx].PC1, c="indianred", label="Block 2")
-    plt.plot(t, df.loc[b3_idx].PC1, c="mediumseagreen", label="Block 3")
+    plt.plot(t, df.loc[b3_idx].PC1, c="mediumseagreen", label="Block 3")"""
 
 
     plt.legend()
     plt.xlabel(f"Time Relative to Choice (s)")
-    plt.ylabel(f"PC1 - {per_var[0]}%")
+    plt.ylabel(f"PC1 - {per_var[0]}% Difference")
 
     plt.show()
 

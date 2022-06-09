@@ -65,7 +65,7 @@ def create_concat_csv(lst_of_all_avg_cell_csv_paths, root_path):
             new_path = os.path.join(root_path, combo, subcombo)
             os.makedirs(new_path, exist_ok=True)
             concatenated_cells_df.to_csv(
-                os.path.join(new_path, "concat_cells_fullwindow_z_auc_id.csv"), index=False
+                os.path.join(new_path, "concat_cells_z_fullwindow_id_bonf_-10_0_0_2.csv"), index=False
             )
 
 
@@ -74,6 +74,7 @@ def main():
         "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1",
         "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3",
         "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4",
+        "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5"
     ]
     for i in lst:
 
@@ -100,7 +101,7 @@ def main():
         ]  # UPDATE 1/3/22 -> SHOCK SESSIONS ARE PROCESSED IN ANOTHER PY FILE"""
         session_types = [
         
-            "RDT D1", "RDT D2", "RDT D3"
+            "RDT D1",
             
         ]  # UPDATE 1/3/22 -> SHOCK SESSIONS ARE PROCESSED IN ANOTHER PY FILE
 
@@ -127,7 +128,7 @@ def main():
                         print(f"Working on... {SESSION_PATH}")
                         lst_of_avg_cell_csv_paths_for_session = (
                             find_avg_dff_of_cell_for_event(
-                                SESSION_PATH, "avg_plot_ready_z_fullwindow.csv"
+                                SESSION_PATH, "id_z_fullwindow_bonf_-10_0_0_2.csv"
                             )
                         )
                         # file.write("\n".join(lst_of_avg_cell_csv_paths_for_session))
