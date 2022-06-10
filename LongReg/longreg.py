@@ -120,19 +120,6 @@ class CalciumPreprocessing:
         print("Number of cell sets: %s" % (len(cell_set_files)))
         return cell_set_files, root_paths_to_cell_set_files
 
-    def delete_recursively(self, name_endswith_list):
-
-        for i in name_endswith_list:
-
-            files = glob.glob(
-                os.path.join(self.root_path, "**", "*%s") % (i), recursive=True
-            )
-
-            for f in files:
-                try:
-                    os.remove(f)
-                except OSError as e:
-                    print("Error: %s : %s" % (f, e.strerror))
 
     def find_recursively(self, filename_endswith):
 
@@ -306,27 +293,19 @@ class CalciumPreprocessing:
         else:
             return False
 
-    def add_gpio_start_time_to_ABET_cols(self, abet_path, gpio_start_time):
-        df_abet = pd.read_csv(abet_path)
-        # print(df_abet.head())
-        """print(
-            type(df_abet["Start Time (s)"]),
-            df_abet["Start Time (s)"],
-            type(gpio_start_time),
-            gpio_start_time,
-        )"""
-        if self.is_shock_session(abet_path) == True:
-            df_abet["Shock Time (s)"] = df_abet["Shock Time (s)"] + gpio_start_time
+    def delete_recursively(self, name_endswith_list):
 
-        elif self.is_shock_session(abet_path) == False:
-            df_abet["Start Time (s)"] = df_abet["Start Time (s)"] + gpio_start_time
-            df_abet["Choice Time (s)"] = df_abet["Choice Time (s)"] + gpio_start_time
-            df_abet["Collection Time (s)"] = (
-                df_abet["Collection Time (s)"] + gpio_start_time
+        for i in name_endswith_list:
+
+            files = glob.glob(
+                os.path.join(self.root_path, "**", "*%s") % (i), recursive=True
             )
-        # print(df_abet.head())
-        return df_abet
 
+            for f in files:
+                try:
+                    os.remove(f)
+                except OSError as e:
+                    print("Error: %s : %s" % (f, e.strerror))
 
 def main():
     """
@@ -355,7 +334,7 @@ def main():
             for mouse in os.listdir(BATCH_PATH):
                 if "BLA" in mouse:
                     MOUSE_ROOT_PATH = os.path.join(BATCH_PATH, mouse)
-                    RAW_ROOT_PATH = None
+                    RAW_ROOT_PATH = os.path.join(BATCH_PATH, mouse)
                     for raw_mice_path in MICE_PATHS_IN_RAW:
                         if mouse == raw_mice_path.split("/")[-1]:
                             RAW_ROOT_PATH = raw_mice_path
@@ -366,11 +345,8 @@ def main():
                     util = CalciumPreprocessing(MOUSE_ROOT_PATH, RAW_ROOT_PATH)
 
                     cellsets, roots = util.get_input_cell_set_files()
-                    # example: /media/rory/PTP Inscopix 2/PTP_Inscopix_#3/BLA-Insc-5/Session-20210510-093930_BLA-Insc-5_RM_D1/2021-05-10-09-45-37_video_BLA-Insc-5_RM_D1/cnmfe_cellset.isxd
-                    # session name is at the [6] split
-                    # Identifies all cellsets in mouse and its according root paths for cellsets
 
-                    # Make sure output files don't already exist- else an error
+                                        # Make sure output files don't already exist- else an error
                     to_delete = [
                         ".",
                         "dff_traces_updated.csv",
@@ -441,247 +417,10 @@ def main():
                         )
                     except:
                         print("LONG REG COULD NOT BE PERFORMED IN THIS MOUSE")
-
-                    # preprocess dff traces now and export
-                    dff_file_paths = util.find_recursively("dff_traces_updated.csv")
-                    preprocessed_dff_filepaths = []
-                    # the order of dff paths should correspond to that of roots, so
-                    # the output should direct it to the right location
-
-                    for i in range(len(dff_file_paths)):
-                        # print(i)
-                        df = pd.read_csv(dff_file_paths[i])
-                        # print(df.head())
-                        # print((df == " rejected").any()) does identify false rows to include
-                        # print(df.columns)
-                        # print(df.T.columns)
-                        # print(list(df.T.columns.values.tolist())[1])
-                        accepted_cells_dff = util.preprocess_dff_traces_csv(
-                            dff_file_paths[i]
-                        )
-                        accepted_cells_dff.to_csv(
-                            os.path.join(roots[i], "dff_traces_preprocessed.csv"),
-                            index=False,
-                        )
-                        preprocessed_dff_filepaths.append(
-                            os.path.join(roots[i], "dff_traces_preprocessed.csv")
-                        )
-
-                    """
-                    Merge dff traces with longitudinal registration table:
-
-                    for session name in session_name column:
-                        find this folder, and in this folder, find the dff_preprocessed file,
-                        if for this same row idx(for long reg csv) the cell name matches then
-                        concatenate the dff traces for this cell onto cell reg
-
-                    export this longreg file
-                    - includes all sessions (but few cells), for each mice
-                    """
-                    # Find gpio file for the corresponding session of inscopix
-                    "Finding GPIO time start and adding it onto ABET times"
-                    # find list of gpio files, export to csv, open it as df
-                    gpio_file_paths = util.find_raw_recursively(".gpio")
-                    print("GPIOs found: ", gpio_file_paths)
-                    for count, i in enumerate(gpio_file_paths):
-                        root_out_path = roots[
-                            count
-                        ]  # gpio found based on root of cellsets path
-                        print("Current working dir: ", root_out_path)
-                        path_where_gpio_csv_saved = util.export_gpio(
-                            i, root_to_out=root_out_path
-                        )
-                        # gpio is found in raw sessions, so get the csv
-                        gpio_df = pd.read_csv(path_where_gpio_csv_saved)
-                        gpio_start_time = util.get_time_gpio_starts(gpio_df)
-                        print("gpio start time: ", gpio_start_time)
-
-                        """Now can add on this gpio start time onto the threee columns in the corresponding
-                        ABET data for this session: Start Time (s), Choice Time (s), Collection Time (s)
-                        """
-                        ABET_file_exists_in_dir = False
-                        ABET_file_in_session = util.find_recursively_newroot(
-                            root_out_path, "_ABET_processed.csv"
-                        )
-                        if len(ABET_file_in_session) != 0:
-                            ABET_file_exists_in_dir = True
-                            print("ABET file dir: ", ABET_file_in_session[0])
-                            abet_added_gpio_df = util.add_gpio_start_time_to_ABET_cols(
-                                ABET_file_in_session[0], gpio_start_time
-                            )
-                            print(abet_added_gpio_df.head())
-                            abet_added_gpio_df.to_csv(
-                                os.path.join(
-                                    root_out_path,
-                                    ABET_file_in_session[0].replace(
-                                        "_ABET_processed.csv",
-                                        "_ABET_GPIO_processed.csv",
-                                    ),
-                                ),
-                                index=False,
-                            )
-
-                        else:
-                            print(
-                                ("Root path %s does not have an ABET file!")
-                                % (root_out_path)
-                            )
+               
 
                     print("All done!")
-
-
-
-def run_per_mouse():
-    mice = ["BLA-Insc-14","BLA-Insc-15","BLA-Insc-16","BLA-Insc-18","BLA-Insc-19"]
-
-    for mouse in mice:
-        ROOT_PATH = Path(f"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5/{mouse}")
-        RAW_ROOT_PATH = Path(f"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5/{mouse}")
-
-        # Indicate for what root directory are these utilities for
-        util = CalciumPreprocessing(ROOT_PATH, RAW_ROOT_PATH)
-
-        cellsets, roots = util.get_input_cell_set_files()
-        # example: /media/rory/PTP Inscopix 2/PTP_Inscopix_#3/BLA-Insc-5/Session-20210510-093930_BLA-Insc-5_RM_D1/2021-05-10-09-45-37_video_BLA-Insc-5_RM_D1/cnmfe_cellset.isxd
-        # session name is at the [6] split
-
-        # Make sure output files don't already exist- else an error
-        to_delete = [
-            ".",
-            "dff_traces_updated.csv",
-            "gpio.csv",
-            "dff_traces_preprocessed_gpio.csv",
-        ]
-        print("Deleting files that contain the string(s): %s" % (to_delete))
-        util.delete_recursively(to_delete)
-
-        # Exporting csv dff traces to their corresponding session directories.
-        for i in range(len(cellsets)):
-            util.export_session_dff(
-                cellsets[i],
-                os.path.join(roots[i], "dff_traces_updated.csv"),
-                os.path.join(roots[i], "cell_"),
-                "start",
-                "",
-            )
-
-        # We don't need the tiff files that come with "export_session_dff()", so delete them
-        to_delete = ["."]
-        print("Deleting files that contain the string(s): %s" % (to_delete))
-        util.delete_recursively(to_delete)
-
-        # Perform long. reg. on the, but first, make cellset output files
-
-        # do this deletion of out_files to make sure an error that it already exists does not appear
-        to_delete = ["cnmfe_cellset_out.isxd", "longreg_results.csv"]
-        print("Deleting files that contain the string(s): %s" % (to_delete))
-        util.delete_recursively(to_delete)
-
-        meta_csv_filename = os.path.join(util.root_path, "longreg_results.csv")
-
-        print(
-            len(cellsets),
-            len(util.premake_listof_outfile_paths(roots, "cnmfe_cellset_out.isxd")),
-        )
-        try:
-            isx.longitudinal_registration(  # error: it thought meta_csv_filename was a movie input, so need the keyword
-                cellsets,
-                util.premake_listof_outfile_paths(roots, "cnmfe_cellset_out.isxd"),
-                csv_file=meta_csv_filename,
-                min_correlation=0.50,
-                accepted_cells_only=True,
-            )
-            # print("here")
-
-            # preprocess long reg file and export
-            mod_longreg_df = util.preprocess_longreg_results(meta_csv_filename, 0.90, roots)
-
-            mod_longreg_df.to_csv(
-                meta_csv_filename.replace(
-                    "longreg_results.csv", "longreg_results_preprocessed.csv"
-                ),
-                index=False,
-            )
-        except:
-            print("LONG REG COULD NOT BE PERFORMED IN THIS MOUSE")
-
-        # preprocess dff traces now and export
-        dff_file_paths = util.find_recursively("dff_traces_updated.csv")
-        preprocessed_dff_filepaths = []
-        # the order of dff paths should correspond to that of roots, so
-        # the output should direct it to the right location
-
-        for i in range(len(dff_file_paths)):
-            # print(i)
-            df = pd.read_csv(dff_file_paths[i])
-            # print(df.head())
-            # print((df == " rejected").any()) does identify false rows to include
-            # print(df.columns)
-            # print(df.T.columns)
-            # print(list(df.T.columns.values.tolist())[1])
-            accepted_cells_dff = util.preprocess_dff_traces_csv(dff_file_paths[i])
-            accepted_cells_dff.to_csv(
-                os.path.join(roots[i], "dff_traces_preprocessed.csv"), index=False
-            )
-            preprocessed_dff_filepaths.append(
-                os.path.join(roots[i], "dff_traces_preprocessed.csv")
-            )
-
-        """
-        Merge dff traces with longitudinal registration table:
-
-        for session name in session_name column:
-            find this folder, and in this folder, find the dff_preprocessed file,
-            if for this same row idx(for long reg csv) the cell name matches then
-            concatenate the dff traces for this cell onto cell reg
-
-        export this longreg file
-        - includes all sessions (but few cells), for each mice
-        """
-        # Find gpio file for the corresponding session of inscopix
-        "Finding GPIO time start and adding it onto ABET times"
-        # find list of gpio files, export to csv, open it as df
-        gpio_file_paths = util.find_raw_recursively(".gpio")
-        print("GPIOs found: ", gpio_file_paths)
-        for count, i in enumerate(gpio_file_paths):
-            root_out_path = roots[count]
-            print("Current working dir: ", root_out_path)
-            path_where_gpio_csv_saved = util.export_gpio(i, root_to_out=root_out_path)
-            # gpio is found in raw sessions, so get the csv
-            gpio_df = pd.read_csv(path_where_gpio_csv_saved)
-            gpio_start_time = util.get_time_gpio_starts(gpio_df)
-            print("gpio start time: ", gpio_start_time)
-
-            """Now can add on this gpio start time onto the threee columns in the corresponding
-            ABET data for this session: Start Time (s), Choice Time (s), Collection Time (s)
-            """
-            ABET_file_exists_in_dir = False
-            ABET_file_in_session = util.find_recursively_newroot(
-                root_out_path, "_ABET_processed.csv"
-            )
-            if len(ABET_file_in_session) != 0:
-                ABET_file_exists_in_dir = True
-                print("ABET file dir: ", ABET_file_in_session[0])
-                abet_added_gpio_df = util.add_gpio_start_time_to_ABET_cols(
-                    ABET_file_in_session[0], gpio_start_time
-                )
-                print(abet_added_gpio_df.head())
-                abet_added_gpio_df.to_csv(
-                    os.path.join(
-                        root_out_path,
-                        ABET_file_in_session[0].replace(
-                            "_ABET_processed.csv", "_ABET_GPIO_processed.csv"
-                        ),
-                    ),
-                    index=False,
-                )
-
-            else:
-                print(("Root path %s does not have an ABET file!") % (root_out_path))
-
-    print("All done!")
 
 if __name__ == "__main__":
 
     main()
-    #run_per_mouse()

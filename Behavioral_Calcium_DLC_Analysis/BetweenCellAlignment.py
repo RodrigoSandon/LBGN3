@@ -140,6 +140,29 @@ def main():
             
         ]  # UPDATE 1/3/22 -> SHOCK SESSIONS ARE PROCESSED IN ANOTHER PY FILE
 
+        ########## SPECIFY EVENT TYPE ##########
+        events = [
+            "Block_Start Time (s)_Collection Time (s)",
+            "Block_Learning Stratergy_Start Time (s)_Collection Time (s)",
+            "Block_Reward Size_Start Time (s)_Collection Time (s)",
+            "Block_Reward Size_Shock Ocurred_Start Time (s)_Collection Time (s)",
+            "Block_Shock Ocurred_Start Time (s)_Collection Time (s)",
+            "Block_Trial Type_Start Time (s)_Collection Time (s)",
+            "Shock Ocurred_Start Time (s)_Collection Time (s)",
+            "Trial Type_Start Time (s)_Collection Time (s)",
+            "Trial Type_Reward Size_Start Time (s)_Collection Time (s)",
+            "Block_Trial Type_Reward Size_Start Time (s)_Collection Time (s)",
+            "Block_Trial Type_Shock Ocurred_Start Time (s)_Collection Time (s)",
+            "Block_Trial Type_Win or Loss_Start Time (s)_Collection Time (s)",
+            "Trial Type_Shock Ocurred_Start Time (s)_Collection Time (s)",
+            "Win or Loss_Start Time (s)_Collection Time (s)",
+            "Block_Win or Loss_Start Time (s)_Collection Time (s)",
+            "Learning Stratergy_Start Time (s)_Collection Time (s)",
+            "Reward Size_Start Time (s)_Collection Time (s)",
+        ] 
+
+        ########## SPECIFY EVENT TYPE ##########
+
         # file = open(f"{MOUSE_BATCH_PATH}/see_if_right.txt", "w+")
 
         for root, dirs, files in os.walk(MOUSE_BATCH_PATH):
@@ -162,7 +185,7 @@ def main():
                     ):  # means ses type string was found in dirname
                         print(f"Session type: {ses_type}, Found: {dir_name}")
                         SESSION_PATH = os.path.join(root, dir_name)
-                        # file.write(f"Identified {SESSION_PATH} as a session path. \n")
+            
                         print(f"Working on... {SESSION_PATH}")
                         # file.write(f"ALL OF {SESSION_PATH} AVG PLOT READY CSVS: \n")
                         lst_of_avg_cell_csv_paths_for_session = (
