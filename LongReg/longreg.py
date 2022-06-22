@@ -112,7 +112,7 @@ class CalciumPreprocessing:
         for root, dirs, files in os.walk(self.root_path):
             for name in files:
 
-                if name.startswith("cnmfe_cellset.isxd"):
+                if name.startswith("cnmfe_cellset_accepts.isxd"):
                     path_to_cellset = os.path.join(root, name)
                     cell_set_files.append(path_to_cellset)
                     root_paths_to_cell_set_files.append(root)
@@ -374,19 +374,19 @@ def main():
                     # Perform long. reg. on the, but first, make cellset output files
 
                     # do this deletion of out_files to make sure an error that it already exists does not appear
-                    to_delete = ["cnmfe_cellset_out.isxd", "longreg_results.csv"]
+                    to_delete = ["cnmfe_cellset_out_2.isxd", "longreg_results_2.csv"]
                     print("Deleting files that contain the string(s): %s" % (to_delete))
                     util.delete_recursively(to_delete)
 
                     meta_csv_filename = os.path.join(
-                        util.root_path, "longreg_results.csv"
+                        util.root_path, "longreg_results_2.csv"
                     )
 
                     print(
                         len(cellsets),
                         len(
                             util.premake_listof_outfile_paths(
-                                roots, "cnmfe_cellset_out.isxd"
+                                roots, "cnmfe_cellset_out_2.isxd"
                             )
                         ),
                     )
@@ -394,7 +394,7 @@ def main():
                         isx.longitudinal_registration(  # error: it thought meta_csv_filename was a movie input, so need the keyword
                             cellsets,
                             util.premake_listof_outfile_paths(
-                                roots, "cnmfe_cellset_out.isxd"
+                                roots, "cnmfe_cellset_out_2.isxd"
                             ),
                             csv_file=meta_csv_filename,
                             min_correlation=0.50,
@@ -410,8 +410,8 @@ def main():
 
                         mod_longreg_df.to_csv(
                             meta_csv_filename.replace(
-                                "longreg_results.csv",
-                                "longreg_results_preprocessed.csv",
+                                "longreg_results_2.csv",
+                                "longreg_results_preprocessed_2.csv",
                             ),
                             index=False,
                         )

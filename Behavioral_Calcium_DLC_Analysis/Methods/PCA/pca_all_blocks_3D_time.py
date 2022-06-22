@@ -155,7 +155,7 @@ def main():
     ax.set_zlabel(f"PC2 - {per_var[1]}%")
     ax.set_xlabel(f"Time relative to choice (s)")
     
-    plt.show()
+    ax.figure.savefig(f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Results/allblocks_{session}_{rew}_{shock}_-10_10_pcaplot.svg")
 
 
     

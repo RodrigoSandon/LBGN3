@@ -87,7 +87,7 @@ def create_concat_csv(lst_of_all_avg_cell_csv_paths, root_path):
             new_path = os.path.join(root_path, combo, subcombo)
             os.makedirs(new_path, exist_ok=True)
             concatenated_cells_df.to_csv(
-                os.path.join(new_path, "concat_cells_z_fullwindow_id_auc_bonf0.05_pre.csv"), index=False
+                os.path.join(new_path, "concat_cells__choice_aligned_resampled_z_fullwindow.csv"), index=False
             )
 
     """with open(
@@ -136,7 +136,7 @@ def main():
         ]  # UPDATE 1/3/22 -> SHOCK SESSIONS ARE PROCESSED IN ANOTHER PY FILE"""
         session_types = [
         
-            "RDT D1", "RDT D2", "RDT D3"
+            "Pre-RDT RM"
             
         ]  # UPDATE 1/3/22 -> SHOCK SESSIONS ARE PROCESSED IN ANOTHER PY FILE
 
@@ -190,7 +190,7 @@ def main():
                         # file.write(f"ALL OF {SESSION_PATH} AVG PLOT READY CSVS: \n")
                         lst_of_avg_cell_csv_paths_for_session = (
                             find_avg_dff_of_cell_for_event(
-                                SESSION_PATH, "id_z_fullwindow_auc_bonf0.05_pre.csv"
+                                SESSION_PATH, "avg_plot_ready_z_fullwindow.csv"
                             )
                         )
                         # file.write("\n".join(lst_of_avg_cell_csv_paths_for_session))

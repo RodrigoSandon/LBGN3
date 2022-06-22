@@ -33,14 +33,14 @@ class Cell:
         if is_normal_dist == True:
             return (stats.tmean(self.arr_of_focus) - mu) / sigma
         elif is_normal_dist == False:
-            print("Not a normal distribution!")
+            #print("Not a normal distribution!")
             pass
 
     def is_normal_distribution(self) -> bool:
         if len(self.arr_of_focus) >= 30:
             # print(f"ARR OF FOCUS LENGTH: {len(self.arr_of_focus)}")
-            if len(self.arr_of_focus) > 30:
-                print("Over 30 samples!")
+            """if len(self.arr_of_focus) > 30:
+                #print("Over 30 samples!")"""
             return True
         else:
             print(f"{self.cell_name} not in a norm dist!")

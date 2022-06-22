@@ -134,7 +134,7 @@ def sort_cells(
             # print(f"CURRENT {i.cell_name} Z score:", i.z_score)
             res_dct[i.cell_name] = i.dff_traces
 
-        print(f"NUMBER OF CELLS: {len(lst)}")
+        #print(f"NUMBER OF CELLS: {len(lst)}")
         return res_dct
 
     sorted_cells_d = convert_lst_to_d(sorted_cells)
@@ -482,18 +482,36 @@ def main():
             print(f"File {csv_path} was not found!")
             pass
 
+def get_max_of_df(df: pd.DataFrame):
+    global_max = 0
+    max_vals = list(df.max())
+
+    for i in max_vals:
+        if i > global_max:
+            global_max = i
+ 
+    return global_max
+
+def get_min_of_df(df: pd.DataFrame):
+    global_min = 9999999
+    min_vals = list(df.min())
+
+    for i in min_vals:
+        if i < global_min:
+            global_min = i
+ 
+    return global_min
 
 def new_main():
 
     ROOT_PATH = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
     # ROOT_PATH = r"/Users/rodrigosandon/Documents/GitHub/LBGN/SampleData/truncating_bug"
 
-    to_look_for_originally = "all_concat_cells_z_fullwindow.csv"
-    # would only look for this is the file causing the conditional statement didn't exist
-    to_look_for_conditional = "all_concat_cells_z_fullwindow_truncated.csv"
+    to_look_for = "all_concat_cells_choice_aligned_resampled_z_fullwindow.csv"
 
-    csv_list = find_paths_conditional_endswith(
-        ROOT_PATH, to_look_for_originally, to_look_for_conditional
+
+    csv_list = find_paths_endswith(
+        ROOT_PATH, to_look_for
     )
     # print(csv_list)
     # csv_list.reverse()
@@ -516,32 +534,34 @@ def new_main():
                 reference_pair={0: 100},
                 hertz=10,
             )
-            print(list(df_sorted.columns))
+            #print(list(df_sorted.columns))
             # print(df.head())
             # Saving norm df as csv
             """new_csv = csv_path.replace(
                 ".csv", "baseline-10_0_gauss1.5_z_avgs.csv")
             df_sorted.to_csv(new_csv, index=False)"""
-            try:
-                df_sorted = insert_time_index_to_df(
-                    df_sorted, range_min=-10.0, range_max=10.0, step=0.1
-                )
-            except ValueError:
+            #try:
+            df_sorted = insert_time_index_to_df(
+                df_sorted, range_min=-10.0, range_max=9.9, step=0.1
+            )
+            """ ValueError:
                 print("Index less than 200 data points!")
                 df_sorted = insert_time_index_to_df(
                     df_sorted, range_min=-10.0, range_max=9.9, step=0.1
-                )
+                )"""
 
             # Create scatter plot here
             # print(df_sorted.head())
+            max = get_max_of_df(df_sorted)
+            min = get_min_of_df(df_sorted)
 
             heatmap(
                 df_sorted,
                 csv_path,
                 out_path=csv_path.replace(
                     ".csv", "_hm.png"),
-                vmin=-2.5,
-                vmax=2.5,
+                vmin=min,
+                vmax=max,
                 xticklabels=20,
             )
 
@@ -552,8 +572,8 @@ def new_main():
                     ".csv", "_spaghetti.png"
                 ),
             )
-        except FileNotFoundError:
-            print(f"File {csv_path} was not found!")
+        except Exception as e:
+            print(e)
             pass
 
 
@@ -709,47 +729,59 @@ def shock_multiple_customs():
 
 def process_one_table():
 
-    csv_path = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Shock Ocurred_Choice Time (s)/True/all_concat_cells_z_fullwindow.csv"
+    csv_path = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Block_Reward Size_Shock Ocurred_Choice Time (s)/(1.0, 'Small', False)/all_concat_cells_z_fullwindow.csv"
     df = pd.read_csv(csv_path)
-    # df = truncate_past_len_threshold(df, len_threshold=200)
+            # df = truncate_past_len_threshold(df, len_threshold=200)
 
     df = change_cell_names(df)
 
-    #df = gaussian_smooth(df.T)
-    #df = df.T
     # print(df.head())
     # We're essentially gettin the mean of z-score for a time frame to sort
-    df_sorted = sort_cells(
+
+    #CUSTOM REORDER HERE
+    df_sorted = df[['1_C06', '1_C11', '1_C09', '14_C11', '15_C19', '16_C16', '3_C10', '13_C09', '16_C15', '16_C04', '1_C18', '1_C04', '16_C10', '13_C03', '3_C09', '16_C07', '6_C15', '11_C07', '15_C11', '14_C06', '1_C13', '16_C13', '6_C08', '6_C14', '16_C11', '16_C12', '19_C04', '19_C07', '15_C33', '15_C13', '3_C01', '15_C16', '15_C27', '19_C01', '15_C06', '16_C01', '11_C04', '6_C01', '16_C03', '3_C16', '13_C08', '11_C02', '15_C17', '16_C05', '6_C02', '6_C03', '6_C05', '11_C05', '15_C12', '13_C07', '6_C18', '8_C06', '14_C05', '1_C17', '15_C22', '6_C19', '16_C14', '6_C06', '14_C04', '9_C05', '15_C34', '1_C03', '15_C26', '11_C01', '3_C04', '3_C13', '14_C09', '3_C07', '9_C10', '14_C02', '9_C07', '9_C02', '15_C04', '15_C05', '9_C04', '3_C11', '15_C09', '19_C06', '6_C04', '15_C24', '7_C05', '8_C12', '7_C02', '11_C03', '1_C10', '8_C10', '13_C06', '11_C06', '15_C01', '15_C08', '13_C01', '19_C09', '16_C02', '15_C21', '15_C29', '15_C07', '15_C03', '8_C05', '1_C12', '1_C02', '6_C13', '15_C30', '15_C18', '8_C02', '9_C09', '3_C12', '13_C05', '14_C08', '9_C08', '9_C03', '8_C03', '14_C01', '1_C07', '15_C31', '3_C06', '6_C09', '1_C20', '7_C04', '3_C14', '8_C09', '3_C15', '19_C02', '9_C01', '8_C11', '6_C07', '7_C03', '8_C04', '15_C20', '9_C06', '14_C10', '15_C14', '16_C09', '15_C28', '14_C07', '15_C02', '16_C08', '6_C11', '15_C15', '1_C19', '3_C02', '1_C14', '16_C06', '15_C32', '14_C03', '3_C05', '13_C02', '3_C03', '19_C03', '19_C05', '8_C01', '15_C25', '15_C10', '6_C10', '3_C08', '1_C15', '1_C05', '13_C04', '1_C01', '15_C23', '1_C08', '1_C16', '6_C16', '8_C08', '19_C08', '6_C17', '15_C35', '1_C21', '6_C12', '8_C07', '7_C01']]
+    """df_sorted = sort_cells(
         df,
         unknown_time_min=0.0,
         unknown_time_max=5.0,
         reference_pair={0: 100},
         hertz=10,
     )
-    print(list(df_sorted.columns))
-    # print(df.head())
-    """try:
-        df_sorted = insert_time_index_to_df(
-            df_sorted, range_min=-10.0, range_max=10.0, step=0.1
-        )
-    except ValueError:
-        print("Index less than 200 data points!")
-        df_sorted = insert_time_index_to_df(
-            df_sorted, range_min=-10.0, range_max=9.9, step=0.1
-        )
+    print(list(df_sorted.columns))"""
 
-    # Create scatter plot here
-    # print(df_sorted.head())
+    df_sorted = insert_time_index_to_df(
+        df_sorted, range_min=-10.0, range_max=10.0, step=0.1
+    )
+
+   
+    max = get_max_of_df(df_sorted)
+    print(max)
+    min = get_min_of_df(df_sorted)
+    print(min)
+
+    #global
+    """vmin=-2.805674410020901,
+        vmax=5.189523721386852,"""
 
     heatmap(
         df_sorted,
         csv_path,
-        out_path=csv_path.replace(".csv", "_hm_baseline-10_-1_gauss1.5.svg"),
-        vmin=-2.5,
-        vmax=2.5,
+        out_path=csv_path.replace(
+            ".csv", "_hm.svg"),
+        vmin=-2.4064186234948832,
+        vmax=3.49081465391537,
         xticklabels=20,
-    )"""
+    )
 
+    heatmap(
+        df_sorted,
+        csv_path,
+        out_path=csv_path.replace(
+            ".csv", "_hm.png"),
+        vmin=-2.4064186234948832,
+        vmax=3.49081465391537,
+        xticklabels=20,
+    )
 
 def shock_one_mouse():
 
