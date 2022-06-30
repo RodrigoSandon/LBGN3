@@ -215,6 +215,14 @@ def export_to_csv(out_path, **kwargs):
     df = pd.DataFrame.from_dict(kwargs)
 
     df.to_csv(out_path, index=False)
+
+def find_paths_endswith(root_path, endswith) -> list:
+
+    files = glob.glob(
+        os.path.join(root_path, "**", "*%s") % (endswith), recursive=True,
+    )
+
+    return files
     
 def main():
     MOUSE_ROOT = r"/media/rory/Padlock_DT/Velocity/BLA-Insc-8"

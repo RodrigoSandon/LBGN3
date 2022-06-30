@@ -164,7 +164,7 @@ def main():
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
 
     # Set db name and curr subevent path
-    db_name = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Pre_Activity.db"
+    db_name = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Pre_Activity_-8_-5_-3_0.db"
 
     # Create db connection
     conn = sqlite3.connect(db_name)
@@ -176,7 +176,7 @@ def main():
         print(session)
         SESSION_PATH = os.path.join(ROOT, session)
 
-        csvs = find_paths_startswith(SESSION_PATH, "all_concat_cells_z_fullwindow_id_auc_bonf0.05_pre.csv")
+        csvs = find_paths_startswith(SESSION_PATH, "all_concat_cells_id_z_fullwindow_auc_bonf0.05_21_51_71_101.csv")
 
         # Create SQl table here
         table_name = session.replace(" ", "_")

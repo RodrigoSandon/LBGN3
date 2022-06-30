@@ -65,7 +65,7 @@ def create_concat_csv(lst_of_all_avg_cell_csv_paths, root_path):
             new_path = os.path.join(root_path, combo, subcombo)
             os.makedirs(new_path, exist_ok=True)
             concatenated_cells_df.to_csv(
-                os.path.join(new_path, "concat_cells_z_fullwindow_id_bonf_-10_0_0_2.csv"), index=False
+                os.path.join(new_path, "concat_cells_id_z_fullwindow_auc_bonf0.05_71_101_101_131.csv"), index=False
             )
 
 
@@ -128,7 +128,7 @@ def main():
                         print(f"Working on... {SESSION_PATH}")
                         lst_of_avg_cell_csv_paths_for_session = (
                             find_avg_dff_of_cell_for_event(
-                                SESSION_PATH, "id_z_fullwindow_bonf_-10_0_0_2.csv"
+                                SESSION_PATH, "id_z_fullwindow_auc_bonf0.05_71_101_101_131.csv"
                             )
                         )
                         # file.write("\n".join(lst_of_avg_cell_csv_paths_for_session))

@@ -157,7 +157,7 @@ def concat_all_cells_across_similar_sessions(
                 new_path = os.path.join(root_path, session_type, combo, subcombo)
                 os.makedirs(new_path, exist_ok=True)
                 concatenated_cells_df.to_csv(
-                    os.path.join(new_path, "all_concat_cells_choice_aligned_resampled_z_fullwindow.csv"), index=False
+                    os.path.join(new_path, "all_concat_cells_id_z_fullwindow_auc_bonf0.05_71_101_101_131.csv"), index=False
                 )
 
 
@@ -193,10 +193,10 @@ def main():
         return files
 
     # file = open(f"{ROOT_PATH}/structure_of_between_mice_alignment.txt", "w+")
-    list_of_sessions = ["Pre-RDT RM",]
+    list_of_sessions = ["RDT D1",]
     for i in list_of_sessions:
         print(i)
-        lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, i, "concat_cells__choice_aligned_resampled_z_fullwindow.csv") #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
+        lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, i, "concat_cells_id_z_fullwindow_auc_bonf0.05_71_101_101_131.csv") #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
         bw_mice_alignment_f_name = "BetweenMiceAlignmentData"
         bw_mice_alignment_path = os.path.join(ROOT_PATH, bw_mice_alignment_f_name)
 

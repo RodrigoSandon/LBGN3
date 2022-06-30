@@ -87,10 +87,10 @@ def find_paths(root_path: Path, middle: str, endswith: str):
 def main_allcells():
 
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/"
-    sessions = ["RDT D1", "RDT D2", "RDT D3"]
+    sessions = ["RDT D1"]
 
     for session in sessions: 
-        files = find_paths(ROOT, session, "all_concat_cells_z_fullwindow_id_auc_bonf0.05.csv")
+        files = find_paths(ROOT, session, "all_concat_cells_id_z_-10_0_auc_71_101_101_131.csv")
 
         for f in files:
             df = pd.read_csv(f)
@@ -101,6 +101,18 @@ def main_allcells():
                 df,
                 test="wilcoxon rank sum test",
             )
+
+def main_onepie():
+    f = "/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData/RDT D1/Shock Ocurred_Choice Time (s)/True/all_concat_cells_z_fullwindow_id_auc_-3_0_0_3.csv"
+    df = pd.read_csv(f)
+    df = change_cell_names(df)
+
+    CellClassification(
+        f,
+        df,
+        test="wilcoxon rank sum test",
+    )
+
 
 def main_permouse():
 
@@ -122,7 +134,7 @@ def main_permouse():
         "BLA-Insc-18",
         "BLA-Insc-19",
         ]
-    sessions = ["RDT D1", "RDT D2", "RDT D3"]
+    sessions = ["RDT D1",]
     event = "Shock Ocurred_Choice Time (s)"
     # /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4/BLA-Insc-11/RDT D2/BetweenCellAlignmentData/Block_Win or Loss_Choice Time (s)/(3.0, 'Loss')/concat_cells.csv
     for mouse in mice:
@@ -140,5 +152,6 @@ def main_permouse():
 
 
 if __name__ == "__main__":
-    main_allcells()
+    main_onepie()
+    #main_allcells()
     #main_permouse()

@@ -38,10 +38,10 @@ def find_paths_conditional_endswith(
 def main():
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
     #dff_csv = "all_concat_cells_fullwindow_z_auc.csv"
-    look_for = "all_concat_cells_z_fullwindow_id_auc_bonf0.05.csv"
-    dff_to_look_for = "all_concat_cells_z_fullwindow.csv" # bc unchanged by bonf correction
+    look_for = "all_concat_cells_id_z_-10_0_auc_bonf0.05_71_101_101_131.csv"
+    dff_to_look_for = "all_concat_cells_z_-10_0.csv" # bc unchanged by bonf correction
     #if_folder_includes_this_process_this_instead = "all_concat_cells_z_pre_truncated.csv"
-    list_of_sessions = ["RDT D1", "RDT D2", "RDT D3"]
+    list_of_sessions = ["RDT D1",]
     
     for i in list_of_sessions:
         print(i)
@@ -60,7 +60,7 @@ def main():
 
                 number_cells = len(list(id_df.columns))
 
-                out_path = "/".join(id_csv.split("/")[:-1]) + "/sorted_traces_z_fullwindow_id_auc_bonf0.05.png"
+                out_path = "/".join(id_csv.split("/")[:-1]) + "/sorted_traces_z_-10_0_id_auc_bonf0.05.png"
                 
                 # print(out_path)
 

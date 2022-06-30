@@ -16,10 +16,10 @@ def main():
     os.makedirs(dst, exist_ok=True)
 
     # Will have to connect to two dbs: post for shock responsive and pre for L/S reward responsive
-    db_post = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Post_Activity.db"
-    db_pre = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Pre_Activity.db"
+    db_post = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Post_Activity_BONF_AUC_-3_0_0_3.db"
+    db_pre = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Pre_Activity_BONF_AUC_-8_-5_-3_0.db"
 
-    sessions = ["RDT_D1", "RDT_D2", "RDT_D3"]
+    sessions = ["RDT_D1",]
     for session in sessions:
 
         print(F"CURRENT SESSION: {session}")
@@ -44,8 +44,8 @@ def main():
         chosen_cells_formatted = "("
 
         ##### CHANGE BETWEEN TYPES OF CHOSEN CELLS (RESP OR NONRESP) TO ANALYZE #####
-        for c in neu_cells:
-            if c == neu_cells[-1]: #at last one
+        for c in chosen_cells:
+            if c == chosen_cells[-1]: #at last one
                 chosen_cells_formatted += f"'{c}')"
             else:
                 chosen_cells_formatted += f"'{c}', "
@@ -103,7 +103,7 @@ def main():
                     # now we have 1 subevent id, first just store it
                     # then on the second subevent seen we determine
                     # the cell's final classification
-                    print(subevent)
+                    #print(subevent)
                     subevent_count += 1
                     if subevent_count == 1:
                         # just store og cell id's
@@ -154,8 +154,8 @@ def main():
             for cell, id in final_cell_classifications[key].items():
                 final_cell_classifications_arranged[key][id].append(cell)
 
-        for key, value in final_cell_classifications_arranged.items():
-            print(f"{key} : {value}")
+        """for key, value in final_cell_classifications_arranged.items():
+            print(f"{key} : {value}")"""
 
         for key in final_cell_classifications_arranged:
             num_l = len(final_cell_classifications_arranged[key]["Large Responsive"])
@@ -164,7 +164,7 @@ def main():
             num_non = len(final_cell_classifications_arranged[key]["Non-Responsive"])
 
             plt.figure()
-            print(key)
+            #print(key)
             if num_s != 0:
                 venn3(
                     subsets=(num_l, num_s, num_dual, num_non, 0, 0, 0),
@@ -176,8 +176,8 @@ def main():
                     set_labels=("Large", "Non-Responsive"),
                 )
 
-            plt.title(f"{session}: Identity Proportions of Shock Non-Responsive Cells in {key}")
-            plt.savefig(os.path.join(dst, f"venn_shock_nonresp_{session}_{key}.png"))
+            plt.title(f"{session}: Identity Proportions of Shock Responsive Cells in {key}")
+            plt.savefig(os.path.join(dst, f"venn_shock_resp_{session}_{key}.png"))
             plt.close()
 
 if __name__ == "__main__":

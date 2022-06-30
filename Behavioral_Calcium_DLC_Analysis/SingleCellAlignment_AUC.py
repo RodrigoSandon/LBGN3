@@ -13,43 +13,6 @@ from operator import attrgetter
 from pathlib import Path
 from sklearn import metrics
 
-def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
-    """Plots the figure from the csv file given"""
-    path_to_save = csv_path.replace(
-        "plot_ready.csv", "avg_plot_z_fullwindow.png")
-    xaxis = list(df.columns)
-
-    row_count = len(df)
-
-    avg_of_col_lst = []
-    for col_name, col_data in df.iteritems():
-        if stats.tmean(list(df[col_name])) > 10000:
-            print(col_name)
-            print(list(df[col_name]))
-        avg_dff_of_timewindow_of_event = stats.tmean(list(df[col_name]))
-        avg_of_col_lst.append(avg_dff_of_timewindow_of_event)
-
-    if plot == True:
-
-        plt.plot(xaxis, avg_of_col_lst)
-        plt.title(("Average DF/F Trace for %s Event Window") % (cell_name))
-        plt.xlabel("Time (s)")
-        plt.ylabel("Average DF/F (n=%s)" % (row_count))
-        plt.savefig(path_to_save)
-        plt.close()
-
-    if export_avg == True:
-        path_to_save = csv_path.replace(
-            "plot_ready.csv", "avg_plot_ready_z_fullwindow.csv")
-        export_avg_cell_eventraces(cell_name, avg_of_col_lst, path_to_save)
-
-
-def export_avg_cell_eventraces(
-    cell_name, avg_dff_list_for_timewindow_n_event, out_path
-):
-    df = pd.DataFrame(avg_dff_list_for_timewindow_n_event, columns=[cell_name])
-    df.to_csv(out_path, index=False)
-
 
 def subwindow_auc(df: pd.DataFrame, x_coords: list, min, max):
     auc_list = []
@@ -122,49 +85,60 @@ def main():
             files = find_paths(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData","plot_ready_z_fullwindow.csv")
             print(session)
             for csv in files:
-                #print(f"CURR CSV: {csv}")
-                ######## Get total number of cells that are going to be concatenated at these similar conditions: session, event, subevent ########
-                event = csv.split("/")[10]
-                subevent = csv.split("/")[11]
+                try: 
+                    #print(f"CURR CSV: {csv}")
+                    ######## Get total number of cells that are going to be concatenated at these similar conditions: session, event, subevent ########
+                    event = csv.split("/")[10]
+                    subevent = csv.split("/")[11]
 
-                corresponding_all_concat_cells_csv = f"{MASTER_ROOT}/BetweenMiceAlignmentData/{session}/{event}/{subevent}/all_concat_cells_z_fullwindow_id_auc.csv"
-                corresponding_all_concat_cells_df = pd.read_csv(corresponding_all_concat_cells_csv)
-                total_num_cells = len(list(corresponding_all_concat_cells_df.columns))
-                print(total_num_cells)
+                    #### ONLY FOR GETTING TOTAL NUMBER OF CELLS PURPOSES BEFOREHAND ####
+                    corresponding_all_concat_cells_csv = f"{MASTER_ROOT}/BetweenMiceAlignmentData/{session}/{event}/{subevent}/all_concat_cells_z_fullwindow.csv"
+                    corresponding_all_concat_cells_df = pd.read_csv(corresponding_all_concat_cells_csv)
+                    total_num_cells = len(list(corresponding_all_concat_cells_df.columns))
+                    #print(total_num_cells)
+                    #### ONLY FOR GETTING TOTAL NUMBER OF CELLS PURPOSES BEFOREHAND ####
 
-                cell_name = csv.split("/")[9]
-                df: pd.DataFrame
-                df = pd.read_csv(csv)
-                # print(df.head())
-                # save col that u will omit once transposed
-                col_to_save = list(df["Event #"])
-                df = df.T
-                df = df.iloc[1:, :]  # omit first row
+                    cell_name = csv.split("/")[9]
+                    df: pd.DataFrame
+                    df = pd.read_csv(csv)
+                    # print(df.head())
+                    # save col that u will omit once transposed
+                    col_to_save = list(df["Event #"])
+                    df = df.T
+                    df = df.iloc[1:, :]  # omit first row
 
-                # print(df.head())
-                # one col is 1 trial now
-                x_coords = list(range(len(df)))
-                
-                auc_prechoice = subwindow_auc(df, x_coords, 71, 101) # -8 to -5 | TO -3 TO 0
-                auc_postchoice = subwindow_auc(df, x_coords, 101, 131,) # 0 to 3 | changed to -3 to 0 5/5/22 | TO 0 TO 3
+                    # print(df.head())
+                    # one col is 1 trial now
+                    x_coords = list(range(len(df)))
+                    
+                    prechoice_min = 71
+                    prechoice_max = 101
+                    postchoice_min = 101
+                    postchoice_max = 131
+                    auc_prechoice = subwindow_auc(df, x_coords, prechoice_min, prechoice_max) 
+                    auc_postchoice = subwindow_auc(df, x_coords, postchoice_min, postchoice_max) 
 
-                d_to_save = {
-                    "Trial #": col_to_save,
-                    "Prechoice AUC": auc_prechoice,
-                    "Postchoice AUC": auc_postchoice
-                }
+                    d_to_save = {
+                        "Trial #": col_to_save,
+                        "Prechoice AUC": auc_prechoice,
+                        "Postchoice AUC": auc_postchoice
+                    }
 
-                auc_df = pd.DataFrame.from_records(d_to_save, index=range(len(col_to_save)))
-                auc_df_out = csv.replace(".csv", "_auc_info.csv")
-                auc_df.to_csv(auc_df_out, index = False)
-                
-                alpha = 0.05
-                id = wilcoxon_analysis(auc_postchoice, auc_prechoice, total_num_cells, alpha)
+                    auc_df = pd.DataFrame.from_records(d_to_save, index=range(len(col_to_save)))
+                    auc_df_out = csv.replace(".csv", f"_auc_info_{prechoice_min}_{prechoice_max}_{postchoice_min}_{postchoice_max}.csv")
+                    auc_df.to_csv(auc_df_out, index = False)
+                    
+                    alpha = 0.05
+                    id = wilcoxon_analysis(auc_postchoice, auc_prechoice, total_num_cells, alpha)
 
-                id_d = {cell_name : id}
-                id_df = pd.DataFrame.from_records(id_d, index=[0])
-                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", f"id_z_fullwindow_auc_bonf{alpha}_-3_0_0_3.csv")
-                id_df.to_csv(id_df_out, index=False)
+                    id_d = {cell_name : id}
+                    id_df = pd.DataFrame.from_records(id_d, index=[0])
+                    id_df_out = csv.replace("plot_ready_z_fullwindow.csv", f"id_z_fullwindow_auc_bonf{alpha}_{prechoice_min}_{prechoice_max}_{postchoice_min}_{postchoice_max}.csv")
+                    id_df.to_csv(id_df_out, index=False)
+
+                except FileNotFoundError as e:
+                    print(e)
+                    pass
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,26 @@
+[2022-06-22 16:09:44.822][Inscopix CNMF-E][SYSTEM] Inscopix CNMF-E version: 1.0.2
+[2022-06-22 16:09:44.823][Inscopix CNMF-E][SYSTEM] Operating system: Linux
+[2022-06-22 16:09:44.823][Inscopix CNMF-E][SYSTEM] Number of cores: 24
+[2022-06-22 16:09:44.823][Inscopix CNMF-E][INFO] CNMF-E parameters:
+{
+    "averageCellDiameter": 7,
+    "backgroundDownsamplingFactor": 2,
+    "closingKernelSize": 0,
+    "deconvolve": 0,
+    "gaussianKernelSize": 0,
+    "inputMoviePath": "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/RDT D1/motion_corrected.isxd",
+    "mergeThreshold": 0.699999988079071,
+    "minCorr": 0.800000011920929,
+    "minPnr": 10,
+    "numThreads": 4,
+    "outputDirPath": "output",
+    "outputFiletype": 0,
+    "patchOverlap": 20,
+    "patchSize": 80,
+    "processingMode": 2,
+    "ringSizeFactor": 1.39999997615814,
+    "traceOutputUnits": 1,
+    "verbose": 1
+}
+[2022-06-22 16:09:44.824][Inscopix CNMF-E][INFO] Loading tiff input (file: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/RDT D1/motion_corrected.isxd)
+[2022-06-22 16:09:44.824][Inscopix CNMF-E][ERROR] Failed to open TIFF file: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/RDT D1/motion_corrected.isxd
