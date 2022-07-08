@@ -10,10 +10,10 @@ def find_paths_endswith(root_path, endswith) -> list:
 
 
 def main():
-    ROOT = r"/media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/to_be_analyzed/"
-    avis = find_paths_endswith(ROOT, ".avi")
-    model = "/media/rory/Padlock_DT/SLEAP/models/220204_110756.centroid.n=2835"
-    model2 = "/media/rory/Padlock_DT/SLEAP/models/220204_114501.centered_instance.n=2835"
+    ROOT = r"/media/rory/RDT VIDS/BORIS"
+    avis = find_paths_endswith(ROOT, "merged_resized_grayscaled.mp4")
+    model = "/media/rory/Padlock_DT/Opto_Analysis/models/220708_114639.centroid.n=204"
+    model2 = "/media/rory/Padlock_DT/Opto_Analysis/models/220708_120742.centered_instance.n=204"
 
     for avi in avis:
         cmd = f"sleap-track '{avi}' -m '{model}' -m '{model2}'"
@@ -31,5 +31,5 @@ def one_vid():
     os.system(cmd)
 
 if __name__ == "__main__":
-    #main()
-    one_vid()
+    main()
+    #one_vid()
