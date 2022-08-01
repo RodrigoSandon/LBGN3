@@ -16,9 +16,12 @@ def main():
     model2 = "/media/rory/Padlock_DT/Opto_Analysis/models/220708_120742.centered_instance.n=204"
 
     for avi in avis:
-        cmd = f"sleap-track '{avi}' -m '{model}' -m '{model2}'"
-        print(cmd)
-        os.system(cmd)
+        slp_out_path = avi.replace(".mp4", ".mp4.predictions.slp")
+        
+        if os.path.isfile(slp_out_path) == False:
+            cmd = f"sleap-track '{avi}' -m '{model}' -m '{model2}'"
+            print(cmd)
+            os.system(cmd)
 
 def one_vid():
     
