@@ -35,42 +35,63 @@ sessions = [
 for mouse in mice:
     for session in sessions:
         print(mouse, session)
+        src = find_paths(f'/media/rory/Padlock_DT/BLA_Analysis/{ptp[mouse]}/{mouse}/{session}', 'motion_corrected.isxd')[0]
+        cnmfe_cellset = isx.CellSet.read(find_paths(f'/media/rory/Padlock_DT/BLA_Analysis/{ptp[mouse]}/{mouse}/{session}', 'cnmfe_cellset_accepts.isxd')[0])
+        num_cells = cnmfe_cellset.num_cells
+        print(num_cells)
+
+
+        dst = src.replace(".isxd", ".tif")
         try:
-            src = find_paths(f'/media/rory/Padlock_DT/BLA_Analysis/{ptp[mouse]}/{mouse}/{session}', 'motion_corrected.isxd')[0]
-            dst = src.replace(".isxd", ".tif")
             isx.export_movie_to_tiff(src, dst)
-        
-            footprints, traces = inscopix_cnmfe.run_cnmfe(
-                input_movie_path=dst, 
-                output_dir_path='output', 
-                output_filetype=0,
-                average_cell_diameter=7,
-                min_pixel_correlation=0.8,
-                min_peak_to_noise_ratio=10.0,
-                gaussian_kernel_size=0,
-                closing_kernel_size=0,
-                background_downsampling_factor=2,
-                ring_size_factor=1.4,
-                merge_threshold=0.7,
-                num_threads=4,
-                processing_mode=2,
-                patch_size=80,
-                patch_overlap=20,
-                output_units=1,
-                deconvolve=0,
-                verbose=1
-            )
-
-            dst_dir = f"/media/rory/Padlock_DT/BLA_Analysis/LongReg/CellReg/{mouse}/{session}"
-            os.makedirs(dst_dir, exist_ok=True)
-            #print(len(footprints))
-
-            for footprint_idx in range(0,len(footprints)):
-                img = Image.fromarray(footprints[footprint_idx])
-                img.save(f"{dst_dir}/cell_{footprint_idx}.tif")
-
         except Exception as e:
             print(e)
             pass
+    
+        footprints, traces = inscopix_cnmfe.run_cnmfe(
+            input_movie_path=dst, 
+            output_dir_path='output', 
+            output_filetype=0,
+            average_cell_diameter=16,
+            min_pixel_correlation=0.7,
+            min_peak_to_noise_ratio=8,
+            gaussian_kernel_size=0,
+            closing_kernel_size=0,
+            background_downsampling_factor=1,
+            gSig= 4,
+            ring_size_factor=1.125,
+            merge_threshold=0.3,
+            num_threads=5,
+            processing_mode="parallel_patches",
+            patch_size=80,
+            patch_overlap=20,
+            output_units="df_over_noise",
+        )
+
+        for i in range(num_cells):
+            cell_status = cnmfe_cellset.get_cell_status(i)
+            cell_name = cnmfe_cellset.get_cell_name(i)
+            if str(cell_status) == "accepted":
+                trace_accepted =  cnmfe_cellset.get_cell_trace_data(i)
+                trace_accepted_sub = trace_accepted[:10]
+
+                # match this with the traces of the footprints
+                for trace_idx in range(0, len(traces)):
+                    footprint_trace_sub = traces[trace_idx][:10]
+                    if trace_accepted_sub == footprint_trace_sub:
+                        print(f"footprint {trace_idx} matches accepted cell {cell_name}")
+                        print(footprint_trace_sub)
+                        print(trace_accepted_sub)
+
+        dst_dir = f"/media/rory/Padlock_DT/BLA_Analysis/LongReg/CellReg/{mouse}/{session}"
+        os.makedirs(dst_dir, exist_ok=True)
+        #print(len(footprints))
+
+        for footprint_idx in range(0,len(footprints)):
+            img = Image.fromarray(footprints[footprint_idx])
+            img.save(f"{dst_dir}/cell_{footprint_idx}.tif")
+            
+        break
+    break
 
         

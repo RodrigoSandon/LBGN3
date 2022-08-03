@@ -1,0 +1,356 @@
+[2022-08-02 10:22:03.458][Inscopix CNMF-E][SYSTEM] Inscopix CNMF-E version: 1.0.2
+[2022-08-02 10:22:03.473][Inscopix CNMF-E][SYSTEM] Operating system: Linux
+[2022-08-02 10:22:03.473][Inscopix CNMF-E][SYSTEM] Number of cores: 24
+[2022-08-02 10:22:03.474][Inscopix CNMF-E][INFO] CNMF-E parameters:
+{
+    "averageCellDiameter": 7,
+    "backgroundDownsamplingFactor": 2,
+    "closingKernelSize": 0,
+    "deconvolve": 0,
+    "gaussianKernelSize": 0,
+    "inputMoviePath": "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/Pre-RDT RM/motion_corrected.tif",
+    "mergeThreshold": 0.699999988079071,
+    "minCorr": 0.800000011920929,
+    "minPnr": 10,
+    "numThreads": 4,
+    "outputDirPath": "output",
+    "outputFiletype": 0,
+    "patchOverlap": 20,
+    "patchSize": 80,
+    "processingMode": 2,
+    "ringSizeFactor": 1.39999997615814,
+    "traceOutputUnits": 1,
+    "verbose": 1
+}
+[2022-08-02 10:22:03.474][Inscopix CNMF-E][INFO] Loading tiff input (file: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/Pre-RDT RM/motion_corrected.tif)
+[2022-08-02 10:22:11.686][Inscopix CNMF-E][INFO] Using parallel patches processing mode
+[2022-08-02 10:22:11.687][Inscopix CNMF-E][INFO] Field of view divided into 15 patches
+[2022-08-02 10:22:11.687][Inscopix CNMF-E][INFO] Creating temporary binary file for memory mapping movie (file: output/motion_corrected_isxcnmfe_memmap.bin)
+[2022-08-02 10:23:05.168][Inscopix CNMF-E][INFO] Launching CNMF-E workers
+[2022-08-02 10:23:05.519][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:23:05.566][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:23:05.567][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:23:05.567][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:23:05.601][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:23:05.601][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:23:06.258][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:23:06.258][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:23:08.460][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:23:08.498][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:23:08.536][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:23:09.058][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:23:16.975][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:23:17.057][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:23:17.308][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:23:17.396][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:23:17.455][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:23:17.739][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:23:18.984][Inscopix CNMF-E][INFO] 2 neurons were initialized
+[2022-08-02 10:23:19.272][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:23:45.156][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:23:45.519][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:23:45.665][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:23:45.978][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:23:45.978][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:23:45.978][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:23:46.467][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:23:46.468][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:23:46.468][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:23:46.632][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:23:46.632][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:23:46.633][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:23:47.078][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:23:48.108][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:23:48.195][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:23:55.010][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:23:55.057][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:23:55.059][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:23:55.060][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:23:55.597][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:23:55.684][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:23:55.685][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:23:55.686][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:23:55.810][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:23:55.862][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:23:55.863][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:23:55.863][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:23:55.864][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:23:55.865][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:23:55.866][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:23:56.633][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:23:56.634][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:23:56.634][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:23:56.812][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:23:56.812][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:23:56.812][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:23:57.490][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:23:57.545][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:23:57.547][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:23:57.547][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:23:58.677][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:23:58.743][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:23:58.743][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:24:23.612][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:24:23.612][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:24:23.612][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:24:24.447][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:24:24.447][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:24:24.447][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:24:24.448][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:24:24.897][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:24:24.897][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:24:25.301][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:24:25.301][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:24:25.301][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:24:25.558][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:24:25.558][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:24:25.558][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:24:26.229][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:24:26.230][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:24:26.230][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:24:26.230][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:24:26.495][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:24:26.495][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:24:26.495][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:24:26.496][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:24:26.570][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:24:26.570][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:24:26.865][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:24:26.866][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:24:27.348][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:24:27.349][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:24:27.349][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:24:27.705][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:24:28.398][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:24:28.413][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:24:28.475][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:24:28.475][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:24:28.856][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:24:28.856][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:24:29.558][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:24:29.841][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:24:32.017][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:24:35.972][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:24:36.340][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:24:38.007][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:24:38.396][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:24:40.657][Inscopix CNMF-E][INFO] 3 neurons were initialized
+[2022-08-02 10:24:40.965][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:24:52.983][Inscopix CNMF-E][INFO] 14 neurons were initialized
+[2022-08-02 10:24:53.291][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:25:03.018][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:03.870][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:03.870][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:25:03.871][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:25:06.133][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:07.136][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:07.137][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:25:07.137][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:25:10.364][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:11.451][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:11.540][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:25:13.154][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:25:13.202][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:25:13.203][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:25:13.204][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:13.976][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:13.976][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:25:13.976][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:25:16.570][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:25:16.627][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:25:16.628][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:25:16.629][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:17.622][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:17.622][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:25:17.623][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:25:21.044][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:25:21.099][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:25:21.101][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:25:21.101][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:21.857][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:22.301][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:22.394][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:25:22.395][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:25:23.589][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:23.970][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:25:35.219][Inscopix CNMF-E][INFO] 2 neurons were initialized
+[2022-08-02 10:25:35.292][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:25:35.311][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:37.156][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:37.581][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:25:41.019][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:25:41.020][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:25:41.020][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:41.877][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:25:41.877][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:41.878][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:25:41.878][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:25:42.262][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:25:42.262][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:25:45.309][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:25:45.837][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:25:45.837][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:25:45.837][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:46.833][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:25:46.833][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:46.833][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:25:46.834][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:25:47.192][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:25:47.192][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:25:50.174][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:25:52.325][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:25:52.325][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:25:52.326][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:25:53.487][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:25:53.504][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:25:53.594][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:25:53.595][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:25:53.974][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:25:53.975][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:25:56.900][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:26:01.633][Inscopix CNMF-E][INFO] 5 neurons were initialized
+[2022-08-02 10:26:01.910][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:26:03.376][Inscopix CNMF-E][INFO] 12 neurons were initialized
+[2022-08-02 10:26:03.684][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:26:05.680][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:26:06.087][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:26:06.502][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:26:06.504][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:26:06.505][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:26:08.405][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:26:08.425][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:26:08.840][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:26:09.214][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:26:09.215][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:26:12.299][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:26:23.267][Inscopix CNMF-E][INFO] 3 neurons were initialized
+[2022-08-02 10:26:23.562][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:26:29.372][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:26:30.548][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:26:30.685][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:26:32.664][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:26:33.142][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:26:33.558][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:26:33.559][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:26:33.559][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:26:34.697][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:26:35.006][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:26:39.950][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:26:39.999][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:26:40.016][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:26:41.128][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:26:41.239][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:26:43.054][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:26:43.107][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:26:43.109][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:26:43.109][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:26:43.987][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:26:43.988][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:26:43.989][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:26:45.963][Inscopix CNMF-E][INFO] 2 neurons were initialized
+[2022-08-02 10:26:46.013][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:26:46.031][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:26:47.734][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:26:48.088][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:26:50.550][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:26:51.673][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:26:51.764][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:26:51.764][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:27:01.266][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:27:01.323][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:27:01.325][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:27:01.325][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:27:02.481][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:27:02.575][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:27:02.575][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:27:09.348][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:27:09.349][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:27:09.349][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:27:10.516][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:27:10.533][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:27:10.645][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:27:11.044][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:27:11.044][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:27:11.569][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:27:11.569][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:27:11.570][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:27:12.422][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:27:12.423][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:27:12.423][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:27:12.423][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:27:12.790][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:27:12.790][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:27:14.119][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:27:15.788][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:27:17.782][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:27:17.784][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:27:17.784][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:27:19.426][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:27:19.446][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:27:19.784][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:27:20.144][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-02 10:27:20.144][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-02 10:27:23.018][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-02 10:27:29.630][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:27:29.631][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:27:29.631][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:27:30.754][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:27:30.770][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:27:30.857][Inscopix CNMF-E][INFO] Stopping temporal components update, not changing significantly
+[2022-08-02 10:27:30.857][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:27:33.994][Inscopix CNMF-E][INFO] 14 neurons were initialized
+[2022-08-02 10:27:34.274][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:27:36.118][Inscopix CNMF-E][INFO] 6 neurons were initialized
+[2022-08-02 10:27:36.392][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:27:37.894][Inscopix CNMF-E][INFO] 16 neurons were initialized
+[2022-08-02 10:27:38.175][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-02 10:28:01.393][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:28:02.333][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:28:03.098][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:28:03.470][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:28:03.633][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:28:03.788][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:28:05.203][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:28:06.987][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:28:07.400][Inscopix CNMF-E][INFO] Searching for more neurons in the residuals
+[2022-08-02 10:28:12.880][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:28:12.927][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:28:12.943][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:28:14.100][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:28:14.231][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:28:15.193][Inscopix CNMF-E][INFO] 3 neurons were initialized
+[2022-08-02 10:28:15.253][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:28:15.272][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:28:16.500][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-02 10:28:16.562][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:28:16.566][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:28:16.567][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:28:17.084][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:28:17.550][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:28:18.487][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:28:18.923][Inscopix CNMF-E][INFO] Updating background estimation
+[2022-08-02 10:28:40.803][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:28:40.804][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:28:40.804][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:28:42.026][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:28:42.043][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:28:42.178][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:28:44.932][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:28:44.937][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:28:44.938][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:28:46.625][Inscopix CNMF-E][INFO] Merging components
+[2022-08-02 10:28:46.629][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:28:46.631][Inscopix CNMF-E][INFO] Updating spatial components
+[2022-08-02 10:28:46.730][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:28:46.748][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:28:47.217][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:28:48.585][Inscopix CNMF-E][INFO] Extracting raw temporal traces
+[2022-08-02 10:28:48.602][Inscopix CNMF-E][INFO] Updating temporal components
+[2022-08-02 10:28:49.006][Inscopix CNMF-E][INFO] Removing empty components
+[2022-08-02 10:28:49.042][Inscopix CNMF-E][INFO] Merging patch results
+[2022-08-02 10:28:49.117][Inscopix CNMF-E][INFO] No more components to merge
+[2022-08-02 10:28:49.123][Inscopix CNMF-E][INFO] 40 components were extracted
+[2022-08-02 10:28:49.123][Inscopix CNMF-E][INFO] Scaling spatiotemporal components
+[2022-08-02 10:28:49.169][Inscopix CNMF-E][INFO] Removing temporary memory-mapped binary file (file: output/motion_corrected_isxcnmfe_memmap.bin)
+[2022-08-02 10:28:49.432][Inscopix CNMF-E][INFO] Saving footprints to tiff file (file: output/motion_corrected_footprints.tiff)
+[2022-08-02 10:28:49.871][Inscopix CNMF-E][INFO] Saving temporal traces to csv file (file: output/motion_corrected_traces.csv)

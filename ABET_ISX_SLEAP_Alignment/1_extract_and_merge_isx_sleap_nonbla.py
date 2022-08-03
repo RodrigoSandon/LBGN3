@@ -15,6 +15,7 @@ from scipy.interpolate import interp1d
 import pickle
 import pandas as pd
 import shutil
+import cv2
 
 import seaborn as sns
 import matplotlib as mpl
@@ -34,7 +35,7 @@ def slp_file_parsing(slp_filename: str):
     slp_filename = slp_filename.split("/")[-1]
     mouse = slp_filename.split("_")[0]
     session = "_".join(slp_filename.split("_")[1:]).replace(
-        ".avi.predictions.slp", "")
+        ".mp4.predictions.slp", "")
 
     try:
         session_mod_1 = session.split("20")[0]
@@ -276,8 +277,8 @@ def export_sleap_data_mult_nodes(h5_filepath, session_root_path, fps):
 
 
 def main():
-    ROOT = r"/media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/to_be_analyzed/"
-    DST_ROOT = r"/media/rory/Padlock_DT/DeepLabCut_RDT_Sessions_Only/to_be_analyzed/"
+    ROOT = r"/media/rory/RDT VIDS/BORIS/"
+    DST_ROOT = r"/media/rory/RDT VIDS/BORIS/"
 
     slp_files = find_paths_endswith(ROOT, ".slp")
 
@@ -286,24 +287,34 @@ def main():
     print(f"Number of SLP files: {len(slp_files)}")
 
     for count, j in enumerate(slp_files):
-        print(f"Processing {count + 1}: {j}")
-        # 1) move the slp file
         slp_filename = j.split("/")[-1]
         mouse, session = slp_file_parsing(j)
         SESSION_ROOT = os.path.join(DST_ROOT, mouse, session)
         new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
-        os.makedirs(SESSION_ROOT, exist_ok=True)
-        print(f"old path: {j} || new path: {new_slp_path}")
-
-        shutil.copy(j, new_slp_path)
-
-        # 2) Convert .slp to .h5
         h5_path = new_slp_path.replace(".slp", ".h5")
-        slp_to_h5(new_slp_path, h5_path)
+        if os.path.exists(h5_path) == False:
 
-        # 3) Extract speed
-        #meta_data(h5_path)
-        export_sleap_data_mult_nodes(h5_path, SESSION_ROOT, fps=30)
+            try:
+                print(f"Processing {count + 1}/{len(slp_files)}")
+                video = cv2.VideoCapture(j)
+                fps = video.get(cv2.CAP_PROP_FPS)
+                print(f"fps: {fps}")
+
+                # 1) move the slp file
+                os.makedirs(SESSION_ROOT, exist_ok=True)
+                print(f"old path: {j} || new path: {new_slp_path}")
+
+                shutil.copy(j, new_slp_path)
+
+                # 2) Convert .slp to .h5
+                slp_to_h5(new_slp_path, h5_path)
+
+                # 3) Extract speed
+                #meta_data(h5_path)
+                export_sleap_data_mult_nodes(h5_path, SESSION_ROOT, fps=30)
+            except Exception as e:
+                print(e)
+                pass
 
 
 
