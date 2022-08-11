@@ -316,7 +316,24 @@ def main():
                 print(e)
                 pass
 
+def one_slp_file():
+    f = "/media/rory/RDT VIDS/BORIS/RRD171/RDT OPTO CHOICE 0104/RRD171_RDT_OPTO_CHOICE_01042021_6_merged_resized_grayscaled.mp4.predictions.slp"
+    slp_filename = f.split("/")[-1]
+    
+    root_path = f.replace(slp_filename,"")
+    
+    h5_path = f.replace(".slp", ".h5")
+
+    
+    # 2) Convert .slp to .h5
+    slp_to_h5(f, h5_path)
+
+    # 3) Extract speed
+    #meta_data(h5_path)
+    export_sleap_data_mult_nodes(h5_path, root_path, fps=30)
+        
 
 
 if __name__ == "__main__":
-    main()
+    #main()
+    one_slp_file()

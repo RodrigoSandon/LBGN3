@@ -40,7 +40,7 @@ ROOT = r"/media/rory/RDT VIDS/BORIS/"
 
 vid_paths = find_paths_endswith(ROOT, "merged_resized_grayscaled.mp4")
 csv_name = "/media/rory/Padlock_DT/Opto_Analysis/detecting_light_dark_frames/opto_abet_file_corrections.csv"
-header = ["vid_path", "ABET_addition_correction_time"]
+header = ["vid_path", "ABET_addition_correction_time_(s)"]
 
 for vid_path in vid_paths:
     print(vid_path)
