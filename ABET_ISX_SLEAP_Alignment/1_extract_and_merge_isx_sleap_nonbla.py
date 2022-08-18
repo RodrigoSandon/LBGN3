@@ -213,67 +213,131 @@ def visualize_velocity_one_node(node_name, x_axis_time, x_coord_cm, y_coord_cm, 
 """Will call on export to csv for every node"""
 
 
-def export_sleap_data_mult_nodes(h5_filepath, session_root_path, fps):
+def export_sleap_data_mult_nodes(h5_filepath, session_root_path,mouse,session, fps):
     with h5py.File(h5_filepath, "r") as f:
         dset_names = list(f.keys())
         locations = fill_missing(f["tracks"][:].T)
         node_names = [n.decode() for n in f["node_names"][:]]
 
     for i, name in enumerate(node_names):
-        print(f"Working on... {name}")
-        # make a dir of this curr node
-        node_folder = os.path.join(session_root_path, name)
-        os.makedirs(node_folder, exist_ok=True)
-        os.chdir(node_folder)
+        if name == "body":
+            print(f"Working on... {name}")
+            # make a dir of this curr node
+            node_folder = os.path.join(session_root_path, f"{mouse}_{session}_{name}")
+            os.makedirs(node_folder, exist_ok=True)
+            os.chdir(node_folder)
 
-        INDEX = i
-        node_loc = locations[:, INDEX, :, :]
+            INDEX = i
+            node_loc = locations[:, INDEX, :, :]
 
-        vel_mouse = smooth_diff(node_loc[:, :, 0]).tolist()
-        vel_mouse_to_cm_s = [pix_per_frames_to_cm_per_s(i) for i in vel_mouse]
+            vel_mouse = smooth_diff(node_loc[:, :, 0]).tolist()
+            vel_mouse_to_cm_s = [pix_per_frames_to_cm_per_s(i) for i in vel_mouse]
 
-        fig = plt.figure(figsize=(15, 7))
-        fig.tight_layout(pad=10.0)
+            fig = plt.figure(figsize=(15, 7))
+            fig.tight_layout(pad=10.0)
 
-        x_coord_pix = node_loc[:, 0, 0]
+            x_coord_pix = node_loc[:, 0, 0]
 
-        y_coord_pix = node_loc[:, 1, 0]
+            y_coord_pix = node_loc[:, 1, 0]
 
-        x_coord_cm = [(pix_to_cm(i)) for i in node_loc[:, 0, 0].tolist()]
+            x_coord_cm = [(pix_to_cm(i)) for i in node_loc[:, 0, 0].tolist()]
 
-        y_coord_cm = [(pix_to_cm(i)) for i in node_loc[:, 1, 0].tolist()]
+            y_coord_cm = [(pix_to_cm(i)) for i in node_loc[:, 1, 0].tolist()]
 
-        range_min = 0
-        range_max = len(vel_mouse)/fps
+            range_min = 0
+            range_max = len(vel_mouse)/fps
 
-        # step is 30 Hz, so 0.033 s in 1 frame
-        # step = float(1/fps) <-- this should almost work, a rounding issue (this x_axis is one off of all other arrays that are going to be made into df)
-        step = 0.03333333
-        x_axis_time = np.arange(range_min, range_max, step).tolist()[:-1]
+            # step is 30 Hz, so 0.033 s in 1 frame
+            # step = float(1/fps) <-- this should almost work, a rounding issue (this x_axis is one off of all other arrays that are going to be made into df)
+            step = 0.03333333
+            x_axis_time = np.arange(range_min, range_max, step).tolist()[:-1]
 
-        ######## EXPORTING CSV, COORD, VEL, TRACKS GRAPHS FOR EACH NODE ########
-        csv_out = f"{name}_sleap_data.csv"
-        export_to_csv(csv_out,
-                      idx_time=x_axis_time,
-                      idx_frame=[i for i in range(1, len(vel_mouse)+1)],
-                      x_pix=x_coord_pix,
-                      y_pix=y_coord_pix,
-                      x_cm=x_coord_cm,
-                      y_cm=y_coord_cm,
-                      vel_f_p=vel_mouse,
-                      vel_cm_s=vel_mouse_to_cm_s)
+            ######## EXPORTING CSV, COORD, VEL, TRACKS GRAPHS FOR EACH NODE ########
+            csv_out = f"{name}_sleap_data.csv"
+            export_to_csv(csv_out,
+                        idx_time=x_axis_time,
+                        idx_frame=[i for i in range(1, len(vel_mouse)+1)],
+                        x_pix=x_coord_pix,
+                        y_pix=y_coord_pix,
+                        x_cm=x_coord_cm,
+                        y_cm=y_coord_cm,
+                        vel_f_p=vel_mouse,
+                        vel_cm_s=vel_mouse_to_cm_s)
 
-        coord_vel_graphs_out = f"{name}_coord_vel.png"
-        visualize_velocity_one_node(name,
-                                    x_axis_time,
-                                    x_coord_cm,
-                                    y_coord_cm,
-                                    vel_mouse,
-                                    vel_mouse_to_cm_s,
-                                    coord_vel_graphs_out)
+            coord_vel_graphs_out = f"{name}_coord_vel.png"
+            visualize_velocity_one_node(name,
+                                        x_axis_time,
+                                        x_coord_cm,
+                                        y_coord_cm,
+                                        vel_mouse,
+                                        vel_mouse_to_cm_s,
+                                        coord_vel_graphs_out)
 
-        track_map_out = f"{name}_tracks.png"
-        track_one_node(name, node_loc, track_map_out)
+            track_map_out = f"{name}_tracks.png"
+            track_one_node(name, node_loc, track_map_out)
+
+def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path,mouse,fps):
+    with h5py.File(h5_filepath, "r") as f:
+        dset_names = list(f.keys())
+        locations = fill_missing(f["tracks"][:].T)
+        node_names = [n.decode() for n in f["node_names"][:]]
+
+    for i, name in enumerate(node_names):
+        if name == "body":
+            print(f"Working on... {name}")
+            # make a dir of this curr node
+            node_folder = os.path.join(session_root_path, f"{mouse}_{name}")
+            os.makedirs(node_folder, exist_ok=True)
+            os.chdir(node_folder)
+
+            INDEX = i
+            node_loc = locations[:, INDEX, :, :]
+
+            vel_mouse = smooth_diff(node_loc[:, :, 0]).tolist()
+            vel_mouse_to_cm_s = [pix_per_frames_to_cm_per_s(i) for i in vel_mouse]
+
+            fig = plt.figure(figsize=(15, 7))
+            fig.tight_layout(pad=10.0)
+
+            x_coord_pix = node_loc[:, 0, 0]
+
+            y_coord_pix = node_loc[:, 1, 0]
+
+            x_coord_cm = [(pix_to_cm(i)) for i in node_loc[:, 0, 0].tolist()]
+
+            y_coord_cm = [(pix_to_cm(i)) for i in node_loc[:, 1, 0].tolist()]
+
+            range_min = 0
+            range_max = len(vel_mouse)/fps
+
+            # step is 30 Hz, so 0.033 s in 1 frame
+            # step = float(1/fps) <-- this should almost work, a rounding issue (this x_axis is one off of all other arrays that are going to be made into df)
+            step = 0.03333333
+            x_axis_time = np.arange(range_min, range_max, step).tolist()[:-1]
+
+            ######## EXPORTING CSV, COORD, VEL, TRACKS GRAPHS FOR EACH NODE ########
+            csv_out = f"{name}_sleap_data.csv"
+            export_to_csv(csv_out,
+                        idx_time=x_axis_time,
+                        idx_frame=[i for i in range(1, len(vel_mouse)+1)],
+                        x_pix=x_coord_pix,
+                        y_pix=y_coord_pix,
+                        x_cm=x_coord_cm,
+                        y_cm=y_coord_cm,
+                        vel_f_p=vel_mouse,
+                        vel_cm_s=vel_mouse_to_cm_s)
+
+            coord_vel_graphs_out = f"{name}_coord_vel.png"
+            visualize_velocity_one_node(name,
+                                        x_axis_time,
+                                        x_coord_cm,
+                                        y_coord_cm,
+                                        vel_mouse,
+                                        vel_mouse_to_cm_s,
+                                        coord_vel_graphs_out)
+
+            track_map_out = f"{name}_tracks.png"
+            track_one_node(name, node_loc, track_map_out)
 
 
 def main():
@@ -292,39 +356,66 @@ def main():
         SESSION_ROOT = os.path.join(DST_ROOT, mouse, session)
         new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
         h5_path = new_slp_path.replace(".slp", ".h5")
-        if os.path.exists(h5_path) == False:
+        #UNCOMMENT FOR NEXT BATCH 8/12/2022
+        #if os.path.exists(h5_path) == False:
 
-            try:
-                print(f"Processing {count + 1}/{len(slp_files)}")
-                video = cv2.VideoCapture(j)
-                fps = video.get(cv2.CAP_PROP_FPS)
-                print(f"fps: {fps}")
+        try:
+            print(f"Processing {count + 1}/{len(slp_files)}")
+            video = cv2.VideoCapture(j)
+            fps = video.get(cv2.CAP_PROP_FPS)
+            print(f"fps: {fps}")
 
-                # 1) move the slp file
-                os.makedirs(SESSION_ROOT, exist_ok=True)
-                print(f"old path: {j} || new path: {new_slp_path}")
+            # 1) move the slp file
+            os.makedirs(SESSION_ROOT, exist_ok=True)
+            print(f"old path: {j} || new path: {new_slp_path}")
 
-                shutil.copy(j, new_slp_path)
+            shutil.copy(j, new_slp_path)
 
-                # 2) Convert .slp to .h5
-                slp_to_h5(new_slp_path, h5_path)
+            # 2) Convert .slp to .h5
+            slp_to_h5(new_slp_path, h5_path)
 
-                # 3) Extract speed
-                #meta_data(h5_path)
-                export_sleap_data_mult_nodes(h5_path, SESSION_ROOT, fps=30)
-            except Exception as e:
-                print(e)
-                pass
+            # 3) Extract speed
+            #meta_data(h5_path)
+            export_sleap_data_mult_nodes(h5_path, SESSION_ROOT,mouse,session, fps=30)
+            #export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps=30)
+        except Exception as e:
+            print(e)
+            pass
+
+def main_just_extract_vel():
+    ROOT = r"/media/rory/RDT VIDS/BORIS/"
+    DST_ROOT = r"/media/rory/RDT VIDS/BORIS/"
+
+    slp_files = find_paths_endswith(ROOT, ".slp")
+
+    """Other folders will go into a new root folder"""
+    print("===== PROCESSING OTHER FILES =====")
+    print(f"Number of SLP files: {len(slp_files)}")
+
+    for count, j in enumerate(slp_files):
+        
+        slp_filename = j.split("/")[-1]
+        mouse, session = slp_file_parsing(j)
+        SESSION_ROOT = os.path.join(DST_ROOT, mouse, session)
+        new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
+        h5_path = new_slp_path.replace(".slp", ".h5")
+        if os.path.exists(h5_path) == True:
+            #print("count:",count +1)
+            slp_to_h5(new_slp_path, h5_path)
+
+            print(f"Processing {count + 1}/{len(slp_files)}")
+            export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps=30)
+
 
 def one_slp_file():
-    f = "/media/rory/RDT VIDS/BORIS/RRD171/RDT OPTO CHOICE 0104/RRD171_RDT_OPTO_CHOICE_01042021_6_merged_resized_grayscaled.mp4.predictions.slp"
+    #f = "/media/rory/RDT VIDS/BORIS/RRD172/RDT OPTO CHOICE REDO 0/RRD172_RDT_OPTO_CHOICE_REDO_02012021_6_merged_resized_grayscaled.mp4.predictions.slp"
+    f = "/media/rory/RDT VIDS/BORIS/RRD124/RDT OPTO CHOICE 0311/RRD124_RDT_OPTO_CHOICE_03112020_5_merged_resized_grayscaled.mp4.predictions.slp"
     slp_filename = f.split("/")[-1]
     
     root_path = f.replace(slp_filename,"")
     
     h5_path = f.replace(".slp", ".h5")
 
-    
     # 2) Convert .slp to .h5
     slp_to_h5(f, h5_path)
 
@@ -335,5 +426,6 @@ def one_slp_file():
 
 
 if __name__ == "__main__":
-    #main()
-    one_slp_file()
+    main()
+    #one_slp_file()
+    #main_just_extract_vel()

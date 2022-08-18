@@ -12,7 +12,9 @@ class BehavioralSession:
         """
         Deleting rows under the column "Evnt_Name" that equal 0
         """
-        df = pd.read_csv(self.raw_csv_path)
+        #df = pd.read_csv(self.raw_csv_path, sep =",")
+        df = pd.read_csv(self.raw_csv_path, sep=",", error_bad_lines=False).fillna(0)
+        
         print("Prev length: ", len(df))
         # print(df.loc[0]["Evnt_Time"], " is of type ", type(df.loc[0]["Evnt_Time"]))
         df = df[df.Evnt_Time != 0]

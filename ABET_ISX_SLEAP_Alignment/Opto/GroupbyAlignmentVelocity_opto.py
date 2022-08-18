@@ -250,7 +250,7 @@ class EventVelocity(Velocity):  # for one combo
                 name_of_speed_df = "speeds.csv"
                 csv_path_speed = os.path.join(new_path, name_of_speed_df)
                 group_df_speed.to_csv(csv_path_speed, index=False)
-                print(group_df_speed.head())
+                #print(group_df_speed.head())
 
                 event_num = len(group_df_speed)
 

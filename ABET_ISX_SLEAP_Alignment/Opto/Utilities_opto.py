@@ -154,7 +154,7 @@ def make_avg_speed_table(filename, csv_path_speed, half_of_time_window):
         timepoint_avg = df_speed[col_name].mean()
         avg_of_col_speed_lst.append(timepoint_avg)
 
-    print("here:", len(x_axis), len(avg_of_col_speed_lst))
+    #print("here:", len(x_axis), len(avg_of_col_speed_lst))
 
     csv_prep_unnorm = {
         "Time_(s)" : x_axis,
@@ -209,10 +209,10 @@ def plot_indv_speeds(csv_path, filename):
     
 
     x = list(df.index)
-    t_pos = np.arange(0.00, 5.03, 0.03)
+    """t_pos = np.arange(0.00, 5.03, 0.03)
     t_neg = np.arange(-5.00, 0.00, 0.03)
     t = t_neg.tolist() +  t_pos.tolist()
-    t = [round(i, 1) for i in t]
+    t = [round(i, 1) for i in t]"""
 
     fig, ax = plt.subplots()
     every_nth = 30

@@ -25,7 +25,7 @@ def main():
 
 def one_vid():
     
-    video = "/media/rory/RDT VIDS/BORIS/RRD172_RDT_OPTO_CHOICE_REDO_02012021_6_merged_resized_grayscaled.mp4"
+    video = "/media/rory/RDT VIDS/BORIS/RRD124_RDT_OPTO_CHOICE_03112020_5_merged_resized_grayscaled.mp4"
     model = "/media/rory/Padlock_DT/Opto_Analysis/models/220708_114639.centroid.n=204"
     model2 = "/media/rory/Padlock_DT/Opto_Analysis/models/220708_120742.centered_instance.n=204"
 

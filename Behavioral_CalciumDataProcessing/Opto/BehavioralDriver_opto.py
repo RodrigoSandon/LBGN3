@@ -46,6 +46,7 @@ def main():
 
     for count, f in enumerate(files):
         print(f"file {count}/{len(files)}")
+        print("CURRENT PATH: ", f)
 
         file_name = f.split("/")[-1]
 
@@ -65,9 +66,6 @@ def main():
                     to_add = list(correction_file_df["ABET_addition_correction_time_(s)"])[count]
             
             print(f"Adding {to_add} to times")
-        
-
-            print("CURRENT PATH: ", f)
 
             ABET_1 = BehavioralSession(
                 f,
