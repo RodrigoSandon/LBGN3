@@ -24,23 +24,9 @@ class Driver:
     def main():
 
         list_of_combos_we_care_about = [
-            "Block_Learning_Stratergy_Start_Time_(s)",
-            "Block_Omission_Start_Time_(s)",
-            "Block_Reward_Size_Start_Time_(s)",
-            "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
-            "Block_Shock_Ocurred_Start_Time_(s)",
-            "Block_Trial_Type_Start_Time_(s)",
-            "Shock_Ocurred_Start_Time_(s)",
-            "Trial_Type_Start_Time_(s)",
-            "Trial_Type_Reward_Size_Start_Time_(s)",
-            "Block_Trial_Type_Omission_Start_Time_(s)",
+     
             "Block_Trial_Type_Reward_Size_Start_Time_(s)",
-            "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
-            "Block_Trial_Type_Win_or_Loss_Start_Time_(s)",
-            "Trial_Type_Shock_Ocurred_Start_Time_(s)",
-            "Block_Win_or_Loss_Start_Time_(s)",
-            "Omission_Start_Time_(s)",
-            "Reward_Size_Start_Time_(s)",
+
         ]
         ROOT = r"/media/rory/RDT VIDS/BORIS"
 
@@ -166,6 +152,6 @@ def count_sessions_missing_choice():
     print(*session_paths, sep="\n")
 
 if __name__ == "__main__":
-    #Driver.main()
-    count_sessions_processed()
+    Driver.main()
+    #count_sessions_processed()
     #count_sessions_missing_choice()

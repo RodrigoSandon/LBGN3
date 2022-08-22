@@ -14,7 +14,7 @@ from pathlib import Path
 def avg_cell_eventrace(df, csv_path, plot: bool, export_avg: bool):
     """Plots the figure from the csv file given"""
     path_to_save = csv_path.replace(
-        "speeds.csv", "speeds_z_-5_5.png")
+        "speeds.csv", "avg_speeds_z_-5_5.png")
     #df_sub = df.iloc[:, 1:]
     # print(df_sub.head())
     xaxis = list(df.columns)
@@ -42,6 +42,57 @@ def avg_cell_eventrace(df, csv_path, plot: bool, export_avg: bool):
         path_to_save = csv_path.replace(
             "speeds.csv", "avg_speed_z_-5_5.csv")
         export_avg_cell_eventraces(avg_of_col_lst, path_to_save)
+
+def make_avg_speed_table(filename, csv_path_speed, half_of_time_window):
+
+    df_speed = pd.read_csv(csv_path_speed)
+
+    df_speed.columns = df_speed.iloc[0]
+    df_speed = df_speed.iloc[1:, :]
+    df_speed = df_speed.iloc[:, 1:]
+
+    # 0.03333 is due to the 30Hz
+    x_axis = np.arange(-half_of_time_window, half_of_time_window, 0.03333).tolist()
+    #x_axis = [round(i, 1) for i in x_axis]
+    x_axis = x_axis[:-1]
+    
+    avg_of_col_speed_lst = []
+    for col_name, col_data in df_speed.iteritems():
+        timepoint_avg = df_speed[col_name].mean()
+        avg_of_col_speed_lst.append(timepoint_avg)
+
+    #print("here:", len(x_axis), len(avg_of_col_speed_lst))
+
+    csv_prep_unnorm = {
+        "Time_(s)" : x_axis,
+        "Avg_Speed_(cm/s)" : avg_of_col_speed_lst
+    }
+
+    path_to_save = csv_path_speed.replace(filename, "avg_speed.csv")
+    dff_n_speed = pd.DataFrame.from_dict(csv_prep_unnorm)
+    dff_n_speed.to_csv(path_to_save, index = False)
+
+    return path_to_save
+
+def plot_avg_speed(csv_path, event_num):
+    """Plots the figure from the csv file given"""
+    df = pd.read_csv(csv_path)
+
+    fig, ax = plt.subplots()
+    every_nth = 30
+    ax.plot(list(df["Time_(s)"]), list(df["Avg_Speed_(cm/s)"]))
+    ax.set_xticks([round(i, 1) for i in list(df["Time_(s)"])])
+    ax.set_xlabel("Time from trigger (s)")
+    for n, label in enumerate(ax.xaxis.get_ticklabels()):
+        if n % every_nth != 0:
+            label.set_visible(False)
+    for n, label in enumerate(ax.xaxis.get_major_ticks()):
+        if n % every_nth != 0:
+            label.set_visible(False)
+    ax.set_ylabel("Average speed (cm/s)")
+    ax.set_title(f"Avg. Speed of Event (n={event_num})")
+    fig.savefig(csv_path.replace(".csv",".png"))
+    plt.close(fig)
 
 
 def export_avg_cell_eventraces(
@@ -87,6 +138,11 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
     )
     return files
 
+def gaussian_smooth(df, sigma: float = 1.5):
+    from scipy.ndimage import gaussian_filter1d
+    # df = df.iloc[:, 1:]  # omit first col
+
+    return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
 
 def main():
 
@@ -124,11 +180,6 @@ def main():
                 )
                 df = df.T
 
-                def gaussian_smooth(df, sigma: float = 1.5):
-                    from scipy.ndimage import gaussian_filter1d
-                    # df = df.iloc[:, 1:]  # omit first col
-
-                    return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
                 df = gaussian_smooth(df)
 
                 # 2) Average Z score per each trial
