@@ -95,7 +95,7 @@ def main() -> None:
     vids_to_process = []
 
     for vid in vids:
-        if vid in vids_left_raw_paths:
+        if vid in vids_left_raw_paths:x CNMF-E is implemented in C++, and can be used out of the box in Python via pip install or with a Docker container. The source code is open and availa
             vids_to_process.append(vid)
 
     # print("VIDS LEFT:")

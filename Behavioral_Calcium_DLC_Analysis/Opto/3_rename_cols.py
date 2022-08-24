@@ -32,11 +32,11 @@ def main():
         files = find_paths(session, f"{combo}",filename)
 
         for csv in files:
-            mouse_session = "_".join(csv.split("/")[5:7])
+            mouse = csv.split("/")[5]
 
             df = pd.read_csv(csv)
 
-            df = df.rename(columns={"Avg_Speed_(cm/s)" : f"{mouse_session}_Avg_Speed_(cm/s)"})
+            df = df.rename(columns={f"Avg_Speed_(cm/s)" : f"{mouse}_Avg_Speed_(cm/s)"})
             
             df.to_csv(csv, index=False)
 

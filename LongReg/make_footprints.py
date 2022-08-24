@@ -55,7 +55,7 @@ for mouse in mice:
             average_cell_diameter=16,
             min_pixel_correlation=0.7,
             min_peak_to_noise_ratio=8,
-            gaussian_kernel_size=0,
+            gaussian_kernel_size=4,
             closing_kernel_size=0,
             background_downsampling_factor=1,
             gSig= 4,
