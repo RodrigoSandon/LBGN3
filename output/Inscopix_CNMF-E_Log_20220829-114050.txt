@@ -1,0 +1,54 @@
+[2022-08-29 11:40:50.556][Inscopix CNMF-E][SYSTEM] Inscopix CNMF-E version: 1.0.2
+[2022-08-29 11:40:50.577][Inscopix CNMF-E][SYSTEM] Operating system: Linux
+[2022-08-29 11:40:50.577][Inscopix CNMF-E][SYSTEM] Number of cores: 24
+[2022-08-29 11:40:50.578][Inscopix CNMF-E][INFO] CNMF-E parameters:
+{
+    "averageCellDiameter": 16,
+    "backgroundDownsamplingFactor": 1,
+    "closingKernelSize": 0,
+    "deconvolve": 0,
+    "gaussianKernelSize": 4,
+    "inputMoviePath": "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-3/Pre-RDT RM/motion_corrected.tif",
+    "mergeThreshold": 0.300000011920929,
+    "minCorr": 0.699999988079071,
+    "minPnr": 8,
+    "numThreads": 5,
+    "outputDirPath": "output",
+    "outputFiletype": 0,
+    "patchOverlap": 20,
+    "patchSize": 80,
+    "processingMode": 2,
+    "ringSizeFactor": 1.125,
+    "traceOutputUnits": 1,
+    "verbose": 0
+}
+[2022-08-29 11:40:50.578][Inscopix CNMF-E][INFO] Loading tiff input (file: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-3/Pre-RDT RM/motion_corrected.tif)
+[2022-08-29 11:40:50.621][Inscopix CNMF-E][INFO] Using parallel patches processing mode
+[2022-08-29 11:40:50.621][Inscopix CNMF-E][INFO] Field of view divided into 15 patches
+[2022-08-29 11:40:50.621][Inscopix CNMF-E][INFO] Creating temporary binary file for memory mapping movie (file: output/motion_corrected_isxcnmfe_memmap.bin)
+[2022-08-29 11:42:22.455][Inscopix CNMF-E][INFO] Launching CNMF-E workers
+[2022-08-29 11:42:22.883][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-29 11:42:22.933][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-29 11:42:22.933][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-29 11:42:22.933][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-29 11:42:22.994][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-29 11:42:22.994][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-29 11:42:23.488][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-29 11:42:23.515][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-29 11:42:23.516][Inscopix CNMF-E][INFO] 1 thread assigned for fitting CNMF-E model
+[2022-08-29 11:42:23.516][Inscopix CNMF-E][INFO] Estimating individual pixel noise
+[2022-08-29 11:42:25.882][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-29 11:42:25.913][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-29 11:42:25.931][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-29 11:42:26.295][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-29 11:42:26.372][Inscopix CNMF-E][INFO] Initializing neurons
+[2022-08-29 11:42:36.338][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-29 11:42:36.478][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-29 11:42:36.604][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-29 11:42:36.617][Inscopix CNMF-E][INFO] 0 neurons were initialized
+[2022-08-29 11:42:36.993][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-29 11:42:37.179][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-29 11:42:37.255][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-29 11:42:37.281][Inscopix CNMF-E][INFO] Estimating background
+[2022-08-29 11:42:43.442][Inscopix CNMF-E][INFO] 2 neurons were initialized
+[2022-08-29 11:42:43.808][Inscopix CNMF-E][INFO] Estimating background

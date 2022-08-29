@@ -5,7 +5,7 @@ input_format='Inscopix'; %
 %% Choosing the files for conversion:
 
 [files_path]=uigetdir('Choose the location of the footprints: ' );
-file_names = dir(fullfile(files_path, '**', 'cell_*.tif'));
+file_names = dir(fullfile(files_path, '**', '*_footprint.tif'));
 
 %
 this_session_num_cells = length(file_names);
@@ -29,5 +29,5 @@ for n=1:this_session_num_cells
     this_session_converted_footprints(n,:,:)= footprint;
     
 end
-fname_out = fullfile(file_names(1).folder, 'spatial_footprints.mat');
+fname_out = fullfile(file_names(1).folder, 'spatial_footprints_BLA1_PRERDTD1.mat');
 save(fname_out,'this_session_converted_footprints','-v7.3')

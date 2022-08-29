@@ -1,0 +1,28 @@
+[2022-08-29 11:35:44.691][Inscopix CNMF-E][SYSTEM] Inscopix CNMF-E version: 1.0.2
+[2022-08-29 11:35:44.691][Inscopix CNMF-E][SYSTEM] Operating system: Linux
+[2022-08-29 11:35:44.691][Inscopix CNMF-E][SYSTEM] Number of cores: 24
+[2022-08-29 11:35:44.692][Inscopix CNMF-E][INFO] CNMF-E parameters:
+{
+    "averageCellDiameter": 16,
+    "backgroundDownsamplingFactor": 1,
+    "closingKernelSize": 0,
+    "deconvolve": 0,
+    "gaussianKernelSize": 4,
+    "inputMoviePath": "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/Pre-RDT RM/motion_corrected.tif",
+    "mergeThreshold": 0.300000011920929,
+    "minCorr": 0.699999988079071,
+    "minPnr": 8,
+    "numThreads": 5,
+    "outputDirPath": "output",
+    "outputFiletype": 0,
+    "patchOverlap": 20,
+    "patchSize": 80,
+    "processingMode": 2,
+    "ringSizeFactor": 1.125,
+    "traceOutputUnits": 1,
+    "verbose": 0
+}
+[2022-08-29 11:35:44.692][Inscopix CNMF-E][INFO] Loading tiff input (file: /media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#1/BLA-Insc-1/Pre-RDT RM/motion_corrected.tif)
+[2022-08-29 11:35:44.739][Inscopix CNMF-E][INFO] Using parallel patches processing mode
+[2022-08-29 11:35:44.740][Inscopix CNMF-E][INFO] Field of view divided into 15 patches
+[2022-08-29 11:35:44.740][Inscopix CNMF-E][INFO] Creating temporary binary file for memory mapping movie (file: output/motion_corrected_isxcnmfe_memmap.bin)
