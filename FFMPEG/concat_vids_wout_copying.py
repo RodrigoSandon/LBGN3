@@ -47,8 +47,8 @@ def main():
                 # open new text file
                 os.chdir(root)  # in dst
                 # del old mylist.txt's if any exist
-                delete_recursively(root, "mylist.txt")
-                delete_recursively(root, "mylist2.txt")
+                """delete_recursively(root, "mylist.txt")
+                delete_recursively(root, "mylist2.txt")"""
 
                 print("Curr dir:", os.getcwd())
                 file = open("mylist.txt", "w")
