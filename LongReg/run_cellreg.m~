@@ -18,14 +18,16 @@ sessions = ["Pre-RDT RM" "RDT D1"];
 % "BLA-Insc-5" - rm d1, rdtd2, rdtd3 - barely no cells and they look weird
 % - too different in b/w sessions
 % BLA6 - non rigid transformation?prerdtrm, rdt d1, rdt d2
-% BL8 - few cells
+% BL8 - few cells in prerdt rm
 % BLA9-too different sessions
-% 
+% bla11 - no alignment 
+% bla18 - no rdtd1
+% bla19 - no longreg possible
 
 % Registration might depend on each mouse
 
 %mice = ["BLA-Insc-1" "BLA-Insc-2" "BLA-Insc-3" "BLA-Insc-5" "BLA-Insc-6" "BLA-Insc-7" "BLA-Insc-8" "BLA-Insc-9" "BLA-Insc-11" "BLA-Insc-13" "BLA-Insc-14" "BLA-Insc-15" "BLA-Insc-16" "BLA-Insc-18" "BLA-Insc-19"];
-mice = ["BLA-Insc-1" "BLA-Insc-3" "BLA-Insc-5" "BLA-Insc-6" "BLA-Insc-7" "BLA-Insc-8" "BLA-Insc-9" "BLA-Insc-11" "BLA-Insc-13" "BLA-Insc-14" "BLA-Insc-15" "BLA-Insc-16" "BLA-Insc-18" "BLA-Insc-19"];
+mice = ["BLA-Insc-19"];
 
 % /media/rory/Padlock_DT/BLA_Analysis/LongReg/Footprints/BLA-Insc-1/RDT D1/C00_footprint.tif
 for i=1: length(mice)

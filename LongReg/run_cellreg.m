@@ -21,11 +21,13 @@ sessions = ["Pre-RDT RM" "RDT D1"];
 % BL8 - few cells in prerdt rm
 % BLA9-too different sessions
 % bla11 - no alignment 
+% bla18 - no rdtd1
+% bla19 - no longreg possible cuz no matches
 
 % Registration might depend on each mouse
 
 %mice = ["BLA-Insc-1" "BLA-Insc-2" "BLA-Insc-3" "BLA-Insc-5" "BLA-Insc-6" "BLA-Insc-7" "BLA-Insc-8" "BLA-Insc-9" "BLA-Insc-11" "BLA-Insc-13" "BLA-Insc-14" "BLA-Insc-15" "BLA-Insc-16" "BLA-Insc-18" "BLA-Insc-19"];
-mice = ["BLA-Insc-15"];
+mice = ["BLA-Insc-13"];
 
 % /media/rory/Padlock_DT/BLA_Analysis/LongReg/Footprints/BLA-Insc-1/RDT D1/C00_footprint.tif
 for i=1: length(mice)
@@ -102,6 +104,7 @@ for i=1: length(mice)
         % identified spatial footprints.
 
         % Defining the parameters:
+        %1.22
         microns_per_pixel=1.22;
 
         % Loading the data:
@@ -173,7 +176,7 @@ for i=1: length(mice)
         % correlations from the data.
 
         % Defining the parameters for the probabilstic modeling:
-        maximal_distance=14; % cell-pairs that are more than 12 micrometers apart are assumed to be different cells
+        maximal_distance=20; % cell-pairs that are more than 12 micrometers apart are assumed to be different cells
         normalized_maximal_distance=maximal_distance/microns_per_pixel;
         p_same_certainty_threshold=0.95; % certain cells are those with p_same>threshld or <1-threshold
 
