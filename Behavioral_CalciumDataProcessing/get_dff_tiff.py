@@ -33,9 +33,31 @@ def get_input_cell_set_files(root_path: Path):
     print("Number of cell sets: %s" % (len(cell_set_files)))
     return cell_set_files, root_paths_to_cell_set_files
 
+def ptp_autoencoder(mouse_tolower: str) -> str:
+    
+    mouse_tolower = mouse_tolower.lower()
+    d = {
+        "PTP_Inscopix_#1": ["bla-insc-1", "bla-insc-2", "bla-insc-3"],
+        "PTP_Inscopix_#3": ["bla-insc-5", "bla-insc-6", "bla-insc-7"],
+        "PTP_Inscopix_#4": ["bla-insc-8", "bla-insc-9", "bla-insc-11", "bla-insc-13"],
+        "PTP_Inscopix_#5": ["bla-insc-14", "bla-insc-15", "bla-insc-16", "bla-insc-18", "bla-insc-19"]
+    }
+
+    for key in d.keys():
+        if mouse_tolower in d[key]:
+            return key
+
+def possible_intermediate(ptp, session_dir):
+    # there is an intermediate
+    res = ""
+    if "PTP_Inscopix_#1" != ptp:
+        for dir in os.listdir(session_dir):
+            if "BLA" in dir:
+                res = dir + "/"
+    return res
 
 def main():
-    root_path = "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#4/"
+    root_path = "/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5/"
     cellsets, roots = get_input_cell_set_files(root_path)  # should have the same index
 
     for i in range(len(cellsets)):
@@ -47,5 +69,37 @@ def main():
             "",
         )
 
+def main2():
 
-main()
+    ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/"
+
+    mice = [
+            "BLA-Insc-14",
+            "BLA-Insc-15",
+            "BLA-Insc-16"]
+
+    sessions = ["Pre-RDT RM", "RDT D1"]
+
+    for mouse in mice:
+        print("CURR MOUSE", mouse)
+        ptp = ptp_autoencoder(mouse.lower())
+
+        for session in sessions:
+
+            session_dir = f"{ROOT}/{ptp}/{mouse}/{session}"
+
+            intermediate_base = possible_intermediate(ptp, session_dir)
+
+            raw_dff_traces = f"{ROOT}/{ptp}/{mouse}/{session}/{intermediate_base}dff_traces.csv"
+
+            isx.export_cell_set_to_csv_tiff(
+                f"{ROOT}/{ptp}/{mouse}/{session}/{intermediate_base}cnmfe_cellset.isxd",
+                f"{ROOT}/{ptp}/{mouse}/{session}/{intermediate_base}dff_traces.csv",
+                f"{ROOT}/{ptp}/{mouse}/{session}/{intermediate_base}",
+                "start",
+                "",
+            )
+
+
+#main()
+main2()
