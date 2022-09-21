@@ -72,15 +72,15 @@ def combiner_same_block(csvs_to_concat: list) -> pd.DataFrame:
 
 def main():
 
-    session = "Pre-RDT RM"
+    session = "RDT D1"
     shock = "False"
     csvs_to_concat = [
-        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/1.0/Small/{shock}/{session}/all_cells_avg_trials.csv",
-        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/2.0/Small/{shock}/{session}/all_cells_avg_trials.csv",
-        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/3.0/Small/{shock}/{session}/all_cells_avg_trials.csv",
-        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/1.0/Large/{shock}/{session}/all_cells_avg_trials.csv",
-        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/2.0/Large/{shock}/{session}/all_cells_avg_trials.csv",
-        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/3.0/Large/{shock}/{session}/all_cells_avg_trials.csv"
+        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_0/1.0/Small/{shock}/{session}/all_cells_avg_trials.csv",
+        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_0/2.0/Small/{shock}/{session}/all_cells_avg_trials.csv",
+        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_0/3.0/Small/{shock}/{session}/all_cells_avg_trials.csv",
+        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_0/1.0/Large/{shock}/{session}/all_cells_avg_trials.csv",
+        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_0/2.0/Large/{shock}/{session}/all_cells_avg_trials.csv",
+        f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_0/3.0/Large/{shock}/{session}/all_cells_avg_trials.csv"
         ]
     # small then large
     colors = ["#F5B7B1", "#E74C3C", "#78281F", "#AED6F1", "#3498DB", "#1B4F72"]
@@ -160,7 +160,7 @@ def main():
 
     
     #plt.show()
-    ax.figure.savefig(f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Results/allblocks_{session}_LARGE_SMALL_{shock}_-10_10_pcaplot.svg")
+    ax.figure.savefig(f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Results/allblocks_{session}_LARGE_SMALL_{shock}_-3_0_pcaplot.svg")
 
 
     

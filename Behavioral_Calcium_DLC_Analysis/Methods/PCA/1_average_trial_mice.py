@@ -92,7 +92,8 @@ def main():
                     for time_point in avg_df:
                         subset_df = avg_df[[time_point]]
                         #print(subset_df.head())
-                        pca_obj = PCA()
+                        pca_obj = 
+                        )
 
                         pca_obj.fit(subset_df)
                         pca_data = pca_obj.transform(subset_df)

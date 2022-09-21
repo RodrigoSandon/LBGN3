@@ -29,15 +29,15 @@ def main():
     Thereafter:
      - Predict (processed) files and see how sleap does in predicting them via the GUI
     """
-    ROOT_PATH = r"/media/rory/RDT VIDS/BORIS"
+    ROOT_PATH = r"/media/rory/RDT VIDS/BORIS_merge"
     video_paths = find_paths_endswith(ROOT_PATH, "merged.mp4")
 
     for video_path in video_paths:
+        video_path = f"'{video_path}'" ## fmpeg doesn't like whitespace, so quote it
         resize_out_path = video_path.replace(".mp4", "_resized.mp4")
         grayscale_out_path = resize_out_path.replace(".mp4", "_grayscaled.mp4")
         if os.path.isfile(resize_out_path) == False and os.path.isfile(grayscale_out_path) == False:
 
-            video_path = f"'{video_path}'" ## fmpeg doesn't like whitespace, so quote it
             print(video_path)
             resize_video(video_path, 800, 600, resize_out_path)
             grayscale_video(resize_out_path, grayscale_out_path)

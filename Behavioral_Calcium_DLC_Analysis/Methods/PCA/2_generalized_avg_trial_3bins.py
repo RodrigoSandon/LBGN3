@@ -136,18 +136,18 @@ def main():
     rew = ["Large", "Small"]
     shock = ["False", "True"]
 
-    sessions = ["Pre-RDT RM"]
+    sessions = ["RDT D1"]
 
     # Want to generalize results, so include all mice
     for block in blocks:
         for r in rew:
             for s in shock:
                 for session in sessions:
-                    root = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Arranged_Dataset_-10_10/{block}/{r}/{s}"
+                    root = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Arranged_Dataset_-3_0/{block}/{r}/{s}"
                     mice_files = find_paths_endswith(root, f"{session}/trials_average.csv")
                     #print(mice_files)
 
-                    dst = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-10_10/{block}/{r}/{s}/{session}"
+                    dst = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Generalized_PCA_-3_0/{block}/{r}/{s}/{session}"
 
                     if mice_files:
                         print(f"CURR CSV: {mice_files[0]}")

@@ -26,7 +26,7 @@ def file_name_parsing(filename: str):
 def find_paths_endswith(root_path, endswith) -> list:
 
     files = glob.glob(
-        os.path.join(root_path, "*%s") % (endswith), recursive=True,
+        os.path.join(root_path, "**", "*%s") % (endswith), recursive=True,
     )
 
     return files
@@ -36,9 +36,10 @@ def find_paths_endswith(root_path, endswith) -> list:
 
 result_folder = "/media/rory/Padlock_DT/Opto_Analysis/detecting_light_dark_frames"
 
-ROOT = r"/media/rory/RDT VIDS/BORIS/"
+ROOT = "/media/rory/RDT VIDS/BORIS_merge"
 
 vid_paths = find_paths_endswith(ROOT, "merged_resized_grayscaled.mp4")
+print(vid_paths)
 csv_name = "/media/rory/Padlock_DT/Opto_Analysis/detecting_light_dark_frames/opto_abet_file_corrections.csv"
 header = ["vid_path", "ABET_addition_correction_time_(s)"]
 

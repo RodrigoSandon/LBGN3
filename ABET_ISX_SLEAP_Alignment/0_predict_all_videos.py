@@ -10,7 +10,7 @@ def find_paths_endswith(root_path, endswith) -> list:
 
 
 def main():
-    ROOT = r"/media/rory/RDT VIDS/BORIS"
+    ROOT = r"/media/rory/RDT VIDS/BORIS_merge"
     avis = find_paths_endswith(ROOT, "merged_resized_grayscaled.mp4")
     model = "/media/rory/Padlock_DT/Opto_Analysis/models/220708_114639.centroid.n=204"
     model2 = "/media/rory/Padlock_DT/Opto_Analysis/models/220708_120742.centered_instance.n=204"
@@ -34,5 +34,5 @@ def one_vid():
     os.system(cmd)
 
 if __name__ == "__main__":
-    #main()
-    one_vid()
+    main()
+    #one_vid()

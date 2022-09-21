@@ -1,4 +1,4 @@
-def delete_recursively(root, name_endswith_list):
+"""def delete_recursively(root, name_endswith_list):
 
     for i in name_endswith_list:
 
@@ -26,4 +26,10 @@ def delete_recursively_test(root, name_endswith):
 
 def delete_old_mp4s(root):
     #delete_recursively_test(root, "_.MP4")
-    pass
+    pass"""
+
+x = r"\\"
+y = "\\"
+#z = "\\\" <- string literal undetermined
+print(x)
+print(y)

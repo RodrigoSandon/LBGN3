@@ -109,9 +109,9 @@ def custom_dissect_path(path: Path):
 def main():
 
     ROOT_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis")
-    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Arranged_Dataset_-10_10")
+    DST_PATH = Path(r"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Arranged_Dataset_-3_0")
 
-    sessions = ["Pre-RDT RM"]
+    sessions = ["RDT D1"]
 
     all_csv_paths = []
 
@@ -185,8 +185,8 @@ def main():
                 trial_csv_name = os.path.join(new_dirs, f"trial_{trial_num}.csv")
 
                 ### CHANGE HERE TO GET SPECIFIC TIME WINDOW YOU WANT ###
-                header = ["Cell"] + new_trial.timepoints[:]
-                data = [cell] + new_trial.trial_dff_trace[:]
+                header = ["Cell"] + new_trial.timepoints[70:101]
+                data = [cell] + new_trial.trial_dff_trace[70:101]
                 ### CHANGE HERE TO GET SPECIFIC TIME WINDOW YOU WANT ###
 
                 # look if the csv for this trial exists already

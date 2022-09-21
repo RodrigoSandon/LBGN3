@@ -40,7 +40,7 @@ def main():
         "BLA-Insc-19"
     ]
 
-    sessions = ["Pre-RDT RM"]
+    sessions = ["RDT D1"]
 
     for block in blocks:
         for r in rew:
@@ -48,7 +48,7 @@ def main():
                 for mouse in mice:
                     for session in sessions:
 
-                        ROOT = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Arranged_Dataset_-10_10/{block}/{r}/{s}/{mouse}/{session}"
+                        ROOT = f"/media/rory/Padlock_DT/BLA_Analysis/Decoding/Unnorm_3Bin_Arranged_Dataset_-3_0/{block}/{r}/{s}/{mouse}/{session}"
 
                         files = find_paths_endswith(ROOT, "trial_*.csv")
 

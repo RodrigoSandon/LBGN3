@@ -341,8 +341,8 @@ def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path,mouse,fps):
 
 
 def main():
-    ROOT = r"/media/rory/RDT VIDS/BORIS/"
-    DST_ROOT = r"/media/rory/RDT VIDS/BORIS/"
+    ROOT = r"/media/rory/RDT VIDS/BORIS_merge/"
+    DST_ROOT = r"/media/rory/RDT VIDS/BORIS_merge/"
 
     slp_files = find_paths_endswith(ROOT, ".slp")
 
@@ -376,7 +376,7 @@ def main():
 
             # 3) Extract speed
             #meta_data(h5_path)
-            export_sleap_data_mult_nodes(h5_path, SESSION_ROOT,mouse,session, fps=30)
+            export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT, mouse,  fps=30)
             #export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps=30)
         except Exception as e:
             print(e)
@@ -409,7 +409,7 @@ def main_just_extract_vel():
 
 def one_slp_file():
     #f = "/media/rory/RDT VIDS/BORIS/RRD172/RDT OPTO CHOICE REDO 0/RRD172_RDT_OPTO_CHOICE_REDO_02012021_6_merged_resized_grayscaled.mp4.predictions.slp"
-    f = "/media/rory/RDT VIDS/BORIS/RRD124/RDT OPTO CHOICE 0311/RRD124_RDT_OPTO_CHOICE_03112020_5_merged_resized_grayscaled.mp4.predictions.slp"
+    f = "/media/rory/RDT VIDS/BORIS_merge/RRD137/RRD137_RDT_OPTO_CHOICE_08292020_3_merged_resized_grayscaled.mp4.predictions.slp"
     slp_filename = f.split("/")[-1]
     
     root_path = f.replace(slp_filename,"")
