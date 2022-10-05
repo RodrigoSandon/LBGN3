@@ -42,7 +42,8 @@ def determine_session_type(mystr: str) -> str:
 
 def modify_animal_id(mystr: str) ->  str:
 
-    if ("RRD" not in mystr) or ("rrd" not in mystr):
+    if ("RRD" not in mystr) and ("rrd" not in mystr):
+        # must not contain neither of these for these to happen
         mystr = "RRD" + mystr
 
     return mystr
@@ -64,7 +65,7 @@ def main():
     # The data that we want to categorize are in two different folders
     root_folder = r"/media/rory/RDT VIDS"
     root_dst = "/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
-    root_for_missing = r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2"
+    root_for_missing = r"/media/rory/RDT VIDS/BORIS_merge"
     drive_to_look_in = r"/media/rory/Risk Videos/"
     # dst example: f"{root_dst}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/{node_type}_sleap_data.csv""
 
@@ -86,13 +87,14 @@ def main():
 
     to_sleap_process = []
 
+    
     for circuit, organizer_path in circuits_d.items():
         print("Current circuit: ", circuit)
         df_organizer = pd.read_csv(organizer_path)
         num_rows = len(df_organizer)
 
         # We're interested in columns: Animal ID, Session, Treatment
-
+        
         for row in range(0,num_rows):
     
             animal_id = modify_animal_id(df_organizer.loc[row, "Animal ID"])
@@ -106,76 +108,82 @@ def main():
             # dst example: f"{root_dst}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/{node_type}_sleap_data.csv"
             
             #temp = find_paths_middle_filename(f"{root_folder}/BORIS_merge/{animal_id}", combos_we_care_about, filename)
-            temp = find_paths_endswith(f"{root_folder}/BORIS_merge/{animal_id}", f"{node_type}_sleap_data.csv")
-            if len(temp) == 0:
-                temp = find_paths_endswith(f"{root_folder}/BORIS/{animal_id}", f"{node_type}_sleap_data.csv")
-                if len(temp) == 0:
-                    # sleap_file wasnt found, assuming there's a hard drive we can extract it from if missing
-                    print(f"SLEAP file for {animal_id} not found.")
-
-                    for ses_type in session_types:
-                        if ses_type == "choice": # only choice for now 9/28/22
-                            new_missing_dir = f"{root_for_missing}/{animal_id}/{ses_type}"
-                            os.makedirs(new_missing_dir, exist_ok=True)
-
-                            # Now need to grab specific videos to copy, don't assume the one's you're looking for will be there, assume all caps?
-                            separated_vids_to_merge = find_paths_no_middle_contains(f"{drive_to_look_in}/{animal_id}", ses_type)
-                            
-
-                            if len(separated_vids_to_merge) == 0:
-                                df_organizer.loc[row, "Video exists?"] = "F"
-                                df_organizer.loc[row, "Merged?"] = "F"
-                                df_organizer.loc[row, "Predicted?"] = "F"
-                                df_organizer.loc[row, "Averaged?"] = "F"
-                                print(f"{ses_type} videos for {animal_id} merging not found.")
-                                continue
-                            else:
-                                to_sleap_process.append(animal_id + f"_{ses_type}")
-
-                            for vid in separated_vids_to_merge:
-                                df_organizer.loc[row, "Video exists?"] = "T"
-                                df_organizer.loc[row, "Merged?"] = "F"
-                                df_organizer.loc[row, "Predicted?"] = "F"
-                                df_organizer.loc[row, "Averaged?"] = "F"
-                                filename = Path(vid).name
-                                dst = os.path.join(new_missing_dir, filename)
-                                #print(f"Copying {vid} to {dst}")
-                                #shutil.copyfile(f"{drive_to_look_in}/{animal_id}/{vid}", dst)
-                                # Now do merging + sleap pipeline separately
-
-                    continue
-                else:
-                    # sleap file found in BORIS_merge
-                    sleap_file = temp[0]
-                    alignment_folder = directory_find(f"{root_folder}/BORIS/{animal_id}/","AlignmentData")
             
-            else:
-                sleap_file = temp[0]
-                alignment_folder = directory_find(f"{root_folder}/BORIS_merge/{animal_id}/","AlignmentData")
-            
-            # if it found the sleap file, this must mean ...
-            df_organizer.loc[row, "Video exists?"] = "T"
-            df_organizer.loc[row, "Merged?"] = "T"
-            df_organizer.loc[row, "Predicted?"] = "T"
-            df_organizer.loc[row, "Averaged?"] = "F"
-            # Save to csv
-            df_organizer.to_csv(organizer_path, index=False)
-
-            print("SLEAP file found:", sleap_file)
-            # Determine session type based on sleap file dir
-            session_type = determine_session_type(sleap_file)
-            dst_folder = f"{root_dst}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/"
-            dst_file = f"{root_dst}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/{node_type}_sleap_data.csv"
-
-            os.makedirs(dst_folder, exist_ok=True)
-
-            print("SLEAP file destination:", dst_file)
-            verify_match(sleap_file, dst_file)
-            shutil.copyfile(sleap_file, dst_file)
-            print(alignment_folder)
             try:
+                temp = find_paths_endswith(f"{root_folder}/BORIS_merge/{animal_id}", f"{node_type}_sleap_data.csv")
+
+                if len(temp) == 0:
+                    temp = find_paths_endswith(f"{root_folder}/BORIS/{animal_id}", f"{node_type}_sleap_data.csv")
+
+                    if len(temp) == 0:
+                        # sleap_file wasnt found, assuming there's a hard drive we can extract it from if missing
+                        print(f"SLEAP file for {animal_id} not found.")
+
+                        for ses_type in session_types:
+                            if ses_type == "choice": # only choice for now 9/28/22
+                                new_missing_dir = f"{root_for_missing}/{animal_id}/{ses_type}"
+                                os.makedirs(new_missing_dir, exist_ok=True)
+
+                                # Now need to grab specific videos to copy, don't assume the one's you're looking for will be there, assume all caps?
+                                separated_vids_to_merge = find_paths_no_middle_contains(f"{drive_to_look_in}/{animal_id}", ses_type)
+                                
+
+                                if len(separated_vids_to_merge) == 0:
+                                    df_organizer.loc[row, "Video exists?"] = "F"
+                                    df_organizer.loc[row, "Merged?"] = "F"
+                                    df_organizer.loc[row, "Predicted?"] = "F"
+                                    df_organizer.loc[row, "Averaged?"] = "F"
+                                    print(f"{ses_type} videos for {animal_id} merging not found.")
+                                    continue
+                                else:
+                                    to_sleap_process.append(animal_id + f"_{ses_type}")
+
+                                for vid in separated_vids_to_merge:
+                                    df_organizer.loc[row, "Video exists?"] = "T"
+                                    df_organizer.loc[row, "Merged?"] = "F"
+                                    df_organizer.loc[row, "Predicted?"] = "F"
+                                    df_organizer.loc[row, "Averaged?"] = "F"
+                                    filename = Path(vid).name
+                                    dst = os.path.join(new_missing_dir, filename)
+                                    #print(f"Copying {vid} to {dst}")
+                                    #shutil.copyfile(f"{drive_to_look_in}/{animal_id}/{vid}", dst)
+                                    # Now do merging + sleap pipeline separately
+
+                        continue
+                    else:
+                        # sleap file found in BORIS_merge
+                        sleap_file = temp[0]
+                        alignment_folder = directory_find(f"{root_folder}/BORIS/{animal_id}/","AlignmentData")
+                
+                else:
+                    sleap_file = temp[0]
+                    alignment_folder = directory_find(f"{root_folder}/BORIS_merge/{animal_id}/","AlignmentData")
+                
+                # if it found the sleap file, this must mean ...
+                df_organizer.loc[row, "Video exists?"] = "T"
+                df_organizer.loc[row, "Merged?"] = "T"
+                df_organizer.loc[row, "Predicted?"] = "T"
+                df_organizer.loc[row, "Averaged?"] = "F"
+                # Save to csv
+                df_organizer.to_csv(organizer_path, index=False)
+
+                print("SLEAP file found:", sleap_file)
+                # Determine session type based on sleap file dir
+                session_type = determine_session_type(sleap_file)
+                dst_folder = f"{root_dst}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/"
+                dst_file = f"{root_dst}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/{node_type}_sleap_data.csv"
+
+                os.makedirs(dst_folder, exist_ok=True)
+                
+                print("ALIGNMENT FOLDER:")
+                print(alignment_folder)
                 shutil.copytree(alignment_folder, f"{dst_folder}/AlignmentData")
-            except (FileExistsError,TypeError) as e:
+
+                #print("SLEAP file destination:", dst_file)
+                verify_match(sleap_file, dst_file)
+
+                shutil.copyfile(sleap_file, dst_file)
+            except (FileExistsError, TypeError) as e:
                 print(e)
                 pass
 

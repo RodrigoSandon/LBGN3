@@ -89,7 +89,7 @@ def find_paths(root_path: Path, mid, endswith: str) -> List[str]:
 def main():
 
 
-    session_root = r"/media/rory/RDT VIDS/BetweenMiceAlignmentData"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData"
 
     combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
 
@@ -104,7 +104,7 @@ def main():
         df = pd.read_csv(csv)
         trial_num = len(list(df.columns)) - 1
 
-        new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="avg_all_speeds_z_-5_5savgol_avg.csv")
+        new_path = make_avg_speed_table(filename, csv_path=csv, out_filename=f"avg_{filename}")
         plot_avg_speed(csv_path=new_path, event_num=trial_num)
 
 if __name__ == "__main__":

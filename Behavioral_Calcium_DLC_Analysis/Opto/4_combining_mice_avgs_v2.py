@@ -60,7 +60,7 @@ def plot_indv_speed(csv_path):
     plt.close(fig)
 
 def concat_all_cells_across_similar_sessions(
-    lst_of_all_avg_concat_cells_path, root_path
+    lst_of_all_avg_concat_cells_path, root_path, avg_filename
 ):
     between_mice_d = {}
     
@@ -105,11 +105,13 @@ def concat_all_cells_across_similar_sessions(
         avg_dff_traces_df = pd.read_csv(avg_concat_cells_csv_path)
         
         for col_name, col_data in avg_dff_traces_df.iteritems():
-            print(col_name)
+            #print(col_name)
             # for however many cells there are under this mouse, for this session type, combo, n subcombo
-            between_mice_d[circuit][treatment][session_type][combo][subcombo][
-                col_name
-            ] = avg_dff_traces_df[col_name].tolist()
+            # THIS IS TARGETTED TO NOT INCLUDE TIME MORE THAN ONCE
+            if col_name not in between_mice_d[circuit][treatment][session_type][combo][subcombo]:
+                between_mice_d[circuit][treatment][session_type][combo][subcombo][
+                    col_name
+                ] = avg_dff_traces_df[col_name].tolist()
 
     for circuit in between_mice_d:
         for treatment in between_mice_d[circuit]:
@@ -123,7 +125,7 @@ def concat_all_cells_across_similar_sessions(
                                 between_mice_d[circuit][treatment][session_type][combo][subcombo]
                             )
 
-                            print(concatenated_cells_df.head())
+                            #print(concatenated_cells_df.head())
                         except ValueError:
                             # print(between_mice_d[session_type][combo][subcombo])
                             print("JAGGED ARRAYS IN:", session_type, combo, subcombo)
@@ -135,21 +137,23 @@ def concat_all_cells_across_similar_sessions(
                         new_path = os.path.join(root_path, circuit, treatment, session_type, combo, subcombo)
                         os.makedirs(new_path, exist_ok=True)
                         concatenated_cells_df.to_csv(
-                            os.path.join(new_path, "all_speeds_avg.csv"), index=False
+                            os.path.join(new_path, f"all_{avg_filename}"), index=False
                         )
-                        plot_indv_speed(os.path.join(new_path, "all_speeds_avg.csv"))
+                        plot_indv_speed(os.path.join(new_path, f"all_{avg_filename}"))
     
 
 
 def main():
     ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis")
 
-    lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, "avg_speed.csv") #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
+    avg_filename = "speeds_z_-5_5savgol_avg.csv"
+
+    lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, avg_filename) #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
     bw_mice_alignment_f_name = "BetweenMiceAlignmentData"
     bw_mice_alignment_path = os.path.join(ROOT_PATH, bw_mice_alignment_f_name)
 
     concat_all_cells_across_similar_sessions(
-        lst_of_avg_cell_csv_paths, bw_mice_alignment_path
+        lst_of_avg_cell_csv_paths, bw_mice_alignment_path, avg_filename
         )
 
 

@@ -11,34 +11,29 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
     )
     return files
 
-#/media/rory/RDT VIDS/BORIS/RRD170/RDT OPTO CHOICE 0115/AlignmentData/Block_Trial_Type_Reward_Size_Start_Time_(s)/(1.0, 'Forced', 'Large')/speeds_z_-5_5savgol_avg.csv
+#/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BLA_NAcShell/ArchT/Choice/RRD16/body/AlignmentData/Block_Trial_Type_Reward_Size_Start_Time_(s)/(1.0, 'Forced', 'Large')/speeds_z_-5_5savgol_avg.csv
 def main():
 
-    sessions = [
-        "/media/rory/RDT VIDS/BORIS/RRD170/RDT OPTO CHOICE 0115",
-        "/media/rory/RDT VIDS/BORIS/RRD168/RDT OPTO CHOICE 0114",
-        "/media/rory/RDT VIDS/BORIS/RRD171/RDT OPTO CHOICE 0104",
-        "/media/rory/RDT VIDS/BORIS/RRD81/RDT OPTO CHOICE 1104"
-        ]
-    
-    # OR
 
-    session_root = r"/media/rory/RDT VIDS/BORIS/"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
 
     combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
 
-    for session in sessions:
-        filename = "avg_speed.csv"
-        files = find_paths(session, f"{combo}",filename)
+    filename = "speeds_z_-5_5savgol_avg.csv"
 
-        for csv in files:
-            mouse = csv.split("/")[5]
+    files = find_paths(session_root, combo ,filename)
 
-            df = pd.read_csv(csv)
 
-            df = df.rename(columns={f"Avg_Speed_(cm/s)" : f"{mouse}_Avg_Speed_(cm/s)"})
-            
-            df.to_csv(csv, index=False)
+
+    for csv in files:
+        mouse = csv.split("/")[9]
+
+        df = pd.read_csv(csv)
+
+        #df = df.rename(columns={f"{mouse}_Avg_Speed_(cm/s)" : f"Avg_Speed_(cm/s)"})
+        df = df.rename(columns={f"Avg_Speed_(cm/s)" : f"{mouse}_Avg_Speed_(cm/s)"})
+        
+        df.to_csv(csv, index=False)
 
 if __name__ == "__main__":
     main()

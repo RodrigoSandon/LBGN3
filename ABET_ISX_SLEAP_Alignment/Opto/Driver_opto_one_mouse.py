@@ -23,62 +23,14 @@ def find_paths_endswith(root_path, endswith) -> list:
 class Driver:
     def main():
 
-        """list_of_combos_we_care_about = [
+        list_of_combos_we_care_about = [
      
             "Block_Trial_Type_Reward_Size_Start_Time_(s)",
 
-        ]"""
-
-        list_of_combos_we_care_about = [
-            "Block_Start_Time_(s)",
-            "Block_Omission_Start_Time_(s)",
-            "Block_Reward_Size_Start_Time_(s)",
-            "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
-            "Block_Shock_Ocurred_Start_Time_(s)",
-            "Block_Trial_Type_Start_Time_(s)",
-            "Shock_Ocurred_Start_Time_(s)",
-            "Trial_Type_Start_Time_(s)",
-            "Trial_Type_Reward_Size_Start_Time_(s)",
-            "Block_Trial_Type_Omission_Start_Time_(s)",
-            "Block_Trial_Type_Reward_Size_Start_Time_(s)",
-            "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
-            "Block_Trial_Type_Win_or_Loss_Start_Time_(s)",
-            "Trial_Type_Shock_Ocurred_Start_Time_(s)",
-            "Win_or_Loss_Start_Time_(s)",
-            "Block_Win_or_Loss_Start_Time_(s)",
-            "Learning_Stratergy_Start_Time_(s)",
-            "Omission_Start_Time_(s)",
-            "Reward_Size_Start_Time_(s)",
         ]
-
-
         ROOT = r"/media/rory/RDT VIDS/BORIS_merge"
 
-        session_paths = []
-
-        for file_o_folder in os.listdir(ROOT):
-            #print(file_o_folder)
-            if os.path.isdir(os.path.join(ROOT, file_o_folder)):
-                for folder in os.listdir(os.path.join(ROOT, file_o_folder)):
-
-                    files = find_paths_endswith(ROOT, ".csv")
-                    for file in files:
-                        session_paths.append(os.path.join(ROOT, file_o_folder, folder))
-
-        # ROOT_2 mainly contains outcomes stuff 10/4/22
-        ROOT_2 = r"/media/rory/RDT VIDS/BORIS"
-
-        for file_o_folder in os.listdir(ROOT_2):
-            #print(file_o_folder)
-            if os.path.isdir(os.path.join(ROOT_2, file_o_folder)):
-                for folder in os.listdir(os.path.join(ROOT_2, file_o_folder)):
-
-                    files = find_paths_endswith(ROOT_2, ".csv")
-                    for file in files:
-                        session_paths.append(os.path.join(ROOT_2, file_o_folder, folder))
-                                
-        session_paths = set(session_paths)
-        print("num session paths:",len(session_paths))
+        session_paths = [r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2/rrd20/"]
         
         start = time.time()
         for session_path in session_paths:
@@ -148,7 +100,7 @@ class Driver:
                                     f"WE DON'T CARE ABOUT: {event.event_name}"
                                 )"""
                                 pass
-            except (IndexError, ValueError) as e:
+            except (ValueError) as e:
                 print(e)
                 pass       
         print(

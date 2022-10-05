@@ -146,13 +146,6 @@ def gaussian_smooth(df, sigma: float = 1.5):
 
 def main():
 
-    """sessions = [
-        "/media/rory/RDT VIDS/BORIS/RRD170/RDT OPTO CHOICE 0115",
-        "/media/rory/RDT VIDS/BORIS/RRD168/RDT OPTO CHOICE 0114",
-        "/media/rory/RDT VIDS/BORIS/RRD171/RDT OPTO CHOICE 0104",
-        "/media/rory/RDT VIDS/BORIS/RRD81/RDT OPTO CHOICE 1104"
-        ]"""
-
     combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
     session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
 

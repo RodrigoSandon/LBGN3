@@ -75,32 +75,26 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
 
 def main():
 
-    sessions = [
-        "/media/rory/RDT VIDS/BORIS/RRD170/RDT OPTO CHOICE 0115",
-        "/media/rory/RDT VIDS/BORIS/RRD168/RDT OPTO CHOICE 0114",
-        "/media/rory/RDT VIDS/BORIS/RRD171/RDT OPTO CHOICE 0104",
-        "/media/rory/RDT VIDS/BORIS/RRD81/RDT OPTO CHOICE 1104"
-        ]
-    
-    # OR
 
-    session_root = r"/media/rory/RDT VIDS/BORIS/"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
 
     combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
 
-    for session in sessions:
-        filename = "speeds_z_-5_5savgol.csv"
-        files = find_paths(session, f"{combo}",filename)
+    filename = "speeds_z_-5_5savgol.csv"
 
-        for csv in files:
+    #for session in sessions:
+    files = find_paths(session_root, combo ,filename)
 
-            print(f"CURR CSV: {csv}")
-            df: pd.DataFrame
-            df = pd.read_csv(csv)
-            trial_num = len(df)
-        
-            new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5savgol_avg.csv", half_of_time_window=5)
-            plot_avg_speed(csv_path=new_path, event_num=trial_num)
+
+    for csv in files:
+
+        print(f"CURR CSV: {csv}")
+        df: pd.DataFrame
+        df = pd.read_csv(csv)
+        trial_num = len(df)
+    
+        new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5savgol_avg.csv", half_of_time_window=5)
+        plot_avg_speed(csv_path=new_path, event_num=trial_num)
 
 if __name__ == "__main__":
     main()
