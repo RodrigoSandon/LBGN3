@@ -28,7 +28,7 @@ def main():
     combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
 
     for session in sessions:
-        filename = "speeds_z_-5_5savgol_avg.csv"
+        filename = "avg_speed.csv"
         files = find_paths(session, f"{combo}",filename)
 
         for csv in files:

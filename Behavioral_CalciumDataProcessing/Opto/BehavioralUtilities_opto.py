@@ -249,7 +249,7 @@ class BehavioralUtilities:
         if omission == "Omission":
             # if it's an omission trial, choice time should be +30 of start time
             choice_time = start_time + 30
-            print(f"OMISSION TIME: {choice_time}")
+            #print(f"OMISSION TIME: {choice_time}")
         elif omission == "ITI":
             # if it's an ITI trial, find choice time of blankside in raw abet
             # we have a series of values for this trial remember
@@ -257,14 +257,14 @@ class BehavioralUtilities:
                 time_of_touch = df[df["Item_Name"].str.contains("ITI TO", case=False)][
                     "Evnt_Time"
                 ].values[0]
-                print(f"TIME OF ITI TOUCH: {time_of_touch}")
+                #print(f"TIME OF ITI TOUCH: {time_of_touch}")
 
                 choice_time = time_of_touch
 
             else:
-                print(
+                """print(
                     "NO 'BlankSide' nor 'LeftBlank' nor 'RightBlank' string found for ITI!"
-                )
+                )"""
 
         """This series is added on to the waiting new grouped table in a variable I indicated"""
         return pd.Series(
@@ -311,7 +311,7 @@ class BehavioralUtilities:
                 learning_strats.append("Lose_Omit")
             else:
                 learning_strats.append(np.nan)
-        print(learning_strats)
+        #print(learning_strats)
         df["Learning_Stratergy"] = learning_strats
         return df
 
@@ -337,7 +337,7 @@ class BehavioralUtilities:
                 curr_block += 1
             # the only purpose of count is to change the curr block value
             if np.isnan(df.loc[row_i]["Block"]):
-                print("empty row at: ", row_i)
+                #print("empty row at: ", row_i)
                 df.at[row_i, "Block"] = curr_block
 
         """print("Working on...", df)

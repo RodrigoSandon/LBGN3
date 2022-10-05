@@ -34,13 +34,20 @@ def find_paths_endswith(root_path, endswith) -> list:
 #vid_path = "/media/rory/RDT VIDS/BORIS/RRD171_RDT_OPTO_OUTCOME_01112021_5_merged_resized_grayscaled.mp4"
 #vid_path = "/media/rory/RDT VIDS/BORIS/RRD22_Risk_0.1_mA_OPTO_ALL_FREE_OUTCOMES_01102019_2_merged_resized_grayscaled.mp4"
 
-result_folder = "/media/rory/Padlock_DT/Opto_Analysis/detecting_light_dark_frames"
+result_folder = "/media/rory/Padlock_DT/Opto_Speed_Analysis/detecting_light_dark_frames"
 
-ROOT = "/media/rory/RDT VIDS/BORIS_merge"
+ROOT_1 = r"/media/rory/RDT VIDS/BORIS/"
+ROOT_2 = r"/media/rory/RDT VIDS/BORIS_merge/"
+ROOT_3 = r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2"
 
-vid_paths = find_paths_endswith(ROOT, "merged_resized_grayscaled.mp4")
+vid_paths_1 = find_paths_endswith(ROOT_1, "merged_resized_grayscaled.mp4")
+vid_paths_2 = find_paths_endswith(ROOT_2, "merged_resized_grayscaled.mp4")
+vid_paths_3 = find_paths_endswith(ROOT_3, "merged_resized_grayscaled.mp4")
+
+vid_paths = vid_paths_1 + vid_paths_2 + vid_paths_3
+
 print(vid_paths)
-csv_name = "/media/rory/Padlock_DT/Opto_Analysis/detecting_light_dark_frames/opto_abet_file_corrections.csv"
+csv_name = "/media/rory/Padlock_DT/Opto_Speed_Analysis/detecting_light_dark_frames/opto_abet_file_corrections.csv"
 header = ["vid_path", "ABET_addition_correction_time_(s)"]
 
 for vid_path in vid_paths:

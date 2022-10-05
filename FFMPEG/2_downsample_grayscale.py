@@ -29,7 +29,7 @@ def main():
     Thereafter:
      - Predict (processed) files and see how sleap does in predicting them via the GUI
     """
-    ROOT_PATH = r"/media/rory/RDT VIDS/BORIS_merge"
+    ROOT_PATH = r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2"
     video_paths = find_paths_endswith(ROOT_PATH, "merged.mp4")
 
     for video_path in video_paths:

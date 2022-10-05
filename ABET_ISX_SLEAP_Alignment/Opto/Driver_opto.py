@@ -10,7 +10,7 @@ import pandas as pd
 
 from GroupbyAlignmentVelocity_opto import EventVelocity, Velocity
 
-sys.path.insert(0, "/media/rory/Padlock_DT/Rodrigo/Opto_Analysis")
+sys.path.insert(0, "/media/rory/Padlock_DT/Rodrigo/Opto_Speed_Analysis/Analysis")
 
 def find_paths_endswith(root_path, endswith) -> list:
 
@@ -28,17 +28,33 @@ class Driver:
             "Block_Trial_Type_Reward_Size_Start_Time_(s)",
 
         ]
-        ROOT = r"/media/rory/RDT VIDS/BORIS"
+        ROOT = r"/media/rory/RDT VIDS/BORIS_merge"
 
         session_paths = []
 
         for file_o_folder in os.listdir(ROOT):
+            #print(file_o_folder)
             if os.path.isdir(os.path.join(ROOT, file_o_folder)):
                 for folder in os.listdir(os.path.join(ROOT, file_o_folder)):
-                    if "CHOICE" in folder:
-                        for file in os.listdir(os.path.join(ROOT, file_o_folder, folder)):
-                            if (".csv" in file):
-                                session_paths.append(os.path.join(ROOT, file_o_folder, folder))
+                    folder_upper = folder.upper()
+                    if "CHOICE" in folder_upper: # makes it so we search for sleap data starting here
+                        files = find_paths_endswith(ROOT, ".csv")
+                        for file in files:
+                            session_paths.append(os.path.join(ROOT, file_o_folder, folder))
+
+        # ROOT_2 mainly contains outcomes stuff 10/4/22
+        ROOT_2 = r"/media/rory/RDT VIDS/BORIS"
+
+        for file_o_folder in os.listdir(ROOT_2):
+            #print(file_o_folder)
+            if os.path.isdir(os.path.join(ROOT_2, file_o_folder)):
+                for folder in os.listdir(os.path.join(ROOT_2, file_o_folder)):
+                    folder_upper = folder.upper()
+                    if "CHOICE" in folder_upper: # makes it so we search for sleap data starting here
+                        files = find_paths_endswith(ROOT_2, ".csv")
+                        for file in files:
+                            session_paths.append(os.path.join(ROOT_2, file_o_folder, folder))
+                                
         session_paths = set(session_paths)
         print("num session paths:",len(session_paths))
         
@@ -110,7 +126,7 @@ class Driver:
                                     f"WE DON'T CARE ABOUT: {event.event_name}"
                                 )"""
                                 pass
-            except IndexError as e:
+            except (IndexError, ValueError) as e:
                 print(e)
                 pass       
         print(
@@ -120,7 +136,7 @@ class Driver:
         print("num session paths:",len(session_paths))
 
 def count_sessions_processed():
-    ROOT = r"/media/rory/RDT VIDS/BORIS"
+    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/"
     session_paths = []
 
     for file_o_folder in os.listdir(ROOT):
@@ -135,7 +151,7 @@ def count_sessions_processed():
     print(*session_paths, sep="\n")
 
 def count_sessions_missing_choice():
-    ROOT = r"/media/rory/RDT VIDS/BORIS"
+    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/"
     session_paths = []
 
     for file_o_folder in os.listdir(ROOT):
@@ -153,5 +169,5 @@ def count_sessions_missing_choice():
 
 if __name__ == "__main__":
     Driver.main()
-    #count_sessions_processed()
-    #count_sessions_missing_choice()
+    count_sessions_processed()
+    count_sessions_missing_choice()

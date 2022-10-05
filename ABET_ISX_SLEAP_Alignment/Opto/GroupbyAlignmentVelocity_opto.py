@@ -225,7 +225,7 @@ class EventVelocity(Velocity):  # for one combo
 
                 # Doing some editing on this df
                 group_df_speed = Utilities_opto.rename_all_col_names(group_df_speed, x_axis)
-
+                
                 group_df_speed.insert(
                     loc=0,
                     column="Event_#",
@@ -258,6 +258,7 @@ class EventVelocity(Velocity):  # for one combo
                 
                 Utilities_opto.plot_indv_speeds(csv_path_speed, name_of_speed_df)
                 avg_speed_csv_path = Utilities_opto.make_avg_speed_table(name_of_speed_df, csv_path_speed, self.half_of_time_window)
+                # plotting avg speed for one mouse
                 Utilities_opto.plot_avg_speed(avg_speed_csv_path, event_num)
 
                 # make sure the events omitted resets after ever subcombo within an eventtrace

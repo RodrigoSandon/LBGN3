@@ -20,6 +20,7 @@ import cv2
 import seaborn as sns
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 
 def find_paths_endswith(root_path, endswith) -> list:
@@ -341,8 +342,8 @@ def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path,mouse,fps):
 
 
 def main():
-    ROOT = r"/media/rory/RDT VIDS/BORIS_merge/"
-    DST_ROOT = r"/media/rory/RDT VIDS/BORIS_merge/"
+    ROOT = r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2"
+    DST_ROOT = r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2"
 
     slp_files = find_paths_endswith(ROOT, ".slp")
 
@@ -383,8 +384,8 @@ def main():
             pass
 
 def main_just_extract_vel():
-    ROOT = r"/media/rory/RDT VIDS/BORIS/"
-    DST_ROOT = r"/media/rory/RDT VIDS/BORIS/"
+    ROOT = r"/media/rory/RDT VIDS/BORIS_merge/"
+    DST_ROOT = r"/media/rory/RDT VIDS/BORIS_merge/"
 
     slp_files = find_paths_endswith(ROOT, ".slp")
 
@@ -399,7 +400,8 @@ def main_just_extract_vel():
         SESSION_ROOT = os.path.join(DST_ROOT, mouse, session)
         new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
         h5_path = new_slp_path.replace(".slp", ".h5")
-        if os.path.exists(h5_path) == True:
+
+        if os.path.exists(h5_path) == False:
             #print("count:",count +1)
             slp_to_h5(new_slp_path, h5_path)
 
@@ -408,24 +410,25 @@ def main_just_extract_vel():
 
 
 def one_slp_file():
-    #f = "/media/rory/RDT VIDS/BORIS/RRD172/RDT OPTO CHOICE REDO 0/RRD172_RDT_OPTO_CHOICE_REDO_02012021_6_merged_resized_grayscaled.mp4.predictions.slp"
-    f = "/media/rory/RDT VIDS/BORIS_merge/RRD137/RRD137_RDT_OPTO_CHOICE_08292020_3_merged_resized_grayscaled.mp4.predictions.slp"
-    slp_filename = f.split("/")[-1]
     
-    root_path = f.replace(slp_filename,"")
+    slp_file_path = r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2/rrd201/rdt opto choice 0.1 ma 1.5 mw 07082021/rrd201 rdt opto choice 0.1 ma 1.5 mw 07082021_merged_resized_grayscaled.predictions.slp"
     
-    h5_path = f.replace(".slp", ".h5")
+    slp_filename = slp_file_path.split("/")[-1]
+    mouse = slp_file_path.split("/")[6]
+    DST_ROOT = slp_file_path.replace(slp_filename, "")
+    SESSION_ROOT = slp_file_path.replace(slp_filename, "")
+    new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
+    h5_path = new_slp_path.replace(".slp", ".h5")
 
-    # 2) Convert .slp to .h5
-    slp_to_h5(f, h5_path)
+    if os.path.exists(h5_path) == False:
 
-    # 3) Extract speed
-    #meta_data(h5_path)
-    export_sleap_data_mult_nodes(h5_path, root_path, fps=30)
+        slp_to_h5(new_slp_path, h5_path)
+
+        export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps=30)
         
 
 
 if __name__ == "__main__":
-    main()
-    #one_slp_file()
+    #main()
+    one_slp_file()
     #main_just_extract_vel()

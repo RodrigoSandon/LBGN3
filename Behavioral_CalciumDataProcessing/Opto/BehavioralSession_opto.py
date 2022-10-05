@@ -15,10 +15,10 @@ class BehavioralSession:
         #df = pd.read_csv(self.raw_csv_path, sep =",")
         df = pd.read_csv(self.raw_csv_path, sep=",", error_bad_lines=False).fillna(0)
         
-        print("Prev length: ", len(df))
+        #print("Prev length: ", len(df))
         # print(df.loc[0]["Evnt_Time"], " is of type ", type(df.loc[0]["Evnt_Time"]))
         df = df[df.Evnt_Time != 0]
-        print("After filtering: ", len(df))
+        #print("After filtering: ", len(df))
 
         """
         Keeping a count of number of trials initiated in the session.
