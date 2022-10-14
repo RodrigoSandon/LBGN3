@@ -78,23 +78,43 @@ def main():
 
     session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
 
-    combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
+    list_of_combos_we_care_about = [
+            "Block_Start_Time_(s)",
+            "Block_Omission_Start_Time_(s)",
+            "Block_Reward_Size_Start_Time_(s)",
+            "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
+            "Block_Shock_Ocurred_Start_Time_(s)",
+            "Block_Trial_Type_Start_Time_(s)",
+            "Shock_Ocurred_Start_Time_(s)",
+            "Trial_Type_Start_Time_(s)",
+            "Trial_Type_Reward_Size_Start_Time_(s)",
+            "Block_Trial_Type_Omission_Start_Time_(s)",
+            "Block_Trial_Type_Reward_Size_Start_Time_(s)",
+            "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
+            "Block_Trial_Type_Win_or_Loss_Start_Time_(s)",
+            "Trial_Type_Shock_Ocurred_Start_Time_(s)",
+            "Win_or_Loss_Start_Time_(s)",
+            "Block_Win_or_Loss_Start_Time_(s)",
+            "Learning_Stratergy_Start_Time_(s)",
+            "Omission_Start_Time_(s)",
+            "Reward_Size_Start_Time_(s)",
+        ]
 
     filename = "speeds_z_-5_5savgol.csv"
 
-    #for session in sessions:
-    files = find_paths(session_root, combo ,filename)
+    for combo in list_of_combos_we_care_about:
+        files = find_paths(session_root, combo ,filename)
 
 
-    for csv in files:
+        for csv in files:
 
-        print(f"CURR CSV: {csv}")
-        df: pd.DataFrame
-        df = pd.read_csv(csv)
-        trial_num = len(df)
-    
-        new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5savgol_avg.csv", half_of_time_window=5)
-        plot_avg_speed(csv_path=new_path, event_num=trial_num)
+            print(f"CURR CSV: {csv}")
+            df: pd.DataFrame
+            df = pd.read_csv(csv)
+            trial_num = len(df)
+        
+            new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5savgol_avg.csv", half_of_time_window=5)
+            plot_avg_speed(csv_path=new_path, event_num=trial_num)
 
 if __name__ == "__main__":
     main()

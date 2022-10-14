@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from itertools import combinations
+import statistics
 
 
 def create_combos(event_name_list_input: List):
@@ -136,29 +137,34 @@ def standardize_indv_traces(df: pd.DataFrame ) -> pd.DataFrame:
 
     return norm_df
 
-def make_avg_speed_table(filename, csv_path_speed, half_of_time_window):
+def make_avg_speed_table(filename, csv_path_speed, half_of_time_window, fps):
 
     df_speed = pd.read_csv(csv_path_speed)
 
-    df_speed.columns = df_speed.iloc[0]
-    df_speed = df_speed.iloc[1:, :]
+    #df_speed.columns = df_speed.iloc[0]
+    #df_speed = df_speed.iloc[1:, :]
+    #omitting first column
     df_speed = df_speed.iloc[:, 1:]
+    #print(df_speed.head())
 
+    seconds_in_frame = float(1/fps)
     # 0.03333 is due to the 30Hz
-    x_axis = np.arange(-half_of_time_window, half_of_time_window, 0.03333).tolist()
+    x_axis = np.arange(-half_of_time_window, half_of_time_window, seconds_in_frame).tolist()
+    #print(x_axis)
     #x_axis = [round(i, 1) for i in x_axis]
     x_axis = x_axis[:-1]
     
     avg_of_col_speed_lst = []
-    for col_name, col_data in df_speed.iteritems():
-        timepoint_avg = df_speed[col_name].mean()
+    for col in list(df_speed.columns):
+        timepoint_avg = statistics.mean(list(df_speed[col]))
         avg_of_col_speed_lst.append(timepoint_avg)
 
     #print("here:", len(x_axis), len(avg_of_col_speed_lst))
-
+    #print(len(x_axis))
+    #print(len(avg_of_col_speed_lst[:-1]))
     csv_prep_unnorm = {
         "Time_(s)" : x_axis,
-        "Avg_Speed_(cm/s)" : avg_of_col_speed_lst
+        "Avg_Speed_(cm/s)" : avg_of_col_speed_lst[:-1]
     }
 
     path_to_save = csv_path_speed.replace(filename, "avg_speed.csv")
@@ -167,12 +173,12 @@ def make_avg_speed_table(filename, csv_path_speed, half_of_time_window):
 
     return path_to_save
 
-def plot_avg_speed(csv_path, event_num):
+def plot_avg_speed(csv_path, event_num, fps):
     """Plots the figure from the csv file given"""
     df = pd.read_csv(csv_path)
 
     fig, ax = plt.subplots()
-    every_nth = 30
+    every_nth = fps
     ax.plot(list(df["Time_(s)"]), list(df["Avg_Speed_(cm/s)"]))
     ax.set_xticks([round(i, 1) for i in list(df["Time_(s)"])])
     ax.set_xlabel("Time from trigger (s)")
@@ -187,7 +193,7 @@ def plot_avg_speed(csv_path, event_num):
     fig.savefig(csv_path.replace(".csv",".png"))
     plt.close(fig)
 
-def plot_indv_speeds(csv_path, filename):
+def plot_indv_speeds(csv_path, filename, fps):
 
     df = pd.read_csv(csv_path)
     df = df.iloc[:, 1:]
@@ -215,7 +221,7 @@ def plot_indv_speeds(csv_path, filename):
     t = [round(i, 1) for i in t]"""
 
     fig, ax = plt.subplots()
-    every_nth = 30
+    every_nth = fps
 
     for col in df.columns:
 

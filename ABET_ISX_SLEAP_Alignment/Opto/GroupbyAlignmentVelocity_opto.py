@@ -13,8 +13,9 @@ class Session(object):
 
     velocity = {}
 
-    def __init__(self, session_path):
+    def __init__(self, session_path, fps):
         
+        self.fps = fps
         Session.session_path = session_path
         Session.behavioral_df = self.load_table("abet")
         Session.sleap_df = self.load_table("sleap")
@@ -49,7 +50,7 @@ class Session(object):
         velocity_info = {}
 
         time_vel = Velocity(list(self.sleap_df["idx_time"]),
-                            list(self.sleap_df["vel_cm_s"]))
+                            list(self.sleap_df["vel_cm_s"]), self.fps)
         velocity_info["time_vel"] = time_vel
 
         return velocity_info
@@ -59,9 +60,10 @@ class Velocity(Session):
 
     categorized_vels = {}  # [Event name + number] : EventTraces
 
-    def __init__(self, time: list, speed: list):
+    def __init__(self, time: list, speed: list, fps):
         self.time = time
         self.speed = speed
+        self.fps = fps
 
     # creates an even trace for all given combinations of the list of values inputted
     def add_aligned_velocities(
@@ -90,6 +92,7 @@ class Velocity(Session):
 
                 self.categorized_vels[event_name] = EventVelocity(
                     self.speed,
+                    self.fps,
                     event_name,
                     acquire_time,
                     half_of_time_window,
@@ -108,6 +111,7 @@ class EventVelocity(Velocity):  # for one combo
     def __init__(
         self,
         speed,
+        fps,
         event_name,
         acquire_time,
         half_of_time_window,
@@ -115,6 +119,7 @@ class EventVelocity(Velocity):  # for one combo
     ):
         
         self.speed = speed
+        self.fps = fps
         self.event_name = event_name
         self.acquire_time = acquire_time
         self.half_of_time_window = half_of_time_window
@@ -185,16 +190,17 @@ class EventVelocity(Velocity):  # for one combo
     def trim_grouped_df(self, grouped_df):
         """Drops any columns that are past the half_the_time_window *10*2 - 1"""
         trunc_df = grouped_df.truncate(
-            after=(self.half_of_time_window *30 * 2 - 1), axis=1
+            after=(self.half_of_time_window *self.fps * 2 - 1), axis=1
         )
         return trunc_df
 
     def get_xaxis_list_for_plotting(self):
         """Hertz of frames is 10 Hz, so increment by 0.1 within this time window.
-
+        
         Returns: path to where csv was saved."""
+        increment_by = float(1/self.fps)
         return np.arange(
-            -1 * (self.half_of_time_window), self.half_of_time_window, 0.03333
+            -1 * (self.half_of_time_window), self.half_of_time_window, increment_by
         ).tolist()
 
     def process_speed_by(self):
@@ -256,10 +262,10 @@ class EventVelocity(Velocity):  # for one combo
 
                 ### Add on analysis here ###
                 
-                Utilities_opto.plot_indv_speeds(csv_path_speed, name_of_speed_df)
-                avg_speed_csv_path = Utilities_opto.make_avg_speed_table(name_of_speed_df, csv_path_speed, self.half_of_time_window)
+                Utilities_opto.plot_indv_speeds(csv_path_speed, name_of_speed_df, self.fps)
+                avg_speed_csv_path = Utilities_opto.make_avg_speed_table(name_of_speed_df, csv_path_speed, self.half_of_time_window, self.fps)
                 # plotting avg speed for one mouse
-                Utilities_opto.plot_avg_speed(avg_speed_csv_path, event_num)
+                Utilities_opto.plot_avg_speed(avg_speed_csv_path, event_num, self.fps)
 
                 # make sure the events omitted resets after ever subcombo within an eventtrace
                 self.events_omitted = 0

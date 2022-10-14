@@ -57,6 +57,7 @@ for vid_path in vid_paths:
     success, image = vidcap.read()
     #dark_to_light_thrshld = 8
     count = 0
+    fps = 30
 
     prev_frame_est = None
     prev_frame_mean = None
@@ -64,7 +65,7 @@ for vid_path in vid_paths:
     # while a frame read is successful and while the time for a the experiment to start is below 2 mins (120secs*30frames)
     while success and count < 3600:
         descrp = file_name_parsing(vid_path)
-        frame_image_path = os.path.join(result_folder, f"{descrp}_frame_{count}_{count/30}secs.jpg")
+        frame_image_path = os.path.join(result_folder, f"{descrp}_frame_{count}_{count/fps}secs.jpg")
         #f = imageio.imread(frame_image_path, as_gray=True)
 
         curr_frame_mean = np.mean(image)
@@ -74,9 +75,9 @@ for vid_path in vid_paths:
             result = dark_to_light(prev_frame_est, curr_frame_est)
             if result == "switch":  
                 cv2.imwrite(frame_image_path, image)
-                print(f"{result} found at frame {count}, time {count/30} secs. Comparison was {prev_frame_mean} -> {curr_frame_mean}")
+                print(f"{result} found at frame {count}, time {count/fps} secs. Comparison was {prev_frame_mean} -> {curr_frame_mean}")
 
-                data = [str(vid_path), count/30]
+                data = [str(vid_path), count/fps]
                 # look if the csv for this trial exists already
                 if os.path.exists(csv_name) == True:
                     with open(csv_name, "a") as csv_obj:

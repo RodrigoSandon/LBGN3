@@ -91,21 +91,49 @@ def main():
 
     session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData"
 
-    combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
+    list_of_combos_we_care_about = [
+            "Block_Start_Time_(s)",
+            "Block_Omission_Start_Time_(s)",
+            "Block_Reward_Size_Start_Time_(s)",
+            "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
+            "Block_Shock_Ocurred_Start_Time_(s)",
+            "Block_Trial_Type_Start_Time_(s)",
+            "Shock_Ocurred_Start_Time_(s)",
+            "Trial_Type_Start_Time_(s)",
+            "Trial_Type_Reward_Size_Start_Time_(s)",
+            "Block_Trial_Type_Omission_Start_Time_(s)",
+            "Block_Trial_Type_Reward_Size_Start_Time_(s)",
+            "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
+            "Block_Trial_Type_Win_or_Loss_Start_Time_(s)",
+            "Trial_Type_Shock_Ocurred_Start_Time_(s)",
+            "Win_or_Loss_Start_Time_(s)",
+            "Block_Win_or_Loss_Start_Time_(s)",
+            "Learning_Stratergy_Start_Time_(s)",
+            "Omission_Start_Time_(s)",
+            "Reward_Size_Start_Time_(s)",
+        ]
 
 
     filename = "all_speeds_z_-5_5savgol_avg.csv"
-    files = find_paths(session_root, f"{combo}",filename)
 
-    for csv in files:
+    for combo in list_of_combos_we_care_about:
 
-        print(f"CURR CSV: {csv}")
-        df: pd.DataFrame
-        df = pd.read_csv(csv)
-        trial_num = len(list(df.columns)) - 1
+        files = find_paths(session_root, f"{combo}",filename)
 
-        new_path = make_avg_speed_table(filename, csv_path=csv, out_filename=f"avg_{filename}")
-        plot_avg_speed(csv_path=new_path, event_num=trial_num)
+        for csv in files:
+            try:
+
+                print(f"CURR CSV: {csv}")
+                df: pd.DataFrame
+                df = pd.read_csv(csv)
+                trial_num = len(list(df.columns)) - 1
+
+                new_path = make_avg_speed_table(filename, csv_path=csv, out_filename=f"avg_{filename}")
+                plot_avg_speed(csv_path=new_path, event_num=trial_num)
+                
+            except TypeError as e:
+                print(e)
+                pass
 
 if __name__ == "__main__":
     main()

@@ -30,14 +30,14 @@ def main():
 
 def one_vid():
     
-    video = "/media/rory/RDT VIDS/BORIS/RRD124_RDT_OPTO_CHOICE_03112020_5_merged_resized_grayscaled.mp4"
-    model = "/media/rory/Padlock_DT/Opto_Analysis/models/220708_114639.centroid.n=204"
-    model2 = "/media/rory/Padlock_DT/Opto_Analysis/models/220708_120742.centered_instance.n=204"
+    video = "/media/rory/RDT VIDS/BORIS_merge/RRD43/RRD43_Risk_D1_0.1_mA_ALL_FREE_CHOICE_03282019_3_merged_resized_grayscaled.mp4"
+    model = "/media/rory/Padlock_DT/Opto_Speed_Analysis/models/220708_114639.centroid.n=204"
+    model2 = "/media/rory/Padlock_DT/Opto_Speed_Analysis/models/220708_120742.centered_instance.n=204"
 
     cmd = f"sleap-track '{video}' -m '{model}' -m '{model2}'"
     print(cmd)
     os.system(cmd)
 
 if __name__ == "__main__":
-    main()
-    #one_vid()
+    #main()
+    one_vid()

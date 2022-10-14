@@ -1,5 +1,5 @@
 
-%% 1) Converting the Inscopix .tif cell spatial footprints to input format for CellReg
+    %% 1) Converting the Inscopix .tif cell spatial footprints to input format for CellReg
 
 input_format='Inscopix'; %
 

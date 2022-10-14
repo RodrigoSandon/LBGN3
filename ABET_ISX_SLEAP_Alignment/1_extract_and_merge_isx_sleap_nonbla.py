@@ -151,8 +151,8 @@ def pix_to_cm(i):
     return i * (2.54/96)
 
 
-def pix_per_frames_to_cm_per_s(i):
-    return i * (2.54/96) * (30/1)
+def pix_per_frames_to_cm_per_s(i, fps):
+    return i * (2.54/96) * (fps/1)
 
 
 def export_to_csv(out_path, **kwargs):
@@ -295,7 +295,7 @@ def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path,mouse,fps):
             node_loc = locations[:, INDEX, :, :]
 
             vel_mouse = smooth_diff(node_loc[:, :, 0]).tolist()
-            vel_mouse_to_cm_s = [pix_per_frames_to_cm_per_s(i) for i in vel_mouse]
+            vel_mouse_to_cm_s = [pix_per_frames_to_cm_per_s(i, fps) for i in vel_mouse]
 
             fig = plt.figure(figsize=(15, 7))
             fig.tight_layout(pad=10.0)
@@ -313,28 +313,36 @@ def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path,mouse,fps):
 
             # step is 30 Hz, so 0.033 s in 1 frame
             # step = float(1/fps) <-- this should almost work, a rounding issue (this x_axis is one off of all other arrays that are going to be made into df)
-            step = 0.03333333
+            step = float(1/fps)
             x_axis_time = np.arange(range_min, range_max, step).tolist()[:-1]
+            print(len(x_axis_time))
+            print(len([i for i in range(1, len(vel_mouse))]))
+            print(len(x_coord_pix[:-1]))
+            print(len(y_coord_pix[:-1]))
+            print(len(x_coord_cm[:-1]))
+            print(len(y_coord_cm[:-1]))
+            print(len(vel_mouse[:-1]))
+            print(len(vel_mouse_to_cm_s[:-1]))
 
             ######## EXPORTING CSV, COORD, VEL, TRACKS GRAPHS FOR EACH NODE ########
             csv_out = f"{name}_sleap_data.csv"
             export_to_csv(csv_out,
                         idx_time=x_axis_time,
-                        idx_frame=[i for i in range(1, len(vel_mouse)+1)],
-                        x_pix=x_coord_pix,
-                        y_pix=y_coord_pix,
-                        x_cm=x_coord_cm,
-                        y_cm=y_coord_cm,
-                        vel_f_p=vel_mouse,
-                        vel_cm_s=vel_mouse_to_cm_s)
+                        idx_frame=[i for i in range(1, len(vel_mouse))],
+                        x_pix=x_coord_pix[:-1],
+                        y_pix=y_coord_pix[:-1],
+                        x_cm=x_coord_cm[:-1],
+                        y_cm=y_coord_cm[:-1],
+                        vel_f_p=vel_mouse[:-1],
+                        vel_cm_s=vel_mouse_to_cm_s[:-1])
 
             coord_vel_graphs_out = f"{name}_coord_vel.png"
             visualize_velocity_one_node(name,
                                         x_axis_time,
-                                        x_coord_cm,
-                                        y_coord_cm,
-                                        vel_mouse,
-                                        vel_mouse_to_cm_s,
+                                        x_coord_cm[:-1],
+                                        y_coord_cm[:-1],
+                                        vel_mouse[:-1],
+                                        vel_mouse_to_cm_s[:-1],
                                         coord_vel_graphs_out)
 
             track_map_out = f"{name}_tracks.png"
@@ -411,21 +419,21 @@ def main_just_extract_vel():
 
 def one_slp_file():
     
-    slp_file_path = r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2/rrd201/rdt opto choice 0.1 ma 1.5 mw 07082021/rrd201 rdt opto choice 0.1 ma 1.5 mw 07082021_merged_resized_grayscaled.predictions.slp"
+    slp_file_path = r"/media/rory/RDT VIDS/BORIS_merge/RRD76/RDT OPTO CHOICE 01 mA 1022/RRD76_RDT_OPTO_CHOICE_0.1_mA_10222019_3_merged_resized_grayscaled.mp4.predictions.slp"
     
     slp_filename = slp_file_path.split("/")[-1]
-    mouse = slp_file_path.split("/")[6]
+    mouse = slp_file_path.split("/")[5]
     DST_ROOT = slp_file_path.replace(slp_filename, "")
     SESSION_ROOT = slp_file_path.replace(slp_filename, "")
     new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
     h5_path = new_slp_path.replace(".slp", ".h5")
 
-    if os.path.exists(h5_path) == False:
+    
 
-        slp_to_h5(new_slp_path, h5_path)
+    slp_to_h5(new_slp_path, h5_path)
 
-        export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps=30)
-        
+    export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps=30)
+    
 
 
 if __name__ == "__main__":

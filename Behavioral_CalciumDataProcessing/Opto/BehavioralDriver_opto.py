@@ -123,7 +123,7 @@ def main():
 
 def one_process():
     
-    f = "/media/rory/RDT VIDS/BORIS_merge/BATCH_2/rrd20/risk 0.1 ma all free choice 01022019/RRD20 12282018.csv"
+    f = "/media/rory/RDT VIDS/BORIS_merge/RRD62/RDT FREE CHOICE 0704/RRD62 07042019.csv"
     mouse, date = parse_abet_file(f)
     print(mouse)
     print(date)

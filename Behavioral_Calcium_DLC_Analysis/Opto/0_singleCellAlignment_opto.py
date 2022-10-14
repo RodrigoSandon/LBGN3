@@ -146,48 +146,73 @@ def gaussian_smooth(df, sigma: float = 1.5):
 
 def main():
 
-    combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
+    #combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
+
+    list_of_combos_we_care_about = [
+            "Block_Start_Time_(s)",
+            "Block_Omission_Start_Time_(s)",
+            "Block_Reward_Size_Start_Time_(s)",
+            "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
+            "Block_Shock_Ocurred_Start_Time_(s)",
+            "Block_Trial_Type_Start_Time_(s)",
+            "Shock_Ocurred_Start_Time_(s)",
+            "Trial_Type_Start_Time_(s)",
+            "Trial_Type_Reward_Size_Start_Time_(s)",
+            "Block_Trial_Type_Omission_Start_Time_(s)",
+            "Block_Trial_Type_Reward_Size_Start_Time_(s)",
+            "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
+            "Block_Trial_Type_Win_or_Loss_Start_Time_(s)",
+            "Trial_Type_Shock_Ocurred_Start_Time_(s)",
+            "Win_or_Loss_Start_Time_(s)",
+            "Block_Win_or_Loss_Start_Time_(s)",
+            "Learning_Stratergy_Start_Time_(s)",
+            "Omission_Start_Time_(s)",
+            "Reward_Size_Start_Time_(s)",
+        ]
+
     session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
 
     #for session in sessions:
-    files = find_paths(session_root, f"{combo}","speeds.csv")
 
-    for csv in files:
+    for combo in list_of_combos_we_care_about:
+        files = find_paths(session_root, f"{combo}","speeds.csv")
 
-        try:
-            print(f"CURR CSV: {csv}")
-            df: pd.DataFrame
-            df = pd.read_csv(csv)
-        
-            col_to_save = list(df["Event_#"])
-            df = df.T
-            df = df.iloc[1:, :]  # omit first row
+        for csv in files:
 
-            # print(df.head())
+            try:
+                print(f"CURR CSV: {csv}")
+                df: pd.DataFrame
+                df = pd.read_csv(csv)
+            
+                col_to_save = list(df["Event_#"])
+                df = df.T
+                df = df.iloc[1:, :]  # omit first row
 
-            # 1) Zscore
-            df = custom_standardize_limit_fixed(
-                df,
-                baseline_min=0,
-                baseline_max=300,
-                limit_idx=300
-            )
-            df = df.T
+                # print(df.head())
 
-            df = gaussian_smooth(df)
+                # 1) Zscore
+                df = custom_standardize_limit_fixed(
+                    df,
+                    baseline_min=0,
+                    baseline_max=300,
+                    limit_idx=300
+                )
+                df = df.T
 
-            # 2) Average Z score per each trial
-            avg_cell_eventrace(
-                df, csv, plot=True, export_avg=True
-            )
+                df = gaussian_smooth(df)
 
-            df.insert(0, "Event_#", col_to_save)
+                # 2) Average Z score per each trial
+                avg_cell_eventrace(
+                    df, csv, plot=True, export_avg=True
+                )
 
-            csv_moded_out_path = csv.replace(".csv", "_z_-5_5.csv")
-            df.to_csv(csv_moded_out_path, index=False)
-        except (TypeError, AttributeError) as e:
-            print(e)
-            pass
+                df.insert(0, "Event_#", col_to_save)
+
+                csv_moded_out_path = csv.replace(".csv", "_z_-5_5.csv")
+                df.to_csv(csv_moded_out_path, index=False)
+            except (TypeError, AttributeError) as e:
+                print(e)
+                pass
 
 if __name__ == "__main__":
     main()
