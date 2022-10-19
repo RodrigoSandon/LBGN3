@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import os
+import sys, subprocess
 import glob
 import Utilities_opto
 from typing import List
@@ -13,14 +14,30 @@ class Session(object):
 
     velocity = {}
 
-    def __init__(self, session_path, fps):
+    def __init__(self, session_path):
         
-        self.fps = fps
         Session.session_path = session_path
         Session.behavioral_df = self.load_table("abet")
         Session.sleap_df = self.load_table("sleap")
+        Session.movie = self.load_table("merged_movie")
+        self.fps = self.get_frame_rate(Session.movie)
+        print(f"fps is {self.fps}")
+        self.mouse = session_path.split("/")[-1]
 
         Session.velocity = self.parse_sleap_table()
+
+    def get_frame_rate(self, filename):
+        if not os.path.exists(filename):
+            sys.stderr.write("ERROR: filename %r was not found!" % (filename,))
+            return -1         
+        out = subprocess.check_output(["ffprobe",filename,"-v","0","-select_streams","v","-print_format","flat","-show_entries","stream=avg_frame_rate"])
+        rate = str(out).split('=')[1].replace("\"", "").replace("\'","").replace("\\n", "").split('/')
+        #print(rate)
+        if len(rate)==1:
+            return float(rate[0])
+        if len(rate)==2:
+            return float(rate[0])/float(rate[1])
+        return -1
 
     def load_table(self, table_to_extract):
         endswith = None
@@ -35,14 +52,23 @@ class Session(object):
         elif table_to_extract == "sleap":
             endswith = "body_sleap_data.csv"
             message = "No SLEAP table found!"
+        elif table_to_extract == "merged_movie":
+            endswith = "_merged_resized_grayscaled.mp4"
+            message = "NO MERGED VIDEO FOUND!"
 
         path = Utilities_opto.find_paths_endswith(
             self.session_path, endswith
         )
-        if path == None:
-            print(message)
-            return None
-        table = pd.read_csv(path[0])
+
+        #only movie is not a table so
+        if table_to_extract != "merged_movie":
+            table = pd.read_csv(path[0])
+        else:
+            if len(path) != 0:
+                table = path[0]
+            else:
+                
+                print(message) 
 
         return table
 

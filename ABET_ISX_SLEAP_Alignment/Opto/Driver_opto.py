@@ -1,3 +1,4 @@
+from concurrent.futures import process
 from GroupbyAlignmentVelocity_opto import Session
 import time
 from pathlib import Path
@@ -5,6 +6,7 @@ import os
 import glob
 from builtins import AttributeError
 import sys
+import subprocess
 
 import pandas as pd
 
@@ -20,16 +22,17 @@ def find_paths_endswith(root_path, endswith) -> list:
 
     return files
 
+
 class Driver:
     def main():
 
-        """list_of_combos_we_care_about = [
+        list_of_combos_we_care_about = [
      
             "Block_Trial_Type_Reward_Size_Start_Time_(s)",
 
-        ]"""
+        ]
 
-        list_of_combos_we_care_about = [
+        """list_of_combos_we_care_about = [
             "Block_Start_Time_(s)",
             "Block_Omission_Start_Time_(s)",
             "Block_Reward_Size_Start_Time_(s)",
@@ -49,40 +52,30 @@ class Driver:
             "Learning_Stratergy_Start_Time_(s)",
             "Omission_Start_Time_(s)",
             "Reward_Size_Start_Time_(s)",
-        ]
+        ]"""
 
+        processed = 0
 
         ROOT = r"/media/rory/RDT VIDS/BORIS_merge"
 
         session_paths = []
 
-        for file_o_folder in os.listdir(ROOT):
-            #print(file_o_folder)
-            if os.path.isdir(os.path.join(ROOT, file_o_folder)):
-                for folder in os.listdir(os.path.join(ROOT, file_o_folder)):
+        for folder in os.listdir(ROOT):
+            if "RRD" in folder and "_" not in folder:
+                session_paths.append(os.path.join(ROOT, folder))
 
-                    files = find_paths_endswith(ROOT, ".csv")
-                    for file in files:
-                        session_paths.append(os.path.join(ROOT, file_o_folder, folder))
-
-        # ROOT_2 mainly contains outcomes stuff 10/4/22
         ROOT_2 = r"/media/rory/RDT VIDS/BORIS"
 
-        for file_o_folder in os.listdir(ROOT_2):
-            #print(file_o_folder)
-            if os.path.isdir(os.path.join(ROOT_2, file_o_folder)):
-                for folder in os.listdir(os.path.join(ROOT_2, file_o_folder)):
-
-                    files = find_paths_endswith(ROOT_2, ".csv")
-                    for file in files:
-                        session_paths.append(os.path.join(ROOT_2, file_o_folder, folder))
+        for folder in os.listdir(ROOT_2):
+            if "RRD" in folder and "_" not in folder:
+                session_paths.append(os.path.join(ROOT, folder))
                                 
         session_paths = set(session_paths)
         print("num session paths:",len(session_paths))
         
         start = time.time()
-        for session_path in session_paths:
-            print(f"Working on... {session_path}")
+        for count, session_path in enumerate(session_paths):
+            print(f"Working on {count}/{len(session_paths)}... {session_path}")
 
             try:
                 session_1 = Session(session_path)
@@ -148,6 +141,7 @@ class Driver:
                                     f"WE DON'T CARE ABOUT: {event.event_name}"
                                 )"""
                                 pass
+                processed += 1
             except (IndexError, ValueError) as e:
                 print(e)
                 pass       
@@ -155,7 +149,7 @@ class Driver:
             "Time taken %s"
             % (time.time() - start)
         )
-        print("num session paths:",len(session_paths))
+        print(f"num session paths processed: {processed}/{len(session_paths)}")
 
 def count_sessions_processed():
     ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/"

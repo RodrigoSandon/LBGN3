@@ -419,7 +419,7 @@ def main_just_extract_vel():
 
 def one_slp_file():
     
-    slp_file_path = r"/media/rory/RDT VIDS/BORIS_merge/RRD76/RDT OPTO CHOICE 01 mA 1022/RRD76_RDT_OPTO_CHOICE_0.1_mA_10222019_3_merged_resized_grayscaled.mp4.predictions.slp"
+    slp_file_path = r"/media/rory/RDT VIDS/BORIS/RRD172/RDT OPTO CHOICE REDO 0/RRD172_RDT_OPTO_CHOICE_REDO_02012021_6_merged_resized_grayscaled.mp4.predictions.slp"
     
     slp_filename = slp_file_path.split("/")[-1]
     mouse = slp_file_path.split("/")[5]

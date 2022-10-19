@@ -45,15 +45,14 @@ class Driver:
             "Reward_Size_Start_Time_(s)",
         ]
 
-        session_paths = [r"/media/rory/RDT VIDS/BORIS_merge/RRD62"]
-        fps = 30
+        session_paths = [r"/media/rory/RDT VIDS/BORIS_merge/RRD41"]
         
         start = time.time()
         for session_path in session_paths:
             print(f"Working on... {session_path}")
 
             
-            session_1 = Session(session_path, fps)
+            session_1 = Session(session_path)
 
             for (
                 column_focus, vel_obj

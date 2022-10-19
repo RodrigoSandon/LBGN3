@@ -25,29 +25,13 @@ def parse_abet_file(abet_file_path):
 
     return mouse, date
 
-def move_abet_file(mouse: str, file_name):
-    # ex: /media/rory/RDT VIDS/ABET_files_opto/RRD168 01142021.csv
-    # dst: /media/rory/RDT VIDS/BORIS/RRD168/RDT OPTO CHOICE 0114/
-
-    ############ CHANGE HERE: SPECIFY WHERE ABET FILES GONNA GO TO ############
-    dst_root = r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2"
-    ############ CHANGE HERE: SPECIFY WHERE ABET FILES GONNA GO TO ############
-    
-    if dst_root == "/media/rory/RDT VIDS/BORIS_merge/BATCH_2":
-        dst_dir = os.path.join(dst_root, mouse.lower())
-    else:
-        dst_dir = os.path.join(dst_root, mouse)
-
-    for dir in os.listdir(dst_dir):
-        if ("CHOICE" in dir) or ("choice" in dir):
-            #print(f"dir: {dir}")
-            dst_dir = os.path.join(dst_dir, dir, file_name)
-    
-            return dst_dir
 
 def main():
 
     ROOT = r"/media/rory/RDT VIDS/ABET_files_opto/"
+
+    DST_1 = r"/media/rory/RDT VIDS/BORIS_merge"
+    DST_2 = r"/media/rory/RDT VIDS/BORIS"
     files = find_paths_startswith_and_endswith(ROOT, "RRD", ".csv")
 
     for count, f in enumerate(files):
@@ -58,10 +42,14 @@ def main():
             file_name = f.split("/")[-1]
 
             mouse, date = parse_abet_file(f)
-    
-            dst_abet_dir = move_abet_file(mouse, file_name)
-            shutil.copy(f, dst_abet_dir)
-            f = dst_abet_dir
+
+            # check if mouse exists in either boris
+            if os.path.isdir(f"{DST_1}/{mouse}"):
+                f = f"{DST_1}/{mouse}/{file_name}"
+
+            elif os.path.isdir(f"{DST_2}/{mouse}"):
+                f = f"{DST_2}/{mouse}/{file_name}"
+            #dst_abet_dir = f"/media/rory/RDT VIDS/BORIS_merge/{mouse}"
 
             correction_file = "/media/rory/Padlock_DT/Opto_Speed_Analysis/detecting_light_dark_frames/opto_abet_file_corrections.csv"
             correction_file_df = pd.read_csv(correction_file)
@@ -115,7 +103,7 @@ def main():
                 new_path,
                 index=True,
             )
-        except (TypeError, FileNotFoundError) as e:
+        except (TypeError, FileNotFoundError, NotADirectoryError) as e:
             print(e)
             pass
 
@@ -123,7 +111,7 @@ def main():
 
 def one_process():
     
-    f = "/media/rory/RDT VIDS/BORIS_merge/RRD62/RDT FREE CHOICE 0704/RRD62 07042019.csv"
+    f = "/media/rory/RDT VIDS/BORIS/RRD181/RRD181 04132021.csv"
     mouse, date = parse_abet_file(f)
     print(mouse)
     print(date)

@@ -159,12 +159,13 @@ def make_avg_speed_table(filename, csv_path_speed, half_of_time_window, fps):
         timepoint_avg = statistics.mean(list(df_speed[col]))
         avg_of_col_speed_lst.append(timepoint_avg)
 
-    #print("here:", len(x_axis), len(avg_of_col_speed_lst))
+    ### COULD CHANGE TO avg_of_col_speed_lst[:-1] 10/17/22
+    print("here:", len(x_axis), len(avg_of_col_speed_lst))
     #print(len(x_axis))
     #print(len(avg_of_col_speed_lst[:-1]))
     csv_prep_unnorm = {
         "Time_(s)" : x_axis,
-        "Avg_Speed_(cm/s)" : avg_of_col_speed_lst[:-1]
+        "Avg_Speed_(cm/s)" : avg_of_col_speed_lst
     }
 
     path_to_save = csv_path_speed.replace(filename, "avg_speed.csv")
