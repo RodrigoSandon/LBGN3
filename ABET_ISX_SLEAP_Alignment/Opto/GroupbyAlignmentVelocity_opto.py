@@ -59,7 +59,7 @@ class Session(object):
         path = Utilities_opto.find_paths_endswith(
             self.session_path, endswith
         )
-
+        print(path)
         #only movie is not a table so
         if table_to_extract != "merged_movie":
             table = pd.read_csv(path[0])

@@ -1,4 +1,3 @@
-
 %% 1) Converting the Inscopix .tif cell spatial footprints to input format for CellReg
 
 input_format='Inscopix'; %
@@ -21,6 +20,7 @@ for i=1: length(mice)
         footprint_dir_num_files = dir([footprint_dir '/*.tif'])
         print("here")
         
+        % 7 — name is a folder.
         if isequal(exist(footprint_dir), 7) && not(isequal(footprint_dir_num_files, 0))
             disp([mice(i) "and" sessions(j)]);
             footprints = dir(fullfile(footprint_dir, '*_footprint.tif'));

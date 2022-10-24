@@ -26,13 +26,13 @@ def find_paths_endswith(root_path, endswith) -> list:
 class Driver:
     def main():
 
-        list_of_combos_we_care_about = [
+        """list_of_combos_we_care_about = [
      
             "Block_Trial_Type_Reward_Size_Start_Time_(s)",
 
-        ]
+        ]"""
 
-        """list_of_combos_we_care_about = [
+        list_of_combos_we_care_about = [
             "Block_Start_Time_(s)",
             "Block_Omission_Start_Time_(s)",
             "Block_Reward_Size_Start_Time_(s)",
@@ -52,7 +52,7 @@ class Driver:
             "Learning_Stratergy_Start_Time_(s)",
             "Omission_Start_Time_(s)",
             "Reward_Size_Start_Time_(s)",
-        ]"""
+        ]
 
         processed = 0
 
@@ -68,17 +68,21 @@ class Driver:
 
         for folder in os.listdir(ROOT_2):
             if "RRD" in folder and "_" not in folder:
-                session_paths.append(os.path.join(ROOT, folder))
+                session_paths.append(os.path.join(ROOT_2, folder))
                                 
         session_paths = set(session_paths)
         print("num session paths:",len(session_paths))
+        print(session_paths)
         
         start = time.time()
         for count, session_path in enumerate(session_paths):
             print(f"Working on {count}/{len(session_paths)}... {session_path}")
 
             try:
-                session_1 = Session(session_path)
+                try:
+                    session_1 = Session(session_path)
+                except IndexError as e:
+                    print(e)
 
                 for (
                     column_focus, vel_obj
@@ -142,7 +146,7 @@ class Driver:
                                 )"""
                                 pass
                 processed += 1
-            except (IndexError, ValueError) as e:
+            except (UnboundLocalError,ValueError) as e:
                 print(e)
                 pass       
         print(
