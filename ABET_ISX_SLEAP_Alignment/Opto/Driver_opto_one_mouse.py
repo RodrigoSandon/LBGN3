@@ -24,6 +24,12 @@ class Driver:
     def main():
 
         list_of_combos_we_care_about = [
+     
+            "Block_Trial_Type_Reward_Size_Start_Time_(s)",
+
+        ]
+
+        """list_of_combos_we_care_about = [
             "Block_Start_Time_(s)",
             "Block_Omission_Start_Time_(s)",
             "Block_Reward_Size_Start_Time_(s)",
@@ -43,9 +49,9 @@ class Driver:
             "Learning_Stratergy_Start_Time_(s)",
             "Omission_Start_Time_(s)",
             "Reward_Size_Start_Time_(s)",
-        ]
+        ]"""
 
-        session_paths = [r"/media/rory/RDT VIDS/BORIS_merge/RRD41"]
+        session_paths = [r"/media/rory/RDT VIDS/BORIS/RRD43"]
         
         start = time.time()
         for session_path in session_paths:

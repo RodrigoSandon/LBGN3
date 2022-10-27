@@ -166,10 +166,16 @@ def main():
                             avg_glob_cell[session].append(local_cell.traces_d[event][subevent])
         
         # all traces should be in there, check, now avg them using zip
-        print(avg_glob_cell)
+        #print(avg_glob_cell)
+        for session, lists_of_lists in avg_glob_cell.items():
+            avg = [float(sum(col))/len(col) for col in zip(*lists_of_lists)]
+            avg_glob_cell[session] = avg
 
-        #example how to avg list of lists column wise, with "a" being lists of lists
-        print(*map(mean, zip(*a)))
+        # now it's averaged into 
+        # session: [avg list]
+        # session: [avg list]
+        
+
         break
     """for key, value in glob_cells_d.items():
         glob_cell : GlobalCell

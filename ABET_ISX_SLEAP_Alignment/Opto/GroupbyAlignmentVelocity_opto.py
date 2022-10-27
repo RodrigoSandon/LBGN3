@@ -59,6 +59,10 @@ class Session(object):
         path = Utilities_opto.find_paths_endswith(
             self.session_path, endswith
         )
+
+        ###### ADJUST FOR OUTCOME OR CHOICE FOLDERS FOUND #####
+        path = [i for i in path if "outcome" not in i.lower()]
+        ###### ADJUST FOR OUTCOME OR CHOICE FOLDERS FOUND #####
         print(path)
         #only movie is not a table so
         if table_to_extract != "merged_movie":
