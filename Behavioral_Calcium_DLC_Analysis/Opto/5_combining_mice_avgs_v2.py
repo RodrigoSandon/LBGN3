@@ -128,11 +128,13 @@ def concat_all_cells_across_similar_sessions(
                             #print(concatenated_cells_df.head())
                         except ValueError:
                             # print(between_mice_d[session_type][combo][subcombo])
-                            print("JAGGED ARRAYS IN:", session_type, combo, subcombo)
-                            d = between_mice_d[circuit][treatment][session_type][combo][subcombo]
-                            concatenated_cells_df = pd.DataFrame(
-                                dict([(k, pd.Series(v)) for k, v in d.items()])
-                            )
+                            print("JAGGED ARRAYS IN:", circuit, treatment, session_type, combo, subcombo)   
+                            continue
+
+                        d = between_mice_d[circuit][treatment][session_type][combo][subcombo]
+                        concatenated_cells_df = pd.DataFrame(
+                            dict([(k, pd.Series(v)) for k, v in d.items()])
+                        )
 
                         new_path = os.path.join(root_path, circuit, treatment, session_type, combo, subcombo)
                         os.makedirs(new_path, exist_ok=True)
@@ -151,7 +153,8 @@ def main():
     lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, avg_filename) #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
     bw_mice_alignment_f_name = "BetweenMiceAlignmentData"
     bw_mice_alignment_path = os.path.join(ROOT_PATH, bw_mice_alignment_f_name)
-
+    
+    
     concat_all_cells_across_similar_sessions(
         lst_of_avg_cell_csv_paths, bw_mice_alignment_path, avg_filename
         )

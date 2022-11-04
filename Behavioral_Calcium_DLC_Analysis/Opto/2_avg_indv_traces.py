@@ -8,17 +8,41 @@ import pandas as pd
 from pathlib import Path
 
 def make_avg_speed_table(filename, csv_path, out_filename, half_of_time_window):
+    step: float
+    fps: int
 
     df_speed = pd.read_csv(csv_path)
+    #print(df_speed.T.head())
 
     df_speed.columns = df_speed.iloc[0]
     df_speed = df_speed.iloc[1:, :]
     df_speed = df_speed.iloc[:, 1:]
 
+    # Get the length of the time column currently
+    time_col = df_speed.T.index.values.tolist()
+    length_time_col = len(time_col)
+    print("len of time col: ",length_time_col)
+
+
+    # most likely it will be - 1 the supposed length
+    if length_time_col == 299:
+        fps = 30
+    if length_time_col == 599:
+        fps = 60
+    if length_time_col == 1198:
+        fps = 120
+
+    step = 1/fps
     # 0.03333 is due to the 30Hz
-    x_axis = np.arange(-half_of_time_window, half_of_time_window, 0.03333).tolist()
+    # So fps is variable now, but how can we know it's variable ahead of time?
+    x_axis = np.arange(-half_of_time_window, half_of_time_window, step).tolist()
     #x_axis = [round(i, 1) for i in x_axis]
-    x_axis = x_axis[:-1]
+    if length_time_col == 1198:
+        x_axis = x_axis[:-2]
+    else:
+        x_axis = x_axis[:-1]
+    
+    print("length of time axis: ",len(x_axis))
     
     avg_of_col_speed_lst = []
     for col_name, col_data in df_speed.iteritems():
@@ -116,5 +140,18 @@ def main():
             new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5savgol_avg.csv", half_of_time_window=5)
             plot_avg_speed(csv_path=new_path, event_num=trial_num)
 
+def one_process():
+    csv = "/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BLA_NAcShell/eYFP/choice/RRD17/body/AlignmentData/Block_Trial_Type_Reward_Size_Start_Time_(s)/(2.0, 'Free', 'Large')/speeds_z_-5_5savgol.csv"
+    filename = "speeds_z_-5_5savgol.csv"
+    print(f"CURR CSV: {csv}")
+    df: pd.DataFrame
+    df = pd.read_csv(csv)
+    trial_num = len(df)
+
+    new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5savgol_avg.csv", half_of_time_window=5)
+    plot_avg_speed(csv_path=new_path, event_num=trial_num)
+
+
 if __name__ == "__main__":
     main()
+    #one_process()

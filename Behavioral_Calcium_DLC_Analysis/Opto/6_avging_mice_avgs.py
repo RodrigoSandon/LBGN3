@@ -92,25 +92,9 @@ def main():
     session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData"
 
     list_of_combos_we_care_about = [
-            "Block_Start_Time_(s)",
-            "Block_Omission_Start_Time_(s)",
-            "Block_Reward_Size_Start_Time_(s)",
-            "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
-            "Block_Shock_Ocurred_Start_Time_(s)",
+
             "Block_Trial_Type_Start_Time_(s)",
-            "Shock_Ocurred_Start_Time_(s)",
-            "Trial_Type_Start_Time_(s)",
-            "Trial_Type_Reward_Size_Start_Time_(s)",
-            "Block_Trial_Type_Omission_Start_Time_(s)",
-            "Block_Trial_Type_Reward_Size_Start_Time_(s)",
-            "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
-            "Block_Trial_Type_Win_or_Loss_Start_Time_(s)",
-            "Trial_Type_Shock_Ocurred_Start_Time_(s)",
-            "Win_or_Loss_Start_Time_(s)",
-            "Block_Win_or_Loss_Start_Time_(s)",
-            "Learning_Stratergy_Start_Time_(s)",
-            "Omission_Start_Time_(s)",
-            "Reward_Size_Start_Time_(s)",
+
         ]
 
 
