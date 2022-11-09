@@ -248,10 +248,14 @@ def process_one():
     #curr_mouse_vid_parts = find_paths_endswith(root, ".mp4") # may need to add an + '_'
     #print(os.listdir(root))
     for i in os.listdir(root):
-        if ".MP4" in i:
-            curr_mouse_vid_parts.append(i)
+        if ".MP4" in i and "merge" not in i:
+            curr_mouse_vid_parts.append(os.path.join(root, i))
     print("vids found: ", curr_mouse_vid_parts)
 
+    os.chdir(root)  # in dst
+    # del old mylist.txt's if any exist
+
+    print("Curr dir:", os.getcwd())
 
     # print("new folder name", new_folder_name)
 
