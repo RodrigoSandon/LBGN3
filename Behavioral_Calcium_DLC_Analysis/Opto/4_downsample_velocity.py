@@ -18,30 +18,30 @@ def find_paths(root_path: Path, endswith: str) -> List[str]:
 def main():
     ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis")
 
-    avg_filename = "speeds_z_-5_5savgol_avg.csv"
+    filename = "speeds_renamed.csv"
 
-    lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, avg_filename) #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
+    csv_paths = find_paths(ROOT_PATH, filename) #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
     
     # check if they need downsampling by opening them and getting length
-
-    for csv in lst_of_avg_cell_csv_paths:
+    for csv in csv_paths:
+        print(csv)
         df = pd.read_csv(csv)
         len_df = len(df)
         # save original as unsampled
 
         if len_df == 599:
             print(f"{csv} is of length {len_df}")
-            old_path = csv.replace(avg_filename, f"{avg_filename}_60fps_unsampled.csv")
+            old_path = csv.replace(filename, f"{filename}_60fps_unsampled.csv")
             df.to_csv(old_path, index=None)
             # downsampling algo
-            df = df[df.index % 2 != 0]
+            df = df.iloc[1::2, :]
 
         elif len_df == 1198:
             print(f"{csv} is of length {len_df}")
-            old_path = csv.replace(avg_filename, f"{avg_filename}_120fps_unsampled.csv")
+            old_path = csv.replace(filename, f"{filename}_120fps_unsampled.csv")
             df.to_csv(old_path, index=None)
             #downsampling algo
-            df = df[df.index % 4 != 1] # Selects every 4th row starting from 1
+            df = df.iloc[2::4, :]
         
         print(f"new length: {len(df)}")
         df.to_csv(csv, index=None)
@@ -51,12 +51,12 @@ def main2():
     
     filename = "speeds_z_-5_5savgol_avg.csv"
 
-    avg_filename = f"{filename}_60fps_unsampled.csv"
-    lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, avg_filename) #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
+    new_unsampled_filename = f"{filename}_60fps_unsampled.csv"
+    csv_paths = find_paths(ROOT_PATH, new_unsampled_filename) #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
     
     # check if they need downsampling by opening them and getting length
 
-    for csv in lst_of_avg_cell_csv_paths:
+    for csv in csv_paths:
         df = pd.read_csv(csv)
         len_df = len(df)
 
@@ -93,4 +93,4 @@ def main3():
         df.to_csv(csv.replace("_120fps_unsampled.csv", ""), index=None)
         
 
-main3()
+main()

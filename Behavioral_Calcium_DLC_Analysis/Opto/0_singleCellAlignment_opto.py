@@ -149,25 +149,9 @@ def main():
     #combo = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
 
     list_of_combos_we_care_about = [
-            "Block_Start_Time_(s)",
-            "Block_Omission_Start_Time_(s)",
-            "Block_Reward_Size_Start_Time_(s)",
-            "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
-            "Block_Shock_Ocurred_Start_Time_(s)",
+
             "Block_Trial_Type_Start_Time_(s)",
-            "Shock_Ocurred_Start_Time_(s)",
-            "Trial_Type_Start_Time_(s)",
-            "Trial_Type_Reward_Size_Start_Time_(s)",
-            "Block_Trial_Type_Omission_Start_Time_(s)",
-            "Block_Trial_Type_Reward_Size_Start_Time_(s)",
-            "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
-            "Block_Trial_Type_Win_or_Loss_Start_Time_(s)",
-            "Trial_Type_Shock_Ocurred_Start_Time_(s)",
-            "Win_or_Loss_Start_Time_(s)",
-            "Block_Win_or_Loss_Start_Time_(s)",
-            "Learning_Stratergy_Start_Time_(s)",
-            "Omission_Start_Time_(s)",
-            "Reward_Size_Start_Time_(s)",
+
         ]
 
     session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
@@ -199,7 +183,7 @@ def main():
                 )
                 df = df.T
 
-                df = gaussian_smooth(df)
+                #df = gaussian_smooth(df)
 
                 # 2) Average Z score per each trial
                 avg_cell_eventrace(
@@ -208,7 +192,7 @@ def main():
 
                 df.insert(0, "Event_#", col_to_save)
 
-                csv_moded_out_path = csv.replace(".csv", "_z_-5_5.csv")
+                csv_moded_out_path = csv.replace(".csv", "_only_z_-5_5.csv")
                 df.to_csv(csv_moded_out_path, index=False)
             except (TypeError, AttributeError) as e:
                 print(e)

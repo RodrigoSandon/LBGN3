@@ -3,7 +3,7 @@ import shutil
 
 def find_paths_endswith(root_path, endswith: str):
     files = glob.glob(
-        os.path.join(root_path, "**", endswith), recursive=True,
+        os.path.join(root_path, endswith), recursive=True,
     )
     return files
 
@@ -235,7 +235,68 @@ def main2():
                     print(cmd)
                     os.system(cmd)
 
-            
+def process_one():
+
+    # Insert folder of the mouse you want to concat
+    root = r"/media/rory/RDT VIDS/BORIS_merge/RRD76"
+ 
+    curr_mouse = root.split("/")[-1]
+
+    # get sessions only of this mouse
+    # make sure it doesnt get for ex rrd167 if your looking for a file that starts with rrd16
+    curr_mouse_vid_parts = []
+    #curr_mouse_vid_parts = find_paths_endswith(root, ".mp4") # may need to add an + '_'
+    #print(os.listdir(root))
+    for i in os.listdir(root):
+        if ".MP4" in i:
+            curr_mouse_vid_parts.append(i)
+    print("vids found: ", curr_mouse_vid_parts)
+
+
+    # print("new folder name", new_folder_name)
+
+    file = open(f"{root}/mylist.txt", "w")
+
+    name_merged_file = ""
+    L = []
+    # sort files
+    files_sorted = []
+    for name in curr_mouse_vid_parts:
+        if name != os.path.join(root, curr_mouse):
+        
+            files_sorted.append(name)
+
+    files_sorted.sort()
+    for name in files_sorted:         
+
+        if " " in name:
+
+            name = name.replace(" ", "\ ")
+        if "(" and ")" in name:
+
+            name = name.replace("(", "\(").replace(")", "\)")
+        
+        name_merged_file = name.replace(".MP4", "")
+        # when there is no quotation marks surrounding file path- it's better bc allows for whitespaces
+        name_str = "file %s" % (name) + "\n"
+        print(name_str)
+        L.append(name_str)
+
+    # get file name
+
+    # print(L)
+    file.writelines(L)
+    file.close()
+    # copy this file to dst
+
+    dst_path = os.path.join(
+        root, name_merged_file
+    )
+    merged_file_path = f"{dst_path}_merged.mp4"
+    if name_merged_file != "":
+        cmd = f"ffmpeg -f concat -safe 0 -i mylist.txt -c copy {merged_file_path}"
+        print(cmd)
+        os.system(cmd)
 
 if __name__ == "__main__":
-    main2()
+    process_one()

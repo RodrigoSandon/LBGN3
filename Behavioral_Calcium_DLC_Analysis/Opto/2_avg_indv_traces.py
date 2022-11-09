@@ -151,7 +151,6 @@ def one_process():
     new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5savgol_avg.csv", half_of_time_window=5)
     plot_avg_speed(csv_path=new_path, event_num=trial_num)
 
-
 if __name__ == "__main__":
     main()
     #one_process()

@@ -130,15 +130,16 @@ def main_gridspec():
     # to have proper time period, just insert the -10 to 10 into x axis 
     plt.savefig(f"/media/rory/Padlock_DT/BLA_Analysis/Results/{circuit}_{t1}_v_{t2}_{session_type}_{combo}_{subcombo}_{filename}.png")
 
-def main_one():
+def main():
 
     circuit = "BLA_NAcShell"
-    t1 = "ArchT"
-    t2 = "eYFP"
+    t1 = "mCherry"
+    t2 = "ChrimsonR"
     session_type = "Choice"
     combo = "Block_Trial_Type_Start_Time_(s)"
     subcombo = "(1.0, 'Free')"
-    filename = "avg_all_speeds_z_-5_5savgol_avg.csv"
+
+    avg_sem_filename = "all_mice_avg_speed_w_sem.csv"
 
     fig = plt.figure(figsize=(15, 8))
     # determines how many rows
@@ -149,52 +150,56 @@ def main_one():
         inner = gridspec.GridSpecFromSubplotSpec(2, 1,
                         subplot_spec=outer[idx], wspace=0.0, hspace=0.0)
 
-        t1_speed_on_df = pd.read_csv(f"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData/{circuit}/{t1}/{session_type}/{combo}/{subcombo}/{filename}")
+        t1_speed_on_df = pd.read_csv(f"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData/{circuit}/{t1}/{session_type}/{combo}/{subcombo}/{avg_sem_filename}")
         
-        t2_speed_on_df = pd.read_csv(f"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData/{circuit}/{t2}/{session_type}/{combo}/{subcombo}/{filename}")
+        t2_speed_on_df = pd.read_csv(f"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData/{circuit}/{t2}/{session_type}/{combo}/{subcombo}/{avg_sem_filename}")
         
-        t1_speed_on_df_list = stats.zscore(list(t1_speed_on_df["Avg_Speed_(cm/s)"])) # z scored
-        t2_speed_on_df_list = list(t2_speed_on_df["Avg_Speed_(cm/s)"])
+        # savgol filtered and z-scored
+
+        t1_speed_on_df_list = list(t1_speed_on_df["Avg_speed_(cm/s)"])
+        t2_speed_on_df_list = list(t2_speed_on_df["Avg_speed_(cm/s)"])
+
+        t1_sem_speed_on_df_list = list(t1_speed_on_df["SEM"])
+        t2_sem_speed_on_df_list = list(t2_speed_on_df["SEM"])
 
         result = stats.pearsonr(t1_speed_on_df_list, t2_speed_on_df_list)
         corr_coef = list(result)[0]
+
+        print(f"{circuit}_{t1}_v_{t2}_{session_type}_{combo}_{subcombo}")
         print(f"corr coef: {corr_coef}")
-        max_val = round(max(t1_speed_on_df_list), 0)
-        min_val = round(min(t1_speed_on_df_list + t2_speed_on_df_list), 0)
-        speed_yticks = np.arange(min_val, max_val + 1, 1)
+
+        max_val = round(max(t1_speed_on_df_list), 1)
+        min_val = round(min(t1_speed_on_df_list + t2_speed_on_df_list), 1)
+        speed_yticks = np.arange(min_val - 1, max_val + 2.5, 1)
 
         t = list(t1_speed_on_df["Time_(s)"])
-        print(type(t[0]))
-        """
-        print(t)
-        t_neg = np.arange(-5, 0.0, 0.03333)
-        t_pos = np.arange(0.0, 5.0, 0.03333)
-        t = t_neg.tolist() + t_pos.tolist()
-        t = [round(i, 1) for i in t]"""
 
 
         ax_1 = plt.Subplot(fig, inner[0])
-        ax_1.plot(t, t1_speed_on_df_list, c="green", label=t1)
-        ax_1.plot(t, t2_speed_on_df_list, label=t2)
 
-        difference_1 = [d_description[key]["mean"][idx] - d_description[key]["sem"][idx] for idx,i in enumerate(d_description[key]["mean"])]
-        difference_2 = [d_description[key]["mean"][idx] + d_description[key]["sem"][idx] for idx,i in enumerate(d_description[key]["mean"])]
-        sem_1 = stats.tstd(list(tuple))/(math.sqrt(len(t1_speed_on_df_list)))
-        ax_1.fill_between(t, t1_speed_on_df_list - sem_1, t1_speed_on_df_list + sem_1)
+        ax_1.plot(t, t1_speed_on_df_list, c="green", label=t1)
+        difference_t1_1 = [t1_speed_on_df_list[i] - t1_sem_speed_on_df_list[i] for i, value in enumerate(t1_speed_on_df_list)]
+        difference_t1_2 = [t1_speed_on_df_list[i] + t1_sem_speed_on_df_list[i] for i, value in enumerate(t1_speed_on_df_list)]
+        ax_1.fill_between(t, difference_t1_1, difference_t1_2 )
+
+        ax_1.plot(t, t2_speed_on_df_list, label=t2)
+        difference_t2_1 = [t2_speed_on_df_list[i] - t2_sem_speed_on_df_list[i] for i, value in enumerate(t2_speed_on_df_list)]
+        difference_t2_2 = [t2_speed_on_df_list[i] + t2_sem_speed_on_df_list[i] for i, value in enumerate(t2_speed_on_df_list)]
+        ax_1.fill_between(t, difference_t2_1, difference_t2_2 )
 
         ax_1.legend()
         ax_1.set_yticks(speed_yticks)
         ax_1.set_xticks(t)
-        ax_1.set_ylim(min_val, max_val + 1)
-        ax_1.set_ylabel("Avg. Z-scored Velocity (cm/s)")
+        ax_1.set_ylim(min_val - 1, max_val + 2)
+        ax_1.set_ylabel("Avg. Savgol Z-scored Speed (cm/s)")
         ax_1.set_xlabel("Time relative to start time (s)")
         ax_1.locator_params(axis='x', nbins=10)
+        ax_1.locator_params(axis='y', nbins=6)
 
 
         fig.add_subplot(ax_1)
 
-    # to have proper time period, just insert the -10 to 10 into x axis 
-    plt.savefig(f"/media/rory/Padlock_DT/BLA_Analysis/Results/{circuit}_{t1}_v_{t2}_{session_type}_{combo}_{subcombo}_{filename}.png")
+    plt.savefig(f"/media/rory/Padlock_DT/Opto_Speed_Analysis/Results/{circuit}_{t1}_v_{t2}_{session_type}_{combo}_{subcombo}_{avg_sem_filename}.png")
 
 #main_gridspec()
-main_one()
+main()
