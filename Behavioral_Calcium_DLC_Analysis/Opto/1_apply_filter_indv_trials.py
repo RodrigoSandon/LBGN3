@@ -69,7 +69,7 @@ def zscore(obs_value, mu, sigma):
 
 def main():
 
-    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/"
 
     """list_of_combos_we_care_about = [
             "Block_Start_Time_(s)",

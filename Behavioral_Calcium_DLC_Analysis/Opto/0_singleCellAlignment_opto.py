@@ -151,10 +151,11 @@ def main():
     list_of_combos_we_care_about = [
 
             "Block_Trial_Type_Start_Time_(s)",
+            "Block_Trial_Type_Reward_Size_Start_Time_(s)"
 
         ]
 
-    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/"
 
     #for session in sessions:
 
@@ -183,7 +184,9 @@ def main():
                 )
                 df = df.T
 
-                #df = gaussian_smooth(df)
+                ##### CHANGE ACCORDINGLY #####
+                df = gaussian_smooth(df)
+                ##### CHANGE ACCORDINGLY #####
 
                 # 2) Average Z score per each trial
                 avg_cell_eventrace(
@@ -192,7 +195,7 @@ def main():
 
                 df.insert(0, "Event_#", col_to_save)
 
-                csv_moded_out_path = csv.replace(".csv", "_only_z_-5_5.csv")
+                csv_moded_out_path = csv.replace(".csv", "_z_-5_5.csv")
                 df.to_csv(csv_moded_out_path, index=False)
             except (TypeError, AttributeError) as e:
                 print(e)

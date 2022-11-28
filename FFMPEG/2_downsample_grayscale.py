@@ -44,7 +44,7 @@ def main():
 
 def one_vid():
 
-    video_path = "/media/rory/Padlock_DT/Opto_Analysis/RRD19_Risk_0.1_mA_OPTO_ALL_FREE_OUTCOMES_01092019_2_merged.mp4"
+    video_path = r"/media/rory/RDT\ VIDS/BORIS_merge/RRD38/RRD38_Risk_D1_0.1_mA_OPTO_ALL_FREE_CHOICE_03302019_3_merged.mp4"
 
     resize_out_path = video_path.replace(".mp4", "_resized.mp4")
     resize_video(video_path, 800, 600, resize_out_path)
@@ -54,4 +54,4 @@ def one_vid():
     
 
 if __name__ == "__main__":
-    main()
+    one_vid()

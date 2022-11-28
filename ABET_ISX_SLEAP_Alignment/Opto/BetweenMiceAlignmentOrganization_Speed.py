@@ -68,10 +68,9 @@ def main():
     root_for_missing = r"/media/rory/RDT VIDS/BORIS_merge"
     drive_to_look_in = r"/media/rory/Risk Videos/"
     # dst example: f"{root_dst}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/{node_type}_sleap_data.csv""
-
     # session_type: choice or outcomes or DNE, node_type: body for now
-    
     # circuit : filepath_to_organizer
+
     root_folders = ["BORIS", "BORIS_merge"]
     circuits_d = {
         "BLA_NAcShell" : "/media/rory/Padlock_DT/Opto_Speed_Analysis/Opto Data Info - BLA-NAcShell.csv",
@@ -83,7 +82,7 @@ def main():
     node_type = "body"
     session_types = ["choice", "outcome"]
 
-    combos_we_care_about = "Block_Trial_Type_Reward_Size_Start_Time_(s)"
+    combos_we_care_about = "Block_Trial_Type_Start_Time_(s)"
 
     to_sleap_process = []
 
@@ -173,7 +172,7 @@ def main():
                 # Determine session type based on sleap file dir
                 #session_type = determine_session_type(sleap_file)
                 dst_folder = f"{root_dst}/{circuit}/{treatment}/{session_types[0]}/{animal_id}/{node_type}/"
-                dst_file = f"{root_dst}/{circuit}/{treatment}/{session_types[0]}/{animal_id}/{node_type}/{node_type}_sleap_data.csv"
+                dst_file = f"{dst_folder}/{node_type}_sleap_data.csv"
 
                 os.makedirs(dst_folder, exist_ok=True)
                 

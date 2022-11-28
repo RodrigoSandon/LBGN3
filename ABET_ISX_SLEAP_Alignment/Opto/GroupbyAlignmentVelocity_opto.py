@@ -17,9 +17,9 @@ class Session(object):
     def __init__(self, session_path):
         
         Session.session_path = session_path
-        Session.behavioral_df = self.load_table("abet")
-        Session.sleap_df = self.load_table("sleap")
-        Session.movie = self.load_table("merged_movie")
+        Session.behavioral_df = self.load("abet")
+        Session.sleap_df = self.load("sleap")
+        Session.movie = self.load("merged_movie")
         self.fps = self.get_frame_rate(Session.movie)
         print(f"fps is {self.fps}")
         self.mouse = session_path.split("/")[-1]
@@ -39,7 +39,59 @@ class Session(object):
             return float(rate[0])/float(rate[1])
         return -1
 
-    def load_table(self, table_to_extract):
+    """
+    Loads in the {node}_sleap_data.csv file, ABET file, and merged_movie
+    so that it's able to get the fps. Has a check for making sure getting
+    the proper {node}_sleap_data.csv, ig I have to reget all those _sleap_data.csv
+    files except with having a "choice" somewhere in there to distinguish from choice vs get.
+    The merged_movie already has this labelling so you don't need to check for that. 
+    The ABET file will be check if it contains the same date as both the _sleap_data.csv 
+    and merged movie. If it doesn't need to output an error saying it doesnt match with
+    the other two, output all of the dates for the three in the console.
+    """
+
+    def load(self, merged_movie_end, speed_file_end, abet_file_end):
+        endswith = None
+        message = None
+
+        # they're all ends, so first find all of them (can include outcome)
+        # then do a list comprehension to filter
+        # But right now I am assuming the speed_file has the either the choice
+        # or outcome label, so need to account for that
+        if table_to_extract == "dff":
+            endswith = "processed_dff_and_body_data.csv"
+            message = "No dff table found!"
+        elif table_to_extract == "abet":
+            endswith = "_processed.csv"
+            message = "No ABET table found!"
+        elif table_to_extract == "sleap":
+            endswith = "body_sleap_data.csv"
+            message = "No SLEAP table found!"
+        elif table_to_extract == "merged_movie":
+            endswith = "_merged_resized_grayscaled.mp4"
+            message = "NO MERGED VIDEO FOUND!"
+
+        paths = Utilities_opto.find_paths_endswith(
+            self.session_path, endswith
+        )
+
+        ###### ADJUST FOR OUTCOME OR CHOICE FOLDERS FOUND #####
+        paths = [i for i in paths if "outcome" not in i.lower()]
+        ###### ADJUST FOR OUTCOME OR CHOICE FOLDERS FOUND #####
+        print(paths)
+        #only movie is not a table so
+        if table_to_extract != "merged_movie":
+            table = pd.read_csv(paths[0])
+        else:
+            if len(paths) != 0:
+                table = paths[0]
+            else:
+                
+                print(message) 
+
+        return table
+
+    def load(self, table_to_extract):
         endswith = None
         message = None
 
@@ -56,20 +108,20 @@ class Session(object):
             endswith = "_merged_resized_grayscaled.mp4"
             message = "NO MERGED VIDEO FOUND!"
 
-        path = Utilities_opto.find_paths_endswith(
+        paths = Utilities_opto.find_paths_endswith(
             self.session_path, endswith
         )
 
         ###### ADJUST FOR OUTCOME OR CHOICE FOLDERS FOUND #####
-        path = [i for i in path if "outcome" not in i.lower()]
+        paths = [i for i in paths if "outcome" not in i.lower()]
         ###### ADJUST FOR OUTCOME OR CHOICE FOLDERS FOUND #####
-        print(path)
+        print(paths)
         #only movie is not a table so
         if table_to_extract != "merged_movie":
-            table = pd.read_csv(path[0])
+            table = pd.read_csv(paths[0])
         else:
-            if len(path) != 0:
-                table = path[0]
+            if len(paths) != 0:
+                table = paths[0]
             else:
                 
                 print(message) 

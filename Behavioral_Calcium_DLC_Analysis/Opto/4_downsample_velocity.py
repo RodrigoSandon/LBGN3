@@ -16,9 +16,9 @@ def find_paths(root_path: Path, endswith: str) -> List[str]:
 
 
 def main():
-    ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis")
+    ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BLA_NAcShell/ArchT/choice/RRD76")
 
-    filename = "speeds_renamed.csv"
+    filename = "speeds_z_-5_5savgol_renamed.csv"
 
     csv_paths = find_paths(ROOT_PATH, filename) #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
     

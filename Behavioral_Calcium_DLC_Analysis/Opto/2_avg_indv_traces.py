@@ -100,9 +100,9 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
 def main():
 
 
-    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BLA_NAcShell/ArchT/choice/RRD76"
 
-    list_of_combos_we_care_about = [
+    """list_of_combos_we_care_about = [
             "Block_Start_Time_(s)",
             "Block_Omission_Start_Time_(s)",
             "Block_Reward_Size_Start_Time_(s)",
@@ -122,6 +122,11 @@ def main():
             "Learning_Stratergy_Start_Time_(s)",
             "Omission_Start_Time_(s)",
             "Reward_Size_Start_Time_(s)",
+        ]"""
+
+    list_of_combos_we_care_about = [
+
+            "Block_Trial_Type_Start_Time_(s)",
         ]
 
     filename = "speeds_z_-5_5savgol.csv"

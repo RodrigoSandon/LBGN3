@@ -108,7 +108,7 @@ def concat_trials_across_bins(
 def main():
     ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis")
 
-    filename = "speeds_renamed.csv"
+    filename = "speeds_z_-5_5savgol_renamed.csv"
 
     csv_paths = find_paths(ROOT_PATH, filename) #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
     dst_dir= "BetweenMiceAlignmentData"

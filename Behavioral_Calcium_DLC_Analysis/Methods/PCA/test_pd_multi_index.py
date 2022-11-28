@@ -7,18 +7,38 @@ from sklearn import preprocessing
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df = pd.DataFrame(np.arange(32).reshape((4,8)), 
+"""df = pd.DataFrame(np.arange(32).reshape((4,8)), 
             index = pd.date_range('2016-01-01', periods=4),
-            columns=['male ; 0', 'male ; 1','male ; 2','male ; 4','female ; 0','female ; 1','female ; 2','female ; 3',])
+            columns=['male ; boy1', 'male ; boy2','male ; boy3','male ; boy4','female ; girl1','female ; girl2','female ; girl3','female ; girl4',])
 print(df.head())
 
 sex = ['Male', 'Female']
-age = [0,1,2,3]
+age = [45,23,34,37]
 df.columns = pd.MultiIndex.from_product([sex, age], names=['Sex', 'Age'])
 
+print(df.head())"""
+
+# for one mouse
+# some can be missing, so if they're missing one cell from a session, omit them from analysis
+arr_1 = [
+    ["glob_cell_1", "glob_cell_1", "glob_cell_2", "glob_cell_2", "glob_cell_3", "glob_cell_3"],
+    ["C01, Pre-RDT RM", "C03, RDT D1", "C02, Pre-RDT RM", "C01, RDT D1","C03, Pre-RDT RM", "C02, RDT D1", ]
+]
+
+tups = list(zip(*arr_1))
+
+index = pd.MultiIndex.from_tuples(tups, names=["Global Cells", "Local Cells"])
+
+s = pd.Series(np.random.randn(6), index=index, name= "df/f")
+
+df: pd.DataFrame
+
+df = s.to_frame()
+
+print(s)
 print(df.head())
 
-pal = sns.color_palette("husl",9)
+"""pal = sns.color_palette("husl",9)
 
 pca_obj = PCA()
 
@@ -41,4 +61,4 @@ plt.title("PCA Graph")
 plt.xlabel(f"PC1")
 plt.ylabel(f"PC2")
 
-plt.show()
+plt.show()"""

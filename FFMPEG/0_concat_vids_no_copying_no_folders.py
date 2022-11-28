@@ -238,7 +238,7 @@ def main2():
 def process_one():
 
     # Insert folder of the mouse you want to concat
-    root = r"/media/rory/RDT VIDS/BORIS_merge/RRD76"
+    root = r"/media/rory/RDT VIDS/BORIS_merge/RRD38"
  
     curr_mouse = root.split("/")[-1]
 

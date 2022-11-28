@@ -77,6 +77,7 @@ def add_val(arr, val):
 
 def main():
 
+    """this is what gives you a straightline"""
     session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData"
 
     list_of_combos_we_care_about = [

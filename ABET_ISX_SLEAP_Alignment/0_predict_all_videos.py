@@ -30,12 +30,18 @@ def main():
 
 def one_vid():
     
-    video = "/media/rory/RDT VIDS/BORIS/RRD172/RDT OPTO CHOICE REDO 0/RRD172_RDT_OPTO_CHOICE_REDO_02012021_6_merged_resized_grayscaled.mp4"
+    video = "/media/rory/RDT VIDS/BORIS/RRD171/RRD171_RDT_OPTO_CHOICE_01042021_6_merged_resized_grayscaled.mp4"
     model = "/media/rory/Padlock_DT/Opto_Speed_Analysis/models/220708_114639.centroid.n=204"
     model2 = "/media/rory/Padlock_DT/Opto_Speed_Analysis/models/220708_120742.centered_instance.n=204"
 
-    cmd = f"sleap-track '{video}' -m '{model}' -m '{model2}'"
+    video_out = video.replace(".mp4", "_reliable.mp4")
+
+    cmd_pre = f"ffmpeg -y -i '{video}' -c:v libx264 -pix_fmt yuv420p -preset superfast -crf 23 '{video_out}'"
+
+    cmd = f"sleap-track '{video_out}' -m '{model}' -m '{model2}'"
     print(cmd)
+
+    os.system(cmd_pre)
     os.system(cmd)
 
 if __name__ == "__main__":

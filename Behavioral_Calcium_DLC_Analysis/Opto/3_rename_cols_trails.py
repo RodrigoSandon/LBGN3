@@ -22,7 +22,7 @@ def main():
             "Block_Trial_Type_Start_Time_(s)",
         ]
 
-    filename = "speeds.csv"
+    filename = "speeds_z_-5_5savgol.csv"
 
     for combo in list_of_combos_we_care_about:
 

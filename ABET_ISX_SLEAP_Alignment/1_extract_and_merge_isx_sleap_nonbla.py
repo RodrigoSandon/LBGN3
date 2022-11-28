@@ -6,6 +6,8 @@ Goals are the following:
 
 """
 
+from http.client import FOUND
+from logging import root
 import os
 import glob
 import h5py
@@ -16,6 +18,7 @@ import pickle
 import pandas as pd
 import shutil
 import cv2
+import sys, subprocess
 
 import seaborn as sns
 import matplotlib as mpl
@@ -31,6 +34,40 @@ def find_paths_endswith(root_path, endswith) -> list:
 
     return files
 
+def find_paths_endswith_recur_n_norecur(root_path, endswith) -> list:
+
+    files_2 = []
+
+    files = glob.glob(
+        os.path.join(root_path, "**", "*%s") % (endswith), recursive=True,
+    )
+
+    # now if recursive is empty, then check in just the current tree
+    if len(files) == 0:
+        for i in os.listdir(root_path):
+            if endswith in i:   
+                files_2.append(os.path.join(root_path, i))
+        
+        return files_2
+ 
+    return files
+
+
+def find_path_no_middle_endswith_no_include_multiple(root_path, endswith, not_includes, not_includes2) -> list:
+    found : str
+
+    for i in os.listdir(root_path):
+        if endswith in i and not_includes not in i and not_includes2 not in i:   
+            found = os.path.join(root_path, i)
+    return found
+
+def find_path_no_middle_endswith(root_path, endswith, mouse) -> list:
+    files = []
+
+    for i in os.listdir(root_path):
+        if endswith in i and mouse in i:   
+            files.append(os.path.join(root_path, i))
+    return files
 
 def slp_file_parsing(slp_filename: str):
     slp_filename = slp_filename.split("/")[-1]
@@ -54,11 +91,27 @@ def slp_file_parsing(slp_filename: str):
         print(e)
         pass
 
+def h5_file_parsing(slp_filename: str):
+    slp_filename = slp_filename.split("/")[-1]
+    mouse = slp_filename.split("_")[0]
+    session = "_".join(slp_filename.split("_")[1:]).replace(
+        ".mp4.predictions.h5", "")
 
+    try:
+        session_mod_1 = session.split("20")[0]
 
-def send_all_other_files_somewhere(other_slp_files: list):
-    for i in other_slp_files:
-        slp_file_parsing(i)
+        if "." in session_mod_1:
+            session_mod_1 = session_mod_1.replace(".", "")
+        if "_" in session_mod_1:
+            session_mod_1 = session_mod_1.replace("_", " ")
+
+        #print(f"{mouse}: {session_mod_1}")
+
+        return mouse, session_mod_1
+    except Exception as e:
+        print(f"Session {mouse}: {session} can't be renamed!")
+        print(e)
+        pass
 
 
 def slp_to_h5(in_path, out_path):
@@ -277,7 +330,7 @@ def export_sleap_data_mult_nodes(h5_filepath, session_root_path,mouse,session, f
             track_map_out = f"{name}_tracks.png"
             track_one_node(name, node_loc, track_map_out)
 
-def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path,mouse,fps):
+def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path, mouse,fps, session_type):
     with h5py.File(h5_filepath, "r") as f:
         dset_names = list(f.keys())
         locations = fill_missing(f["tracks"][:].T)
@@ -325,7 +378,7 @@ def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path,mouse,fps):
             print(len(vel_mouse_to_cm_s[:-1]))
 
             ######## EXPORTING CSV, COORD, VEL, TRACKS GRAPHS FOR EACH NODE ########
-            csv_out = f"{name}_sleap_data.csv"
+            csv_out = f"{mouse}_{session_type}_{name}_sleap_data.csv"
             export_to_csv(csv_out,
                         idx_time=x_axis_time,
                         idx_frame=[i for i in range(1, len(vel_mouse))],
@@ -336,7 +389,7 @@ def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path,mouse,fps):
                         vel_f_p=vel_mouse[:-1],
                         vel_cm_s=vel_mouse_to_cm_s[:-1])
 
-            coord_vel_graphs_out = f"{name}_coord_vel.png"
+            coord_vel_graphs_out = f"{mouse}_{session_type}_{name}_coord_vel.png"
             visualize_velocity_one_node(name,
                                         x_axis_time,
                                         x_coord_cm[:-1],
@@ -345,9 +398,21 @@ def export_sleap_data_mult_nodes_body(h5_filepath, session_root_path,mouse,fps):
                                         vel_mouse_to_cm_s[:-1],
                                         coord_vel_graphs_out)
 
-            track_map_out = f"{name}_tracks.png"
+            track_map_out = f"{mouse}_{session_type}_{name}_tracks.png"
             track_one_node(name, node_loc, track_map_out)
 
+def get_frame_rate(filename):
+    if not os.path.exists(filename):
+        sys.stderr.write("ERROR: filename %r was not found!" % (filename,))
+        return -1         
+    out = subprocess.check_output(["ffprobe",filename,"-v","0","-select_streams","v","-print_format","flat","-show_entries","stream=avg_frame_rate"])
+    rate = str(out).split('=')[1].replace("\"", "").replace("\'","").replace("\\n", "").split('/')
+    #print(rate)
+    if len(rate)==1:
+        return float(rate[0])
+    if len(rate)==2:
+        return float(rate[0])/float(rate[1])
+    return -1
 
 def main():
     ROOT = r"/media/rory/RDT VIDS/BORIS_merge/BATCH_2"
@@ -359,19 +424,21 @@ def main():
     print("===== PROCESSING OTHER FILES =====")
     print(f"Number of SLP files: {len(slp_files)}")
 
+
     for count, j in enumerate(slp_files):
         slp_filename = j.split("/")[-1]
         mouse, session = slp_file_parsing(j)
         SESSION_ROOT = os.path.join(DST_ROOT, mouse, session)
         new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
+        movie = find_path_no_middle_endswith_no_include_multiple(SESSION_ROOT, "_merged_resized_grayscaled.mp4")
+        print(f"movie found: {movie}")
         h5_path = new_slp_path.replace(".slp", ".h5")
         #UNCOMMENT FOR NEXT BATCH 8/12/2022
         #if os.path.exists(h5_path) == False:
 
         try:
             print(f"Processing {count + 1}/{len(slp_files)}")
-            video = cv2.VideoCapture(j)
-            fps = video.get(cv2.CAP_PROP_FPS)
+            fps = get_frame_rate(movie)
             print(f"fps: {fps}")
 
             # 1) move the slp file
@@ -384,59 +451,108 @@ def main():
             slp_to_h5(new_slp_path, h5_path)
 
             # 3) Extract speed
-            #meta_data(h5_path)
-            export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT, mouse,  fps=30)
-            #export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps=30)
+
+            export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT, mouse,  fps)
+
         except Exception as e:
             print(e)
             pass
 
 def main_just_extract_vel():
-    ROOT = r"/media/rory/RDT VIDS/BORIS_merge/"
-    DST_ROOT = r"/media/rory/RDT VIDS/BORIS_merge/"
+    ROOTS = [r"/media/rory/RDT VIDS/BORIS_merge/", r"/media/rory/RDT VIDS/BORIS/"]
 
-    slp_files = find_paths_endswith(ROOT, ".slp")
+    movie_reliable_end = "_merged_resized_grayscaled_reliable.mp4"
+    movie_nonreliable_end = "_merged_resized_grayscaled.mp4"
+    slp_end = ".predictions.slp"
+    h5_end = ".predictions.h5"
 
-    """Other folders will go into a new root folder"""
-    print("===== PROCESSING OTHER FILES =====")
-    print(f"Number of SLP files: {len(slp_files)}")
+    session_type = "choice"
+    notsession_type = "outcome"
 
-    for count, j in enumerate(slp_files):
+    # there can be two types of sleap data from each session type now
+    # either w/ reliable label or no reliable label
+    for ROOT in ROOTS:
+        reliable_mice= []
+
+        h5_files_1 = find_paths_endswith(ROOT, "_reliable.mp4.predictions.h5")
+        for i in h5_files_1:
+            mouse, session = h5_file_parsing(i)
+            reliable_mice.append(mouse)
         
-        slp_filename = j.split("/")[-1]
-        mouse, session = slp_file_parsing(j)
-        SESSION_ROOT = os.path.join(DST_ROOT, mouse, session)
-        new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
-        h5_path = new_slp_path.replace(".slp", ".h5")
+        # found reliables and recorded themevent
+        new_h5_files_2 = []
+        h5_files_2 = find_paths_endswith(ROOT, "_grayscaled.mp4.predictions.h5")
+        # now filter nonreliable ones if the path includes any of the reliable mice
+        for i in h5_files_2:
+            mouse, session = h5_file_parsing(i)
+            if mouse not in reliable_mice:
+                # if it isn't already in h5_files_1 basically
+                new_h5_files_2.append(i)
+        
+        # now add them together
+        h5_files  = h5_files_1 + new_h5_files_2
+        
+        # now only get the ones of the session type you want
+        h5_files = [i for i in h5_files if notsession_type not in i.lower()]
 
-        if os.path.exists(h5_path) == False:
-            #print("count:",count +1)
-            slp_to_h5(new_slp_path, h5_path)
+        print("===== PROCESSING H5 FILES =====")
+        print(f"Number of H5 files: {len(h5_files)}")
 
-            print(f"Processing {count + 1}/{len(slp_files)}")
-            export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps=30)
+        for count, h5_path in enumerate(h5_files):
+            print(f"H5 file: {h5_path}")
+
+            mouse, session = h5_file_parsing(h5_path)
+            MOUSE_ROOT = os.path.join(ROOT, mouse.upper())
+
+            movies = find_paths_endswith_recur_n_norecur(MOUSE_ROOT, movie_reliable_end)
+            if len(movies) == 0:
+                movies = find_paths_endswith_recur_n_norecur(MOUSE_ROOT, movie_nonreliable_end)
+
+            # if movies is still empty after searching for both types of movis,
+            # then do a search on root
+            if len(movies) == 0:
+                movies = find_path_no_middle_endswith(ROOT, movie_nonreliable_end, mouse)
+
+            movies = [i for i in movies if notsession_type not in i.lower() and slp_end not in i and h5_end not in i]
+            movie = movies[0]
+
+            print(f"Movie found: {movie}")
+
+            fps = get_frame_rate(movie)
+            print(f"fps: {fps}")
+
+            print(f"Processing {count + 1}/{len(h5_files)}")
+            export_sleap_data_mult_nodes_body(h5_path, MOUSE_ROOT, mouse, fps, session_type)
 
 
 def one_slp_file():
     
-    slp_file_path = r"/media/rory/RDT VIDS/BORIS/RRD172/RDT OPTO CHOICE REDO 0/RRD172_RDT_OPTO_CHOICE_REDO_02012021_6_merged_resized_grayscaled.mp4.predictions.slp"
-    
+    slp_file_path = r"/media/rory/RDT VIDS/BORIS/RRD171/RRD171_RDT_OPTO_CHOICE_01042021_6_merged_resized_grayscaled_reliable.mp4.predictions.slp"
+    # usually it's _merged_resized_grayscaled.mp4
+    identifier = "_merged_resized_grayscaled_reliable.mp4"
+    session_type = "choice"
+
     slp_filename = slp_file_path.split("/")[-1]
     mouse = slp_file_path.split("/")[5]
+
     DST_ROOT = slp_file_path.replace(slp_filename, "")
     SESSION_ROOT = slp_file_path.replace(slp_filename, "")
+
     new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
     h5_path = new_slp_path.replace(".slp", ".h5")
 
-    
+    movie = find_path_no_middle_endswith_no_include_multiple(SESSION_ROOT, identifier, ".predictions.slp", ".predictions.h5")
 
+    print(movie)
+    fps = get_frame_rate(movie)
+    print(f"fps: {fps}")
     slp_to_h5(new_slp_path, h5_path)
 
-    export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps=30)
+    export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps, session_type)
     
 
 
 if __name__ == "__main__":
     #main()
-    one_slp_file()
-    #main_just_extract_vel()
+    #one_slp_file()
+    main_just_extract_vel()

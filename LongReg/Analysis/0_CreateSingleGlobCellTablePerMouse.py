@@ -1,3 +1,4 @@
+from cv2 import trace
 import os, glob
 import pandas as pd
 from statistics import mean
@@ -26,13 +27,16 @@ class LocalCell:
         self.session = session
         self.traces_d = {}
 
-    def add_trace(self, event, subevent, trace):
+    # add by trial
+    def add_trace(self, event, subevent, trial, trace):
 
         if event in self.traces_d:
-                self.traces_d[event][subevent] = trace
+            if subevent in self.traces_d[event]:
+                self.traces_d[event][subevent][trial] = trace
         else:
             self.traces_d[event] = {}
-            self.traces_d[event][subevent] = trace
+            self.traces_d[event][subevent] = {}
+            self.traces_d[event][subevent][trial] = trace
 
 def find_file(root_path: str, filename: str) -> list:
     files = glob.glob(
@@ -68,7 +72,7 @@ def main():
     sessions = ["Pre-RDT RM", "RDT D1"]
     event = "Block_Reward Size_Choice Time (s)"
     subevent = "(2.0, 'Large')"
-    dff_file = "avg_plot_ready_z_fullwindow.csv"
+    dff_file = "plot_ready_z_fullwindow.csv"
 
     # a glob cell is a row
     """
@@ -104,7 +108,7 @@ def main():
                 glob_cell_obj.local_cells[local_cell_name] = LocalCell(local_cell_name, session)
                 local_cell_obj : LocalCell
                 local_cell_obj = glob_cell_obj.local_cells[local_cell_name] 
-                local_cell_obj.add_trace(event, subevent, [])
+                #local_cell_obj.add_trace(event, subevent, [])
 
             glob_cells_d[glob_cell_name] = glob_cell_obj
 
@@ -123,11 +127,23 @@ def main():
                 for event in local_cell_obj.traces_d:
 
                     mouse_root = file.replace("/cellreg_Pre-RDT RM_RDT D1.csv", "")
-                    trace_csv_path = f"{mouse_root}/{local_cell_obj.session}/SingleCellAlignmentData/{local_cell_name}/{event}/{subevent}/{dff_file}"
-                    trace_df = pd.read_csv(trace_csv_path)
-                    trace = list(trace_df.loc[:, local_cell_name])
+                    traces_csv_path = f"{mouse_root}/{local_cell_obj.session}/SingleCellAlignmentData/{local_cell_name}/{event}/{subevent}/{dff_file}"
+                    traces_df = pd.read_csv(traces_csv_path)
+                    
+                    #trace = list(traces_df.loc[:, local_cell_name])
 
-                    local_cell_obj.add_trace(event, subevent, trace)
+                    traces_df = traces_df.T
+                    traces_df = traces_df.iloc[1:]
+
+                    for count, col in enumerate(traces_df.columns.tolist()):
+                        col_list = list(traces_df[col])
+                        trial = f"Trial_{count + 1}"
+                        local_cell_obj.add_trace(event, subevent, )
+
+                    break
+                break
+            break
+                    #local_cell_obj.add_trace(event, subevent, trace)
 
                     #print("--------> ", local_cell_obj.session,"|", event,"|", subevent, "|", local_cell_obj.traces_d[event][subevent][:3])
 
@@ -166,15 +182,17 @@ def main():
                             avg_glob_cell[session].append(local_cell.traces_d[event][subevent])
         
         # all traces should be in there, check, now avg them using zip
+        # maybe averaging not all neccesary rn, only at the end step when about to visualize
         #print(avg_glob_cell)
-        for session, lists_of_lists in avg_glob_cell.items():
+        """for session, lists_of_lists in avg_glob_cell.items():
             avg = [float(sum(col))/len(col) for col in zip(*lists_of_lists)]
-            avg_glob_cell[session] = avg
+            avg_glob_cell[session] = avg"""
+        
 
         # now it's averaged into 
         # session: [avg list]
         # session: [avg list]
-        
+
 
         break
     """for key, value in glob_cells_d.items():

@@ -14,7 +14,7 @@ def find_paths_endswith(root_path, endswith) -> list:
 
 def main():
 
-    ROOT = "/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData/"
+    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData/"
 
     files = find_paths_endswith(ROOT, "all_speeds_z_-5_5savgol_renamed.csv")
 
