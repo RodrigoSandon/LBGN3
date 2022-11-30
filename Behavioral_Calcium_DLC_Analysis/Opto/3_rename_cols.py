@@ -15,7 +15,7 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
 def main():
 
 
-    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BLA_NAcShell/ArchT/choice/RRD76"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/"
 
     """list_of_combos_we_care_about = [
             "Block_Start_Time_(s)",

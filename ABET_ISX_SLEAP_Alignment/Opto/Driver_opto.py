@@ -29,12 +29,18 @@ class Driver:
         list_of_combos_we_care_about = [
             
             "Block_Trial_Type_Start_Time_(s)",
+
+        ]
+
+        """list_of_combos_we_care_about = [
+            
+            "Block_Trial_Type_Start_Time_(s)",
             "Block_Reward_Size_Start_Time_(s)",
             "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
             "Block_Trial_Type_Reward_Size_Start_Time_(s)",
             "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
 
-        ]
+        ]"""
 
         """list_of_combos_we_care_about = [
             "Block_Start_Time_(s)",
@@ -59,6 +65,7 @@ class Driver:
         ]"""
 
         processed = 0
+        session_type = "choice"
 
         ROOT = r"/media/rory/RDT VIDS/BORIS_merge"
 
@@ -82,9 +89,10 @@ class Driver:
         for count, session_path in enumerate(session_paths):
             print(f"Working on {count}/{len(session_paths)}... {session_path}")
 
+            mouse = session_path.split("/")[-1]
             try:
                 try:
-                    session_1 = Session(session_path)
+                    session_1 = Session(session_path, mouse, session_type)
                 except IndexError as e:
                     print(e)
 
@@ -150,7 +158,7 @@ class Driver:
                                 )"""
                                 pass
                 processed += 1
-            except (UnboundLocalError,ValueError) as e:
+            except (UnboundLocalError,ValueError, AttributeError, TypeError) as e:
                 print(e)
                 pass       
         print(
@@ -160,7 +168,7 @@ class Driver:
         print(f"num session paths processed: {processed}/{len(session_paths)}")
 
 def count_sessions_processed():
-    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/"
+    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/"
     session_paths = []
 
     for file_o_folder in os.listdir(ROOT):
@@ -175,7 +183,7 @@ def count_sessions_processed():
     print(*session_paths, sep="\n")
 
 def count_sessions_missing_choice():
-    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/"
+    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/"
     session_paths = []
 
     for file_o_folder in os.listdir(ROOT):
@@ -194,15 +202,20 @@ def count_sessions_missing_choice():
 def main2():
 
         list_of_combos_we_care_about = [
-     
-            "Block_Reward_Size_Start_Time_(s)",
-            "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
-            "Block_Shock_Ocurred_Start_Time_(s)",
-            "Block_Trial_Type_Reward_Size_Start_Time_(s)",
-            "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
-            "Block_Trial_Type_Win_or_Loss_Start_Time_(s)",
+            
+            "Block_Trial_Type_Start_Time_(s)",
 
         ]
+
+        """list_of_combos_we_care_about = [
+            
+            "Block_Trial_Type_Start_Time_(s)",
+            "Block_Reward_Size_Start_Time_(s)",
+            "Block_Reward_Size_Shock_Ocurred_Start_Time_(s)",
+            "Block_Trial_Type_Reward_Size_Start_Time_(s)",
+            "Block_Trial_Type_Shock_Ocurred_Start_Time_(s)",
+
+        ]"""
 
         """list_of_combos_we_care_about = [
             "Block_Start_Time_(s)",
@@ -227,15 +240,16 @@ def main2():
         ]"""
 
         processed = 0
-
+        session_type = "choice"
+        mouse = "RRD105"
                                 
-        session_path = "/media/rory/RDT VIDS/BORIS_merge/RRD76"
+        session_path = f"/media/rory/RDT VIDS/BORIS_merge/{mouse}"
  
         print(f"Working on... {session_path}")
 
         try:
             try:
-                session_1 = Session(session_path)
+                session_1 = Session(session_path, mouse, session_type)
             except IndexError as e:
                 print(e)
 

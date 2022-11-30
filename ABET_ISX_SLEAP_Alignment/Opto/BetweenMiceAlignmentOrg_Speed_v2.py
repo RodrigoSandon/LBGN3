@@ -91,7 +91,9 @@ def main():
         "vmPFC_NAcShell" : "/media/rory/Padlock_DT/Opto_Speed_Analysis/Opto Data Info - vmPFC-NAcShell.csv"
     }
     session_type = "Choice"
+    session_type_lower = "choice"
     not_session_type = "Outcome"
+    not_session_type_lower = "outcome"
     #there are missing labels for each possibly, maybe it should be different after manually renaming things
     combos = ["Block_Trial_Type_Start_Time_(s)"]
     node_type = "body"
@@ -107,6 +109,7 @@ def main():
         for row in range(0,num_rows):
     
             animal_id = modify_animal_id(df_organizer.loc[row, "Animal ID"])
+            
             treatment = df_organizer.loc[row, "Treatment"]
             sleap_data_file : str
             alignment_folder: str
@@ -114,12 +117,12 @@ def main():
 
             print("Current mouse: ", animal_id)
 
-            # find example: f"{root_folder_X}/{animal_id}/**/{node_type}_sleap_data.csv"
-            # dst example: f"{root_dst}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/{node_type}_sleap_data.csv"
+            # find example: f"{root_folder_X}/{animal_id}/**/{animal_id}_{session_type_lower}_{node_type}_sleap_data.csv"
+            # dst example: f"{root_dst}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/{animal_id}_{session_type_lower}_{node_type}_sleap_data.csv"
     
             
             try:
-                sleap_data_file = find_paths_endswith(f"{ROOT_1}/{animal_id}", f"{node_type}_sleap_data.csv")
+                sleap_data_file = find_paths_endswith(f"{ROOT_1}/{animal_id}", f"{animal_id}_{session_type_lower}_{node_type}_sleap_data.csv")
 
                 if sleap_data_file:
                     # non empty
@@ -161,10 +164,10 @@ def main():
                                 slp_file = slp_file[0]
 
                     if session_type.lower() in sleap_data_file.lower() or not_session_type.lower() not in sleap_data_file.lower():
-                        alignment_folder = directory_find(f"{ROOT_1}/{animal_id}/","AlignmentData")
+                        alignment_folder = directory_find(f"{ROOT_1}/{animal_id}/",f"{animal_id}_{session_type_lower}_AlignmentData")
                     else:
                         # either choice not in there or notchoice in there, so look in other folder
-                        sleap_data_file = find_paths_endswith(f"{ROOT_2}/{animal_id}", f"{node_type}_sleap_data.csv")
+                        sleap_data_file = find_paths_endswith(f"{ROOT_2}/{animal_id}", f"{animal_id}_{session_type_lower}_{node_type}_sleap_data.csv")
                         sleap_data_file = sleap_data_file[0]
                         
                         slp_file = find_paths_no_middle_endswith(f"{ROOT_2}/{animal_id}", ".slp")
@@ -208,15 +211,15 @@ def main():
                         if sleap_data_file:
                             # if non empty, check to see if meet criteria again
                             if session_type.lower() in sleap_data_file.lower() or not_session_type.lower() not in sleap_data_file.lower():
-                                alignment_folder = directory_find(f"{ROOT_2}/{animal_id}/","AlignmentData")
+                                alignment_folder = directory_find(f"{ROOT_2}/{animal_id}/",f"{animal_id}_{session_type_lower}_AlignmentData")
                         else:
                             # if empty after second look
-                            print(f"{animal_id} does not have a {session_type} {node_type}_sleap_data.csv")
+                            print(f"{animal_id} does not have a {session_type} {animal_id}_{session_type_lower}_{node_type}_sleap_data.csv")
                             num_sleap_data_files_for_existing_mice_not_found += 1
                             continue
                 else:
                     # empty, so look in other folder
-                    sleap_data_file = find_paths_endswith(f"{ROOT_2}/{animal_id}", f"{node_type}_sleap_data.csv")
+                    sleap_data_file = find_paths_endswith(f"{ROOT_2}/{animal_id}", f"{animal_id}_{session_type_lower}_{node_type}_sleap_data.csv")
                     sleap_data_file = sleap_data_file[0]
                     
                     slp_file = find_paths_no_middle_endswith(f"{ROOT_2}/{animal_id}", ".slp")
@@ -260,10 +263,10 @@ def main():
                     if sleap_data_file:
                         # if non empty, check to see if meet criteria again
                         if session_type.lower() in sleap_data_file.lower() or not_session_type.lower() not in sleap_data_file.lower():
-                            alignment_folder = directory_find(f"{ROOT_2}/{animal_id}/","AlignmentData")
+                            alignment_folder = directory_find(f"{ROOT_2}/{animal_id}/",f"{animal_id}_{session_type_lower}_AlignmentData")
                     else:
                         # if empty after second look
-                        print(f"{animal_id} does not have a {session_type} {node_type}_sleap_data.csv")
+                        print(f"{animal_id} does not have a {session_type} {animal_id}_{session_type_lower}_{node_type}_sleap_data.csv")
                         num_sleap_data_files_for_existing_mice_not_found += 1
                         continue
                 
@@ -271,7 +274,7 @@ def main():
                 df_organizer.to_csv(organizer_path, index=False)
 
                 DST_NEW_PATH = f"{DST}/{circuit}/{treatment}/{session_type}/{animal_id}/{node_type}/"
-                dst_file = f"{DST_NEW_PATH}/{node_type}_sleap_data.csv"
+                dst_file = f"{DST_NEW_PATH}/{animal_id}_{session_type_lower}_{node_type}_sleap_data.csv"
 
                 result = verify_sleap_file(animal_id, slp_file, dst_file, session_type, not_session_type)
 
@@ -281,11 +284,11 @@ def main():
                     #print("ALIGNMENT FOLDER:")
                     #print(f"{DST_NEW_PATH}/AlignmentData")
                     #print("dst: ", f"")
-                    shutil.copytree(alignment_folder, f"{DST_NEW_PATH}/AlignmentData")
+                    shutil.copytree(alignment_folder, f"{DST_NEW_PATH}/{animal_id}_{session_type_lower}_AlignmentData")
 
                     shutil.copyfile(sleap_data_file, dst_file)
 
-            except (FileExistsError, TypeError, AttributeError) as e:
+            except (FileExistsError, TypeError, AttributeError, IndexError) as e:
                 print(e)
                 pass
 

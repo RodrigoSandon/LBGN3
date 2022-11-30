@@ -526,33 +526,41 @@ def main_just_extract_vel():
 
 
 def one_slp_file():
+
+    files = [
+        
+        "/media/rory/RDT VIDS/BORIS_merge/RRD109/RRD109_rdt_opto_choice_02042020_4_resized_grayscaled.mp4_merged_resized_grayscaled.mp4.predictions.slp",
+        "/media/rory/RDT VIDS/BORIS_merge/RRD108/RRD108_rdt_opto_choice_02052020_3_resized_grayscaled.mp4_merged_resized_grayscaled.mp4.predictions.slp",
+        "/media/rory/RDT VIDS/BORIS_merge/RRD105/RRD105_rdt_opto_choice_02042020_5_resized_grayscaled.mp4_merged_resized_grayscaled.mp4.predictions.slp",
+    ]
     
-    slp_file_path = r"/media/rory/RDT VIDS/BORIS/RRD171/RRD171_RDT_OPTO_CHOICE_01042021_6_merged_resized_grayscaled_reliable.mp4.predictions.slp"
-    # usually it's _merged_resized_grayscaled.mp4
-    identifier = "_merged_resized_grayscaled_reliable.mp4"
-    session_type = "choice"
+    for slp_file_path in files:
+        #slp_file_path = r"/media/rory/RDT VIDS/BORIS_merge/RRD111/RRD111_rdt_opto_choice_02052020_3_resized_grayscaled.mp4_merged_resized_grayscaled.mp4.predictions.slp"
+        # usually it's _merged_resized_grayscaled.mp4
+        identifier = "_merged_resized_grayscaled.mp4"
+        session_type = "choice"
 
-    slp_filename = slp_file_path.split("/")[-1]
-    mouse = slp_file_path.split("/")[5]
+        slp_filename = slp_file_path.split("/")[-1]
+        mouse = slp_file_path.split("/")[5]
 
-    DST_ROOT = slp_file_path.replace(slp_filename, "")
-    SESSION_ROOT = slp_file_path.replace(slp_filename, "")
+        DST_ROOT = slp_file_path.replace(slp_filename, "")
+        SESSION_ROOT = slp_file_path.replace(slp_filename, "")
 
-    new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
-    h5_path = new_slp_path.replace(".slp", ".h5")
+        new_slp_path = os.path.join(SESSION_ROOT, slp_filename)
+        h5_path = new_slp_path.replace(".slp", ".h5")
 
-    movie = find_path_no_middle_endswith_no_include_multiple(SESSION_ROOT, identifier, ".predictions.slp", ".predictions.h5")
+        movie = find_path_no_middle_endswith_no_include_multiple(SESSION_ROOT, identifier, ".predictions.slp", ".predictions.h5")
 
-    print(movie)
-    fps = get_frame_rate(movie)
-    print(f"fps: {fps}")
-    slp_to_h5(new_slp_path, h5_path)
+        print(movie)
+        fps = get_frame_rate(movie)
+        print(f"fps: {fps}")
+        slp_to_h5(new_slp_path, h5_path)
 
-    export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps, session_type)
+        export_sleap_data_mult_nodes_body(h5_path, SESSION_ROOT,mouse, fps, session_type)
     
 
 
 if __name__ == "__main__":
     #main()
-    #one_slp_file()
-    main_just_extract_vel()
+    one_slp_file()
+    #main_just_extract_vel()

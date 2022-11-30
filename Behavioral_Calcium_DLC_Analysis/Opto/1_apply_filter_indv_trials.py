@@ -69,7 +69,7 @@ def zscore(obs_value, mu, sigma):
 
 def main():
 
-    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/"
 
     """list_of_combos_we_care_about = [
             "Block_Start_Time_(s)",
@@ -139,10 +139,10 @@ def main():
                     label.set_visible(False)
             ax.set_ylabel(ylabel)
             ax.set_title(title)
-            plt.savefig(csv.replace(".csv","savgol.png"))
+            plt.savefig(csv.replace(".csv","_savgol.png"))
             plt.close()
 
-            df.to_csv(csv.replace(".csv","savgol.csv"), index=False)
+            df.to_csv(csv.replace(".csv","_savgol.csv"), index=False)
 
 if __name__ == "__main__":
     main()

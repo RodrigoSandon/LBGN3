@@ -168,7 +168,7 @@ def concat_all_cells_across_similar_sessions(
 
 
 def main():
-    ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/")
+    ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/")
     
     def find_paths(root_path: Path, endswith: str) -> List[str]:
         files = glob.glob(

@@ -249,9 +249,10 @@ def export_avg_cell_eventraces(
     df.to_csv(out_path, index=False)
 
 
+# can include "**" or none
 def find_paths_endswith(session_path, endswith):
     files = glob.glob(
-        os.path.join(session_path, "**", "*%s") % (endswith),
+        os.path.join(session_path,"**", "*%s") % (endswith),
         recursive=True,
     )
     return files

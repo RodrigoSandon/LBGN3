@@ -16,7 +16,7 @@ def find_paths(root_path: Path, endswith: str) -> List[str]:
 
 
 def main():
-    ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BLA_NAcShell/ArchT/choice/RRD76")
+    ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/")
 
     filename = "speeds_z_-5_5savgol_renamed.csv"
 

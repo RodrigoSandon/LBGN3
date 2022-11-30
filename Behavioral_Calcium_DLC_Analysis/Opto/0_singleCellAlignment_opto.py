@@ -151,11 +151,10 @@ def main():
     list_of_combos_we_care_about = [
 
             "Block_Trial_Type_Start_Time_(s)",
-            "Block_Trial_Type_Reward_Size_Start_Time_(s)"
 
         ]
 
-    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/"
 
     #for session in sessions:
 
@@ -185,7 +184,7 @@ def main():
                 df = df.T
 
                 ##### CHANGE ACCORDINGLY #####
-                df = gaussian_smooth(df)
+                # df = gaussian_smooth(df)
                 ##### CHANGE ACCORDINGLY #####
 
                 # 2) Average Z score per each trial

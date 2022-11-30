@@ -14,17 +14,32 @@ class Session(object):
 
     velocity = {}
 
-    def __init__(self, session_path):
-        
-        Session.session_path = session_path
-        Session.behavioral_df = self.load("abet")
-        Session.sleap_df = self.load("sleap")
-        Session.movie = self.load("merged_movie")
-        self.fps = self.get_frame_rate(Session.movie)
-        print(f"fps is {self.fps}")
-        self.mouse = session_path.split("/")[-1]
+    def __init__(self, session_path, mouse, session_type):
+        """ Search for this first then if not found for the session path 
+        search for without reliable suffix"""
+        Session.mouse = mouse
+        Session.session_type = session_type
+        merged_movie_end = "_merged_resized_grayscaled_reliable.mp4"
+        backup_merged_movie_end = "_merged_resized_grayscaled.mp4"
+        speed_file_end = f"{session_type}_body_sleap_data.csv" # it will get the recent one
+        abet_file_end = "_processed.csv"
 
-        Session.velocity = self.parse_sleap_table()
+        Session.session_path = session_path
+        Session.movie = self.load(merged_movie_end)
+        # will return none if not found
+        if Session.movie == 0:
+            Session.movie = self.load(backup_merged_movie_end)
+        
+        """ We're gonna have to parse this, to look for the date
+        As long as the date in abet is in mp4, we're good"""
+        Session.behavioral_df = self.load(abet_file_end)
+        Session.sleap_df = self.load(speed_file_end)
+
+        if Session.movie != 0:
+            self.fps = self.get_frame_rate(self.movie)
+            print(f"fps is {self.fps}")
+
+            self.velocity = self.parse_sleap_table()
 
     def get_frame_rate(self, filename):
         if not os.path.exists(filename):
@@ -50,26 +65,11 @@ class Session(object):
     the other two, output all of the dates for the three in the console.
     """
 
-    def load(self, merged_movie_end, speed_file_end, abet_file_end):
-        endswith = None
-        message = None
+    def find_date_abet(self, path) -> str:
+        path: str
+        return path.split(" ")[-1].split("_")[0]
 
-        # they're all ends, so first find all of them (can include outcome)
-        # then do a list comprehension to filter
-        # But right now I am assuming the speed_file has the either the choice
-        # or outcome label, so need to account for that
-        if table_to_extract == "dff":
-            endswith = "processed_dff_and_body_data.csv"
-            message = "No dff table found!"
-        elif table_to_extract == "abet":
-            endswith = "_processed.csv"
-            message = "No ABET table found!"
-        elif table_to_extract == "sleap":
-            endswith = "body_sleap_data.csv"
-            message = "No SLEAP table found!"
-        elif table_to_extract == "merged_movie":
-            endswith = "_merged_resized_grayscaled.mp4"
-            message = "NO MERGED VIDEO FOUND!"
+    def load(self, endswith):
 
         paths = Utilities_opto.find_paths_endswith(
             self.session_path, endswith
@@ -80,53 +80,23 @@ class Session(object):
         ###### ADJUST FOR OUTCOME OR CHOICE FOLDERS FOUND #####
         print(paths)
         #only movie is not a table so
-        if table_to_extract != "merged_movie":
-            table = pd.read_csv(paths[0])
-        else:
-            if len(paths) != 0:
-                table = paths[0]
+        if len(paths) != 0: 
+            if endswith != "_merged_resized_grayscaled_reliable.mp4" and endswith != "_merged_resized_grayscaled.mp4":
+                table = pd.read_csv(paths[0])
+
+                # parse abet if abet is what we're looking for here
+                if endswith == "_processed.csv":
+                    abet_date = self.find_date_abet(paths[0])
+                    if abet_date not in self.movie:
+                        print("ABET and MOVI date don't match!")
+                return table
             else:
-                
-                print(message) 
+                if len(paths) != 0:
+                    movi = paths[0]
 
-        return table
+                    return movi
+        return 0
 
-    def load(self, table_to_extract):
-        endswith = None
-        message = None
-
-        if table_to_extract == "dff":
-            endswith = "processed_dff_and_body_data.csv"
-            message = "No dff table found!"
-        elif table_to_extract == "abet":
-            endswith = "_processed.csv"
-            message = "No ABET table found!"
-        elif table_to_extract == "sleap":
-            endswith = "body_sleap_data.csv"
-            message = "No SLEAP table found!"
-        elif table_to_extract == "merged_movie":
-            endswith = "_merged_resized_grayscaled.mp4"
-            message = "NO MERGED VIDEO FOUND!"
-
-        paths = Utilities_opto.find_paths_endswith(
-            self.session_path, endswith
-        )
-
-        ###### ADJUST FOR OUTCOME OR CHOICE FOLDERS FOUND #####
-        paths = [i for i in paths if "outcome" not in i.lower()]
-        ###### ADJUST FOR OUTCOME OR CHOICE FOLDERS FOUND #####
-        print(paths)
-        #only movie is not a table so
-        if table_to_extract != "merged_movie":
-            table = pd.read_csv(paths[0])
-        else:
-            if len(paths) != 0:
-                table = paths[0]
-            else:
-                
-                print(message) 
-
-        return table
 
     def parse_sleap_table(self):
         velocity_info = {}
@@ -228,8 +198,8 @@ class EventVelocity(Velocity):  # for one combo
         for abet_idx in list_of_idxs:
             # abet_idx = abet_idx - 1 Omitting this line made it so identified all events for each cell properly, I wonder why? 11/5/21
             # - 1 BECAUSE WE WANT IT TO START AT 0, BECAUSE INDICES SHIFTED UP 1 WHEN DELETING FIRST EMPTY COLUMN
-            time_for_this_idx_in_abet = self.behavioral_df.iloc[
-                abet_idx, self.behavioral_df.columns.get_loc(start_choice_collect)
+            time_for_this_idx_in_abet = Session.behavioral_df.iloc[
+                abet_idx, Session.behavioral_df.columns.get_loc(start_choice_collect)
             ]
             if (
                 str(time_for_this_idx_in_abet) != "nan"
@@ -287,7 +257,7 @@ class EventVelocity(Velocity):  # for one combo
 
     def process_speed_by(self):
 
-        grouped_table = self.behavioral_df.groupby(self.groupby_list)
+        grouped_table = Session.behavioral_df.groupby(self.groupby_list)
 
         x_axis = self.get_xaxis_list_for_plotting()
 
@@ -326,7 +296,7 @@ class EventVelocity(Velocity):  # for one combo
 
                 new_path = os.path.join(
                     self.session_path,
-                    "AlignmentData",
+                    f"{self.mouse}_{self.session_type}_AlignmentData",
                     self.event_name,
                     combo_name,
                 )
