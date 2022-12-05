@@ -71,7 +71,7 @@ def main():
 
     sessions = ["Pre-RDT RM", "RDT D1"]
     event = "Block_Reward Size_Choice Time (s)"
-    subevent = "(2.0, 'Large')"
+    subevents = ["(2.0, 'Large')"]
     dff_file = "plot_ready_z_fullwindow.csv"
 
     # a glob cell is a row
@@ -93,6 +93,7 @@ def main():
     }
 
     for file in cellreg_files:
+        mouse = file.split("/")[6]
         df_cellreg = pd.read_csv(file)
         # get len of df_cellreg to know how many global cells there are
         num_glob_cells = len(df_cellreg)
@@ -104,7 +105,9 @@ def main():
 
             # Get all of the cells on the same row
             for session in sessions:
-                local_cell_name = df_cellreg.loc[count, session]
+                print(count, session, df_cellreg.loc[count, session])
+                local_cell_name = f"{mouse}_{session}_{df_cellreg.loc[count, session]}"
+                #print(local_cell_name)
                 glob_cell_obj.local_cells[local_cell_name] = LocalCell(local_cell_name, session)
                 local_cell_obj : LocalCell
                 local_cell_obj = glob_cell_obj.local_cells[local_cell_name] 
@@ -113,89 +116,46 @@ def main():
             glob_cells_d[glob_cell_name] = glob_cell_obj
 
         # have your global and local cell  info appropriatly, add traces now
-        for glob_cell_name, glob_cesll_obj in glob_cells_d.items():
-            #print(glob_cell_name)
-            glob_cell_obj : GlobalCell
-            glob_cell_obj = glob_cells_d[glob_cell_name]
+        # don't include a global cell at all if one of it's local cells is missing
+        try:
+            for glob_cell_name, glob_cell_obj in glob_cells_d.items():
+                for local_cell_name, local_cell_obj in glob_cell_obj.local_cells.items():
+                    cell = local_cell_name.split("_")[-1]
+                    local_cell_obj : LocalCell
 
-            for local_cell_name, local_cell_obj in glob_cell_obj.local_cells.items():
-                #print("|----> ", local_cell_name)
-                local_cell_obj : LocalCell
+                    # find the trace for this specific cell, session, event, subevent, and trace type
+                    # remember, trace list is initiated already
+                    for subevent in subevents:
+                        mouse_root = file.replace("/cellreg_Pre-RDT RM_RDT D1.csv", "")
+                        traces_csv_path = f"{mouse_root}/{local_cell_obj.session}/SingleCellAlignmentData/{cell}/{event}/{subevent}/{dff_file}"
+                        traces_df = pd.read_csv(traces_csv_path)
 
-                # find the trace for this specific cell, session, event, subevent, and trace type
-                # remember, trace list is initiated already
-                for event in local_cell_obj.traces_d:
+                        # Change the name in the middle of processing?
+                        # mouse = file.split("/")[6]
+                        # full_cell_name = f"{mouse}_{local_cell_name}"
+                        # local_cell_obj.name = full_cell_name
 
-                    mouse_root = file.replace("/cellreg_Pre-RDT RM_RDT D1.csv", "")
-                    traces_csv_path = f"{mouse_root}/{local_cell_obj.session}/SingleCellAlignmentData/{local_cell_name}/{event}/{subevent}/{dff_file}"
-                    traces_df = pd.read_csv(traces_csv_path)
-                    
-                    #trace = list(traces_df.loc[:, local_cell_name])
+                        traces_df = traces_df.T
+                        traces_df = traces_df.iloc[1:]
 
-                    traces_df = traces_df.T
-                    traces_df = traces_df.iloc[1:]
+                        for count, col in enumerate(traces_df.columns.tolist()):
+                            col_list = list(traces_df[col])[:1]
+                            trial = f"Trial_{count + 1}"
+                            # print(trial)
+                            local_cell_obj.add_trace(event, subevent,trial, col_list)
 
-                    for count, col in enumerate(traces_df.columns.tolist()):
-                        col_list = list(traces_df[col])
-                        trial = f"Trial_{count + 1}"
-                        local_cell_obj.add_trace(event, subevent, )
-
-                    break
-                break
-            break
-                    #local_cell_obj.add_trace(event, subevent, trace)
-
-                    #print("--------> ", local_cell_obj.session,"|", event,"|", subevent, "|", local_cell_obj.traces_d[event][subevent][:3])
-
-                    # Now have traces in dict for global's local cells - well labelled
-                    #time to plot it on gridspec
-        # now avg glob cells for this mouse
+                        #print("--------> ", local_cell_obj.session,"|", event,"|", subevent, "|", local_cell_obj.traces_d[event][subevent][:3])
+        except (FileNotFoundError) as e:
+            print(e)
+            pass
         """
-
         avg_glob_cell = {
             session_0: [[trace_0],[trace_1]],
             session_1: [[trace_0],[trace_1]]
         }
-
         """
-
-        avg_glob_cell = {
-
-        }
-
-        for key, value in glob_cells_d.items():
-            glob_cell : GlobalCell
-            glob_cell = glob_cells_d[key]
-            print(f"{glob_cell.name}")
-            for k2, v2, in glob_cell.local_cells.items():
-                local_cell : LocalCell
-                local_cell = glob_cell.local_cells[k2]
-                print(f"|---->{local_cell.name}, {local_cell.session}")
-                for session in sessions:
-                    if local_cell.session == session:
-                        # now only process for event/subevent:
-                        # check if session in there
-                        if session in avg_glob_cell:
-                            avg_glob_cell[session].append(local_cell.traces_d[event][subevent])
-                        else :
-                            avg_glob_cell[session] = []
-                            avg_glob_cell[session].append(local_cell.traces_d[event][subevent])
-        
-        # all traces should be in there, check, now avg them using zip
-        # maybe averaging not all neccesary rn, only at the end step when about to visualize
-        #print(avg_glob_cell)
-        """for session, lists_of_lists in avg_glob_cell.items():
-            avg = [float(sum(col))/len(col) for col in zip(*lists_of_lists)]
-            avg_glob_cell[session] = avg"""
-        
-
-        # now it's averaged into 
-        # session: [avg list]
-        # session: [avg list]
-
-
-        break
-    """for key, value in glob_cells_d.items():
+        #break
+    for key, value in glob_cells_d.items():
         glob_cell : GlobalCell
         glob_cell = glob_cells_d[key]
         print(f"{glob_cell.name}")
@@ -203,8 +163,41 @@ def main():
             local_cell : LocalCell
             local_cell = glob_cell.local_cells[k2]
             print(f"|---->{local_cell.name}")
+            # print(f"|-------->{local_cell.traces_d}")
             for k3, v3, in local_cell.traces_d.items():
-                print(f"-------->{k3} : {v3}")"""
+                # print("here")
+                print(f"-------->{k3} : {v3}")
+                
 
 if __name__ == "__main__":
     main()
+
+
+"""avg_glob_cell = {
+
+}
+
+for key, value in glob_cells_d.items():
+    glob_cell : GlobalCell
+    glob_cell = glob_cells_d[key]
+    print(f"{glob_cell.name}")
+    for k2, v2, in glob_cell.local_cells.items():
+        local_cell : LocalCell
+        local_cell = glob_cell.local_cells[k2]
+        print(f"|---->{local_cell.name}, {local_cell.session}")
+        for session in sessions:
+            if local_cell.session == session:
+                # now only process for event/subevent:
+                # check if session in there
+                if session in avg_glob_cell:
+                    avg_glob_cell[session].append(local_cell.traces_d[event][subevent])
+                else :
+                    avg_glob_cell[session] = []
+                    avg_glob_cell[session].append(local_cell.traces_d[event][subevent])"""
+
+# all traces should be in there, check, now avg them using zip
+# maybe averaging not all neccesary rn, only at the end step when about to visualize
+#print(avg_glob_cell)
+"""for session, lists_of_lists in avg_glob_cell.items():
+    avg = [float(sum(col))/len(col) for col in zip(*lists_of_lists)]
+    avg_glob_cell[session] = avg"""

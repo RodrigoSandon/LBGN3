@@ -145,7 +145,8 @@ def find_subcombos(combo_path):
 
 def main():
 
-    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData"
+    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/BetweenMiceAlignmentData"
+    # HAVE TO DO ONE CIRCUIT AT A TIME
     circuits = ["BLA_NAcShell", "vHPC_NAcShell", "vmPFC_NAcShell"]
     treatments = ["ArchT", "eYFP", "ChrimsonR", "mCherry"]
     treatment_colors = {"ArchT": "green", "eYFP" : "gray", "ChrimsonR": "red", "mCherry": "pink"}
@@ -156,81 +157,91 @@ def main():
     avg_sem_filename = "all_mice_avg_speed_w_sem.csv"
 
     for circuit in circuits:
-        for c in treatment_combinations:
-            for combo in combos:
-                
-                t1 = c[0]
-                t2 = c[1]
-
-                subcombos = find_subcombos(f"{ROOT}/{circuit}/{t1}/{session_type}/{combo}")
-                for subcombo in subcombos:
+        try:
+            for c in treatment_combinations:
+                for combo in combos:
                     
-                    print(subcombo)
+                    t1 = c[0]
+                    t2 = c[1]
 
-                    try:
-                        fig = plt.figure(figsize=(12, 6))
-                        # determines how many rows
-                        outer = gridspec.GridSpec(1, 1, wspace=0.0, hspace=0.0)
+                    subcombos = find_subcombos(f"{ROOT}/{circuit}/{t1}/{session_type}/{combo}")
+                    for subcombo in subcombos:
+                        
+                        print(subcombo)
 
-                        for idx, subevent in enumerate(range(0,1)):
-                            # determines how many cols in each row
-                            inner = gridspec.GridSpecFromSubplotSpec(1, 1,
-                                            subplot_spec=outer[idx], wspace=0.0, hspace=0.0)
+                        try:
+                            fig = plt.figure(figsize=(12, 6))
+                            # determines how many rows
+                            outer = gridspec.GridSpec(1, 1, wspace=0.0, hspace=0.0)
 
-                            t1_speed_on_df = pd.read_csv(f"{ROOT}/{circuit}/{t1}/{session_type}/{combo}/{subcombo}/{avg_sem_filename}")
-                            
-                            t2_speed_on_df = pd.read_csv(f"{ROOT}/{circuit}/{t2}/{session_type}/{combo}/{subcombo}/{avg_sem_filename}")
-                            
-                            # savgol filtered and z-scored
+                            for idx, subevent in enumerate(range(0,1)):
+                                # determines how many cols in each row
+                                inner = gridspec.GridSpecFromSubplotSpec(1, 1,
+                                                subplot_spec=outer[idx], wspace=0.0, hspace=0.0)
 
-                            t1_speed_on_df_list = list(t1_speed_on_df["Avg_speed_(cm/s)"])
-                            t2_speed_on_df_list = list(t2_speed_on_df["Avg_speed_(cm/s)"])
+                                t1_speed_on_df = pd.read_csv(f"{ROOT}/{circuit}/{t1}/{session_type}/{combo}/{subcombo}/{avg_sem_filename}")
+                                
+                                t2_speed_on_df = pd.read_csv(f"{ROOT}/{circuit}/{t2}/{session_type}/{combo}/{subcombo}/{avg_sem_filename}")
+                                
+                                # savgol filtered and z-scored
 
-                            t1_sem_speed_on_df_list = list(t1_speed_on_df["SEM"])
-                            t2_sem_speed_on_df_list = list(t2_speed_on_df["SEM"])
+                                t1_speed_on_df_list = list(t1_speed_on_df["Avg_speed_(cm/s)"])
+                                t2_speed_on_df_list = list(t2_speed_on_df["Avg_speed_(cm/s)"])
 
-                            result = stats.pearsonr(t1_speed_on_df_list, t2_speed_on_df_list)
-                            corr_coef = list(result)[0]
+                                t1_sem_speed_on_df_list = list(t1_speed_on_df["SEM"])
+                                t2_sem_speed_on_df_list = list(t2_speed_on_df["SEM"])
 
-                            print(f"{circuit}_{t1}_v_{t2}_{session_type}_{combo}_{subcombo}")
-                            print(f"corr coef: {corr_coef}")
+                                result = stats.pearsonr(t1_speed_on_df_list, t2_speed_on_df_list)
+                                corr_coef = list(result)[0]
 
-                            max_val = round(max(t1_speed_on_df_list), 1)
-                            min_val = round(min(t1_speed_on_df_list + t2_speed_on_df_list), 1)
-                            speed_yticks = np.arange(min_val - 1, max_val + 1, 1)
+                                print(f"{circuit}_{t1}_v_{t2}_{session_type}_{combo}_{subcombo}")
+                                print(f"corr coef: {corr_coef}")
 
-                            t = list(t1_speed_on_df["Time_(s)"])
+                                max_val = round(max(t1_speed_on_df_list), 1)
+                                min_val = round(min(t1_speed_on_df_list + t2_speed_on_df_list), 1)
+                                speed_yticks = np.arange(min_val - 1, max_val + 1, 1)
+
+                                t = list(t1_speed_on_df["Time_(s)"])
 
 
-                            ax_1 = plt.Subplot(fig, inner[0])
+                                ax_1 = plt.Subplot(fig, inner[0])
 
-                            ax_1.plot(t, t1_speed_on_df_list, c="black", label=t1)
-                            difference_t1_1 = [t1_speed_on_df_list[i] - t1_sem_speed_on_df_list[i] for i, value in enumerate(t1_speed_on_df_list)]
-                            difference_t1_2 = [t1_speed_on_df_list[i] + t1_sem_speed_on_df_list[i] for i, value in enumerate(t1_speed_on_df_list)]
-                            ax_1.fill_between(t, difference_t1_1, difference_t1_2, facecolor = treatment_colors[t1])
+                                ax_1.plot(t, t1_speed_on_df_list, c="black", label=t1)
+                                difference_t1_1 = [t1_speed_on_df_list[i] - t1_sem_speed_on_df_list[i] for i, value in enumerate(t1_speed_on_df_list)]
+                                difference_t1_2 = [t1_speed_on_df_list[i] + t1_sem_speed_on_df_list[i] for i, value in enumerate(t1_speed_on_df_list)]
+                                ax_1.fill_between(t, difference_t1_1, difference_t1_2, facecolor = treatment_colors[t1])
 
-                            ax_1.plot(t, t2_speed_on_df_list,c="black", label=t2)
-                            difference_t2_1 = [t2_speed_on_df_list[i] - t2_sem_speed_on_df_list[i] for i, value in enumerate(t2_speed_on_df_list)]
-                            difference_t2_2 = [t2_speed_on_df_list[i] + t2_sem_speed_on_df_list[i] for i, value in enumerate(t2_speed_on_df_list)]
-                            ax_1.fill_between(t, difference_t2_1, difference_t2_2, facecolor = treatment_colors[t2] )
+                                ax_1.plot(t, t2_speed_on_df_list,c="black", label=t2)
+                                difference_t2_1 = [t2_speed_on_df_list[i] - t2_sem_speed_on_df_list[i] for i, value in enumerate(t2_speed_on_df_list)]
+                                difference_t2_2 = [t2_speed_on_df_list[i] + t2_sem_speed_on_df_list[i] for i, value in enumerate(t2_speed_on_df_list)]
+                                ax_1.fill_between(t, difference_t2_1, difference_t2_2, facecolor = treatment_colors[t2] )
 
-                            ax_1.legend()
-                            ax_1.set_yticks(speed_yticks)
-                            ax_1.set_xticks(t)
-                            ax_1.set_ylim(min_val - 1, max_val + 1)
-                            ax_1.set_ylabel("Avg. Savgol Z-scored Speed (cm/s)")
-                            ax_1.set_xlabel("Time relative to start time (s)")
-                            ax_1.locator_params(axis='x', nbins=10)
-                            ax_1.locator_params(axis='y', nbins=6)
-                            fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+                                # Create empty plot with blank marker containing the extra label
+                                ax_1.plot([], [], ' ', label=f"r = {round(corr_coef, 2)}")
 
-                            fig.add_subplot(ax_1)
+                                ax_1.legend()
+                                leg = ax_1.get_legend()
+                                leg.legendHandles[0].set_color(treatment_colors[t1])
+                                leg.legendHandles[1].set_color(treatment_colors[t2])
+                                ax_1.set_yticks(speed_yticks)
+                                ax_1.set_xticks(t)
+                                ax_1.set_ylim(min_val - 1, max_val + 2.5)
+                                ax_1.set_ylabel("Avg. Savgol Z-scored Speed (cm/s)")
+                                ax_1.set_xlabel("Time relative to start time (s)")
+                                ax_1.locator_params(axis='x', nbins=10)
+                                ax_1.locator_params(axis='y', nbins=8)
+                                fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
 
-                        plt.savefig(f"/media/rory/Padlock_DT/Opto_Speed_Analysis/Results/{circuit}_{t1}_v_{t2}_{session_type}_{combo}_{subcombo}_{avg_sem_filename}_v2.png")
-                    
-                    except ValueError as e:
-                        print(e)
-                        pass
+                                fig.add_subplot(ax_1)
+
+                            plt.savefig(f"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/Results/{circuit}_{t1}_v_{t2}_{session_type}_{combo}_{subcombo}_{avg_sem_filename}.png")
+                        
+                        except (ValueError, FileNotFoundError) as e:
+                            print(e)
+                            pass
+        except (ValueError, FileNotFoundError) as e:
+            print(e)
+            pass
 #main_gridspec()
 main()
 

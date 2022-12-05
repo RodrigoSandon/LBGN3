@@ -89,7 +89,7 @@ def find_paths(root_path: Path, mid, endswith: str) -> List[str]:
 def main():
 
 
-    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/BetweenMiceAlignmentData"
 
     list_of_combos_we_care_about = [
 
@@ -98,7 +98,7 @@ def main():
         ]
 
 
-    filename = "all_speeds_z_-5_5savgol_avg.csv"
+    filename = "all_speeds_z_-5_5_savgol_avg.csv"
 
     for combo in list_of_combos_we_care_about:
 

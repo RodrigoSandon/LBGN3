@@ -105,44 +105,48 @@ def main():
         files = find_paths(session_root, f"{combo}","speeds_z_-5_5.csv")
 
         for csv in files:
-            print("CURR:",csv)
-            df = pd.read_csv(csv)
-            fig, ax = plt.subplots()
-            t = add_val(str_to_int(list(df.columns)[1:]), "5.0")
-            every_nth = 30
-            title = f"Z-scored, Savitzky (n={len(df)})"
+            try:
+                print("CURR:",csv)
+                df = pd.read_csv(csv)
+                fig, ax = plt.subplots()
+                t = add_val(str_to_int(list(df.columns)[1:]), "5.0")
+                every_nth = 30
+                title = f"Z-scored, Savitzky (n={len(df)})"
 
-            for row_idx in range(len(df)):
-                arr_no_nan = list(df.iloc[row_idx,1:])
+                for row_idx in range(len(df)):
+                    arr_no_nan = list(df.iloc[row_idx,1:])
 
-                xlabel = "Time from trigger (s)"
-                ylabel = "Speed (cm/s)"
+                    xlabel = "Time from trigger (s)"
+                    ylabel = "Speed (cm/s)"
 
-                # Savitzky - Z-score
-                # make sure to not have any nans in the arr
-                sav_z_arr = savgol_filter(arr_no_nan, window_length=33, polyorder=2)
-                # change the df
-                df.iloc[row_idx,1:] = sav_z_arr
-                ax.plot(t, add_val(sav_z_arr, np.nan))
+                    # Savitzky - Z-score
+                    # make sure to not have any nans in the arr
+                    sav_z_arr = savgol_filter(arr_no_nan, window_length=33, polyorder=2)
+                    # change the df
+                    df.iloc[row_idx,1:] = sav_z_arr
+                    ax.plot(t, add_val(sav_z_arr, np.nan))
 
-                """# Gaussian - Z-score
-                gaus_z_arr = gaussian_filter1d(z_arr, sigma = 1.5)
-                plot_trace(t, gaus_z_arr, 30, xlabel, ylabel, title="Z-scored, Gaussian")"""
-            
-            ax.set_xticks(t)
-            ax.set_xlabel(xlabel)
-            for n, label in enumerate(ax.xaxis.get_ticklabels()):
-                if n % every_nth != 0:
-                    label.set_visible(False)
-            for n, label in enumerate(ax.xaxis.get_major_ticks()):
-                if n % every_nth != 0:
-                    label.set_visible(False)
-            ax.set_ylabel(ylabel)
-            ax.set_title(title)
-            plt.savefig(csv.replace(".csv","_savgol.png"))
-            plt.close()
+                    """# Gaussian - Z-score
+                    gaus_z_arr = gaussian_filter1d(z_arr, sigma = 1.5)
+                    plot_trace(t, gaus_z_arr, 30, xlabel, ylabel, title="Z-scored, Gaussian")"""
+                
+                ax.set_xticks(t)
+                ax.set_xlabel(xlabel)
+                for n, label in enumerate(ax.xaxis.get_ticklabels()):
+                    if n % every_nth != 0:
+                        label.set_visible(False)
+                for n, label in enumerate(ax.xaxis.get_major_ticks()):
+                    if n % every_nth != 0:
+                        label.set_visible(False)
+                ax.set_ylabel(ylabel)
+                ax.set_title(title)
+                plt.savefig(csv.replace(".csv","_savgol.png"))
+                plt.close()
 
-            df.to_csv(csv.replace(".csv","_savgol.csv"), index=False)
+                df.to_csv(csv.replace(".csv","_savgol.csv"), index=False)
+            except ValueError as e:
+                print(e)
+                pass
 
 if __name__ == "__main__":
     main()

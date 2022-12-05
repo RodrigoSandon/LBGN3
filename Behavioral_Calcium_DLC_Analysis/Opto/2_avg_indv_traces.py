@@ -6,6 +6,7 @@ from typing import List
 from numpy.core.fromnumeric import mean
 import pandas as pd
 from pathlib import Path
+from scipy import stats
 
 def make_avg_speed_table(filename, csv_path, out_filename, half_of_time_window):
     step: float
@@ -36,6 +37,7 @@ def make_avg_speed_table(filename, csv_path, out_filename, half_of_time_window):
     # 0.03333 is due to the 30Hz
     # So fps is variable now, but how can we know it's variable ahead of time?
     x_axis = np.arange(-half_of_time_window, half_of_time_window, step).tolist()
+    #print(len(x_axis))
     #x_axis = [round(i, 1) for i in x_axis]
     if length_time_col == 1198:
         x_axis = x_axis[:-2]
@@ -46,10 +48,15 @@ def make_avg_speed_table(filename, csv_path, out_filename, half_of_time_window):
     
     avg_of_col_speed_lst = []
     for col_name, col_data in df_speed.iteritems():
-        timepoint_avg = df_speed[col_name].mean()
+        #print(list(df_speed[col_name].dropna()))
+        #print([type(i) for i in list(df_speed[col_name].dropna())])
+        timepoint_avg = stats.tmean(list(df_speed[col_name].dropna()))
         avg_of_col_speed_lst.append(timepoint_avg)
 
     #print("here:", len(x_axis), len(avg_of_col_speed_lst))
+    #print(avg_of_col_speed_lst)
+    #types = [type(i) for i in avg_of_col_speed_lst]
+    #print(types)
 
     csv_prep_unnorm = {
         "Time_(s)" : x_axis,
@@ -129,7 +136,7 @@ def main():
             "Block_Trial_Type_Start_Time_(s)",
         ]
 
-    filename = "speeds_z_-5_5savgol.csv"
+    filename = "speeds_z_-5_5_savgol.csv"
 
     for combo in list_of_combos_we_care_about:
         files = find_paths(session_root, combo ,filename)
@@ -142,18 +149,18 @@ def main():
             df = pd.read_csv(csv)
             trial_num = len(df)
         
-            new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5savgol_avg.csv", half_of_time_window=5)
+            new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5_savgol_avg.csv", half_of_time_window=5)
             plot_avg_speed(csv_path=new_path, event_num=trial_num)
 
 def one_process():
-    csv = "/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BLA_NAcShell/eYFP/choice/RRD17/body/AlignmentData/Block_Trial_Type_Reward_Size_Start_Time_(s)/(2.0, 'Free', 'Large')/speeds_z_-5_5savgol.csv"
-    filename = "speeds_z_-5_5savgol.csv"
+    csv = "/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/BLA_NAcShell/ArchT/Choice/RRD21/body/RRD21_choice_AlignmentData/Block_Trial_Type_Start_Time_(s)/(1.0, 'Free')/speeds_z_-5_5_savgol.csv"
+    filename = "speeds_z_-5_5_savgol.csv"
     print(f"CURR CSV: {csv}")
     df: pd.DataFrame
     df = pd.read_csv(csv)
     trial_num = len(df)
 
-    new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5savgol_avg.csv", half_of_time_window=5)
+    new_path = make_avg_speed_table(filename, csv_path=csv, out_filename="speeds_z_-5_5_savgol_avg.csv", half_of_time_window=5)
     plot_avg_speed(csv_path=new_path, event_num=trial_num)
 
 if __name__ == "__main__":

@@ -44,7 +44,7 @@ def main():
             "Block_Trial_Type_Start_Time_(s)",
         ]
 
-    filename = "speeds_z_-5_5savgol_avg.csv"
+    filename = "speeds_z_-5_5_savgol_avg.csv"
 
     for combo in list_of_combos_we_care_about:
 

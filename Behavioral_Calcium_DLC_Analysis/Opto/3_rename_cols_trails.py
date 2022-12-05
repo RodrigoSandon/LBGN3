@@ -15,14 +15,14 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
 def main():
 
 
-    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis"
+    session_root = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2"
 
     list_of_combos_we_care_about = [
 
             "Block_Trial_Type_Start_Time_(s)",
         ]
 
-    filename = "speeds_z_-5_5savgol.csv"
+    filename = "speeds_z_-5_5_savgol.csv"
 
     for combo in list_of_combos_we_care_about:
 

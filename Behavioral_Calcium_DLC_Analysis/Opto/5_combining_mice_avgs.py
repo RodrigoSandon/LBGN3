@@ -162,9 +162,9 @@ def concat_all_cells_across_similar_sessions(
                 new_path = os.path.join(root_path, session_type, combo, subcombo)
                 os.makedirs(new_path, exist_ok=True)
                 concatenated_cells_df.to_csv(
-                    os.path.join(new_path, "all_speeds_z_-5_5savgol_avg.csv"), index=False
+                    os.path.join(new_path, "all_speeds_z_-5_5_savgol_avg.csv"), index=False
                 )
-                plot_indv_speed(os.path.join(new_path, "all_speeds_z_-5_5savgol_avg.csv"))
+                plot_indv_speed(os.path.join(new_path, "all_speeds_z_-5_5_savgol_avg.csv"))
 
 
 def main():
@@ -176,7 +176,7 @@ def main():
         )
         return files
 
-    lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, "speeds_z_-5_5savgol_avg.csv") #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
+    lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, "speeds_z_-5_5_savgol_avg.csv") #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
     bw_mice_alignment_f_name = "BetweenMiceAlignmentData"
     bw_mice_alignment_path = os.path.join(ROOT_PATH, bw_mice_alignment_f_name)
 

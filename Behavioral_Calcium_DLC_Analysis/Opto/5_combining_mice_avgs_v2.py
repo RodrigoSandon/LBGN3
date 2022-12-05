@@ -108,7 +108,11 @@ def concat_all_cells_across_similar_sessions(
             #print(col_name)
             # for however many cells there are under this mouse, for this session type, combo, n subcombo
             # THIS IS TARGETTED TO NOT INCLUDE TIME MORE THAN ONCE
-            if col_name not in between_mice_d[circuit][treatment][session_type][combo][subcombo]:
+            # DO NOT INCLUDE COLUMNS THAT CONTAIN ALL NAN VALUES
+            if np.isnan(avg_dff_traces_df[col_name].tolist()).all() == True:
+                print(f"{col_name} is an empty list")
+
+            if col_name not in between_mice_d[circuit][treatment][session_type][combo][subcombo] and np.isnan(avg_dff_traces_df[col_name].tolist()).all() == False:
                 between_mice_d[circuit][treatment][session_type][combo][subcombo][
                     col_name
                 ] = avg_dff_traces_df[col_name].tolist()
@@ -146,9 +150,10 @@ def concat_all_cells_across_similar_sessions(
 
 
 def main():
-    ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis")
+    ROOT_PATH = Path(r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2")
 
-    avg_filename = "speeds_z_-5_5savgol_avg.csv"
+    # avg_filename = "speeds_z_-5_5_savgol_avg.csv"
+    avg_filename = "speeds_z_-5_5_savgol_renamed.csv"
 
     lst_of_avg_cell_csv_paths = find_paths(ROOT_PATH, avg_filename) #CUSTOMIZE FOR SPECIFIC GROUPINGS YOU WANT TO PROCESS
     bw_mice_alignment_f_name = "BetweenMiceAlignmentData"

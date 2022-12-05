@@ -241,7 +241,7 @@ def main2():
 
         processed = 0
         session_type = "choice"
-        mouse = "RRD105"
+        mouse = "RRD121"
                                 
         session_path = f"/media/rory/RDT VIDS/BORIS_merge/{mouse}"
  

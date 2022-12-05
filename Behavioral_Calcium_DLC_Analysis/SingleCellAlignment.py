@@ -88,77 +88,76 @@ def find_paths(root_path: Path, middle: str, endswith: str) -> List[str]:
     )
     return files
 
+def find_paths_2mids(root_path: Path, middle_1: str, middle_2: str, endswith: str) -> List[str]:
+    files = glob.glob(
+        os.path.join(root_path, "**", middle_1,"**", middle_2, "**", endswith), recursive=True,
+    )
+    return files
+
 
 def main():
     MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
     mice = [
         "BLA-Insc-1",
-        "BLA-Insc-2",
-        "BLA-Insc-3",
-        "BLA-Insc-5",
         "BLA-Insc-6",
-        "BLA-Insc-7",
-        "BLA-Insc-8",
-        "BLA-Insc-9",
-        "BLA-Insc-11",
         "BLA-Insc-13",
         "BLA-Insc-14",
         "BLA-Insc-15",
         "BLA-Insc-16",
-        "BLA-Insc-18",
-        "BLA-Insc-19",
         ]
-    sessions = ["RDT D1"]
+    sessions = ["Pre-RDT RM", "RDT D1"]
+    event = "Block_Reward Size_Choice Time (s)"
 
+    # further preprocess the plot_ready files
     for mouse in mice:
         for session in sessions:
-            files = find_paths(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData","plot_ready.csv")
+            files = find_paths_2mids(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData",event ,"plot_ready.csv")
 
             for csv in files:
                 #picking out certain events
                 #if "Start Time (s)_Collection Time (s)" in csv:
-                if "Shock Ocurred_Choice Time (s)" in csv:
-                    try:
-                        print(f"CURR CSV: {csv}")
-                        cell_name = csv.split("/")[9]
-                        df: pd.DataFrame
-                        df = pd.read_csv(csv)
-                        # print(df.head())
-                        # save col that u will omit once transposed
-                        col_to_save = list(df["Event #"])
-                        df = df.T
-                        df = df.iloc[1:, :]  # omit first row
+          
+                try:
+                    print(f"CURR CSV: {csv}")
+                    cell_name = csv.split("/")[9]
+                    df: pd.DataFrame
+                    df = pd.read_csv(csv)
+                    # print(df.head())
+                    # save col that u will omit once transposed
+                    col_to_save = list(df["Event #"])
+                    df = df.T
+                    df = df.iloc[1:, :]  # omit first row
 
-                        # print(df.head())
+                    # print(df.head())
 
-                        # 1) Zscore
-                        df = custom_standardize_limit_fixed(
-                            df,
-                            baseline_min=0,
-                            baseline_max=100,
-                            limit_idx=200
-                        )
-                        df = df.T
+                    # 1) Zscore
+                    df = custom_standardize_limit_fixed(
+                        df,
+                        baseline_min=0,
+                        baseline_max=200,
+                        limit_idx=200
+                    )
+                    df = df.T
 
-                        def gaussian_smooth(df, sigma: float = 1.5):
-                            from scipy.ndimage import gaussian_filter1d
-                            # df = df.iloc[:, 1:]  # omit first col
+                    def gaussian_smooth(df, sigma: float = 1.5):
+                        from scipy.ndimage import gaussian_filter1d
+                        # df = df.iloc[:, 1:]  # omit first col
 
-                            return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
-                        df = gaussian_smooth(df)
+                        return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
+                    df = gaussian_smooth(df)
 
-                        # 2) Average Z score per each trial
-                        avg_cell_eventrace(
-                            df, csv, cell_name, plot=True, export_avg=True
-                        )
+                    # 2) Average Z score per each trial
+                    avg_cell_eventrace(
+                        df, csv, cell_name, plot=True, export_avg=True
+                    )
 
-                        df.insert(0, "Event #", col_to_save)
+                    df.insert(0, "Event #", col_to_save)
 
-                        csv_moded_out_path = csv.replace(".csv", "_z_-10_0.csv")
-                        df.to_csv(csv_moded_out_path, index=False)
-                    except TypeError as e:
-                        print(e)
-                        pass
+                    csv_moded_out_path = csv.replace(".csv", "_z_fullwindow.csv")
+                    df.to_csv(csv_moded_out_path, index=False)
+                except TypeError as e:
+                    print(e)
+                    pass
 
 if __name__ == "__main__":
     main()

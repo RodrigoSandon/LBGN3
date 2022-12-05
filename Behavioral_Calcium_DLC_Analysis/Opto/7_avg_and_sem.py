@@ -14,9 +14,9 @@ def find_paths_endswith(root_path, endswith) -> list:
 
 def main():
 
-    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis/BetweenMiceAlignmentData/"
+    ROOT = r"/media/rory/Padlock_DT/Opto_Speed_Analysis/Analysis_2/BetweenMiceAlignmentData/"
 
-    files = find_paths_endswith(ROOT, "all_speeds_z_-5_5savgol_renamed.csv")
+    files = find_paths_endswith(ROOT, "all_speeds_z_-5_5_savgol_renamed.csv")
 
     for file in files:
         print(f"Currently at: {file}")
