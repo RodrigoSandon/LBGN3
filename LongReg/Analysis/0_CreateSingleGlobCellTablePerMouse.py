@@ -94,39 +94,42 @@ def main():
 
     for file in cellreg_files:
         mouse = file.split("/")[6]
+        print(mouse)
+        print(file)
         df_cellreg = pd.read_csv(file)
         # get len of df_cellreg to know how many global cells there are
         num_glob_cells = len(df_cellreg)
+        print(num_glob_cells)
 
         # or the number of rows (glob cells)
         for count in range(num_glob_cells):
-            glob_cell_name = f"glob_cell_{count}"
-            glob_cell_obj = GlobalCell(glob_cell_name)
+            glob_cell_name = f"{mouse}_glob_cell_{count}"
+            print(glob_cell_name)
+            glob_cells_d[glob_cell_name] = {}
 
             # Get all of the cells on the same row
             for session in sessions:
-                print(count, session, df_cellreg.loc[count, session])
+                # print(count, session, df_cellreg.loc[count, session])
                 local_cell_name = f"{mouse}_{session}_{df_cellreg.loc[count, session]}"
-                #print(local_cell_name)
-                glob_cell_obj.local_cells[local_cell_name] = LocalCell(local_cell_name, session)
-                local_cell_obj : LocalCell
-                local_cell_obj = glob_cell_obj.local_cells[local_cell_name] 
-                #local_cell_obj.add_trace(event, subevent, [])
+                print(local_cell_name)
+                local_cell_obj = LocalCell(local_cell_name, session)
+                glob_cells_d[glob_cell_name][local_cell_name] = local_cell_obj
 
-            glob_cells_d[glob_cell_name] = glob_cell_obj
 
         # have your global and local cell  info appropriatly, add traces now
         # don't include a global cell at all if one of it's local cells is missing
-        try:
-            for glob_cell_name, glob_cell_obj in glob_cells_d.items():
-                for local_cell_name, local_cell_obj in glob_cell_obj.local_cells.items():
-                    cell = local_cell_name.split("_")[-1]
-                    local_cell_obj : LocalCell
+        
+        for glob_cell_name, vals in glob_cells_d.items():
+            for local_cell_name, local_cell_obj in glob_cells_d[glob_cell_name].items():
+                cell = local_cell_name.split("_")[-1]
+                print(cell)
+                local_cell_obj : LocalCell
 
-                    # find the trace for this specific cell, session, event, subevent, and trace type
-                    # remember, trace list is initiated already
-                    for subevent in subevents:
-                        mouse_root = file.replace("/cellreg_Pre-RDT RM_RDT D1.csv", "")
+                # find the trace for this specific cell, session, event, subevent, and trace type
+                # remember, trace list is initiated already
+                for subevent in subevents:
+                    mouse_root = file.replace("/cellreg_Pre-RDT RM_RDT D1.csv", "")
+                    if os.path.exists(f"{mouse_root}/{local_cell_obj.session}/SingleCellAlignmentData/{cell}"):
                         traces_csv_path = f"{mouse_root}/{local_cell_obj.session}/SingleCellAlignmentData/{cell}/{event}/{subevent}/{dff_file}"
                         traces_df = pd.read_csv(traces_csv_path)
 
@@ -145,9 +148,8 @@ def main():
                             local_cell_obj.add_trace(event, subevent,trial, col_list)
 
                         #print("--------> ", local_cell_obj.session,"|", event,"|", subevent, "|", local_cell_obj.traces_d[event][subevent][:3])
-        except (FileNotFoundError) as e:
-            print(e)
-            pass
+                    else:
+                        f"{mouse_root}/{local_cell_obj.session}/SingleCellAlignmentData/{cell} DNE"
         """
         avg_glob_cell = {
             session_0: [[trace_0],[trace_1]],

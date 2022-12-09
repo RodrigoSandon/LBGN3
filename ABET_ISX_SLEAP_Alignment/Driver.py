@@ -209,7 +209,12 @@ class Driver:
         # print(session_1.behavioral_df.head())
 
     def run_one_session_one_neuron():
+
         list_of_combos_we_care_about = [
+            "Block_Reward Size_Choice Time (s)",
+        ]
+
+        """list_of_combos_we_care_about = [
             "Block_Choice Time (s)",
             "Block_Learning Stratergy_Choice Time (s)",
             "Block_Omission_Choice Time (s)",
@@ -230,10 +235,10 @@ class Driver:
             "Learning Stratergy_Choice Time (s)",
             "Omission_Choice Time (s)",
             "Reward Size_Choice Time (s)",
-        ]
+        ]"""
         
         SESSION_PATH = (
-            r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#3/BLA-Insc-6/RDT D2"
+            r"/media/rory/Padlock_DT/BLA_Analysis/PTP_Inscopix_#5/BLA-Insc-14/Pre-RDT RM"
         )
 
         session_1 = Session(SESSION_PATH)
@@ -252,14 +257,6 @@ class Driver:
                 " ################################",
             )
 
-            # print(neuron_obj.get_sample_dff_times())
-            # print(neuron_obj.get_dff_trace())
-            """            neuron_obj.add_aligned_dff_traces(
-                    "Choice Time (s)",
-                    half_of_time_window=10,
-                    trial_type="Trial Type",
-                    reward_size="Reward Size",
-                )"""
             neuron_obj.add_aligned_dff_traces(
                 "Choice Time (s)",
                 half_of_time_window=10,
@@ -299,18 +296,6 @@ class Driver:
                             f"WE CARE ABOUT: {eventraces.get_event_traces_name()}"
                         )"""
                         number_of_event_traces += 1
-                        """print(
-                                "Event trace number: ",
-                                number_of_event_traces,
-                            )"""
-                        # print(eventraces.get_dff_traces_of_neuron())
-                        # but can it pull the abet data for every event trace?
-                        # print(eventraces.get_abet())
-                        """now I have abet and dff ready to go, now write
-                            a function in EventTraces to make this processed table
-                            for this neuron depending on the input parameters"""
-                        # testing groupby
-
                         eventraces.process_dff_traces_by()  # returns path of csv
                         # avg_cell_eventrace(csv_path)
                         # PLOT
@@ -322,14 +307,9 @@ class Driver:
                         pass
             print("Time taken for %s: %s" %
                     (cell_name, time.time() - start))
-            break  # <- FOR RUNNING ONE NEURON
-        """except Exception as e:
-            print(
-                "NO ABET TABLE FOUND, SO SINGLE CELL ALIGNMENT & ANALYSIS CAN'T BE DONE!"
-            )
-            print(e)"""
+            # break  # <- FOR RUNNING ONE NEURON
 
 
 if __name__ == "__main__":
-    Driver.main()
-    #Driver.run_one_session_one_neuron()
+    #Driver.main()
+    Driver.run_one_session_one_neuron()
