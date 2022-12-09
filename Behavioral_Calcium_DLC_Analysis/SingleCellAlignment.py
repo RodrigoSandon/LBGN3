@@ -10,12 +10,13 @@ from scipy import stats
 import Cell
 from operator import attrgetter
 from pathlib import Path
+from scipy.ndimage import gaussian_filter1d
 
 
-def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
+def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool, filename: str, ending: str):
     """Plots the figure from the csv file given"""
     path_to_save = csv_path.replace(
-        "plot_ready.csv", "avg_plot_z_-10_0.png")
+        f"{filename}.csv", f"avg_{filename}{ending}.png")
     #df_sub = df.iloc[:, 1:]
     # print(df_sub.head())
     xaxis = list(df.columns)
@@ -41,7 +42,7 @@ def avg_cell_eventrace(df, csv_path, cell_name, plot: bool, export_avg: bool):
 
     if export_avg == True:
         path_to_save = csv_path.replace(
-            "plot_ready.csv", "avg_plot_ready_z_-10_0.csv")
+            f"{filename}.csv", f"avg_{filename}{ending}.csv")
         export_avg_cell_eventraces(cell_name, avg_of_col_lst, path_to_save)
 
 
@@ -94,27 +95,30 @@ def find_paths_2mids(root_path: Path, middle_1: str, middle_2: str, endswith: st
     )
     return files
 
+def gaussian_smooth(df, sigma: float = 1.5):
+    # df = df.iloc[:, 1:]  # omit first col
+
+    return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
 
 def main():
     MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
-    """mice = [
+    mice = [
         "BLA-Insc-1",
         "BLA-Insc-6",
         "BLA-Insc-13",
         "BLA-Insc-14",
         "BLA-Insc-15",
         "BLA-Insc-16",
-        ]"""
-    mice = [
-        "BLA-Insc-14"
         ]
-    sessions = ["Pre-RDT RM"]
+    sessions = ["Pre-RDT RM", "RDT D1"]
     event = "Block_Reward Size_Choice Time (s)"
+    ending_desired = "_z_fullwindow"
+    filename = "plot_ready"
 
     # further preprocess the plot_ready files
     for mouse in mice:
         for session in sessions:
-            files = find_paths_2mids(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData",event ,"plot_ready.csv")
+            files = find_paths_2mids(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData", event ,f"{filename}.csv")
 
             for csv in files:
                 #picking out certain events
@@ -142,21 +146,16 @@ def main():
                     )
                     df = df.T
 
-                    def gaussian_smooth(df, sigma: float = 1.5):
-                        from scipy.ndimage import gaussian_filter1d
-                        # df = df.iloc[:, 1:]  # omit first col
-
-                        return df.apply(gaussian_filter1d, sigma=sigma, axis=0)
                     df = gaussian_smooth(df)
 
                     # 2) Average Z score per each trial
                     avg_cell_eventrace(
-                        df, csv, cell_name, plot=True, export_avg=True
+                        df, csv, cell_name, plot=True, export_avg=True, filename=filename, ending=ending_desired
                     )
 
                     df.insert(0, "Event #", col_to_save)
 
-                    csv_moded_out_path = csv.replace(".csv", "_z_fullwindow.csv")
+                    csv_moded_out_path = csv.replace(".csv", f"{ending_desired}.csv")
                     df.to_csv(csv_moded_out_path, index=False)
                 except TypeError as e:
                     print(e)
@@ -172,6 +171,7 @@ def onecell():
 
 
     ]
+    ending_desired = "_z_fullwindow"
 
     for csv in files:
         #picking out certain events
@@ -208,12 +208,12 @@ def onecell():
 
             # 2) Average Z score per each trial
             avg_cell_eventrace(
-                df, csv, cell_name, plot=True, export_avg=True
+                df, csv, cell_name, plot=True, export_avg=True, ending=ending_desired
             )
 
             df.insert(0, "Event #", col_to_save)
 
-            csv_moded_out_path = csv.replace(".csv", "_z_fullwindow.csv")
+            csv_moded_out_path = csv.replace(".csv", f"{ending_desired}.csv")
             df.to_csv(csv_moded_out_path, index=False)
         except TypeError as e:
             print(e)
