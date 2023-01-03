@@ -257,6 +257,7 @@ class EventVelocity(Velocity):  # for one combo
 
     def process_speed_by(self):
 
+        # groupby takes all possible column values and combines them w other col values
         grouped_table = Session.behavioral_df.groupby(self.groupby_list)
 
         x_axis = self.get_xaxis_list_for_plotting()
