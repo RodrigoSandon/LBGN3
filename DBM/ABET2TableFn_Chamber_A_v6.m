@@ -1,4 +1,4 @@
-function [data, ABETdata, Descriptives, block_end, largeRewSide, smallRewSide] = ABET2TableFn_Chamber_A_v6(filename, dummy)
+function [data, ABETdata, Descriptives, block_end, largeRewSide, smallRewSide] = ABET2TableFn_Chamber_A_v6(filename)
 
 
 %ABET2Table creates a table with columns (outlined under "column headers"
@@ -39,7 +39,13 @@ function [data, ABETdata, Descriptives, block_end, largeRewSide, smallRewSide] =
 % (16)smallRew: total FREE CHOICE smallRew trials
 % (17)bigRew: total FREE CHOICE bigRew trials
 
-[~,~,ABETdata]=xlsread(filename);
+%[~,~,ABETdata]=xlsread(filename);
+%[ABETdata] = readcell(filename);
+class_filename = class(filename);
+disp(class_filename);
+[ABETdata]=readcell(filename);
+
+% [~,~,ABETdata]=csvread(filename);
 
 Headers={'Trial','Block','ForceFree','bigSmall','RewSelection','TrialPossible','stTime','choiceTime'...
     'collectionTime','shock','omission','omissionALL','WL','WSLScode','win_stay','lose_shift','lose_omit','smallRew','bigRew'};
@@ -58,6 +64,8 @@ tbl_size = [];
 
 %find the first nonzero timestamp (all timestamps at 0 are program checks,
 %and we don't care about these when we're searching for behavioral events
+disp(class(ABETdata));
+
 stop=999; rr=2;
 while stop>0
     startRow=rr;

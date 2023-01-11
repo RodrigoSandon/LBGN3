@@ -8,9 +8,13 @@
 % dbmExtractMicrostates: from Zhang et al., 2021
 
 %% Load formatted data for DBM
-SLEAP_data = readtable('67_RDT_D1_body_sleap_data.csv');
-SLEAP_x_data = readtable('67_RDT_D1_x_motion.csv');
-SLEAP_y_data =  readtable('67_RDT_D1_y_motion.csv');
+body_sleap_data_filepath = '/media/rory/Padlock_DT/DeepBehaviorMapping/67/RDT D1/body/67_RDT_D1_body_sleap_data.csv';
+x_motion = '/media/rory/Padlock_DT/DeepBehaviorMapping/67/RDT D1/67_RDT_D1_x_motion.csv';
+y_motion = '/media/rory/Padlock_DT/DeepBehaviorMapping/67/RDT D1/67_RDT_D1_y_motion.csv';
+
+SLEAP_data = readtable(body_sleap_data_filepath);
+SLEAP_x_data = readtable(x_motion);
+SLEAP_y_data =  readtable(y_motion);
 
 
 %% Edit these uservariables with what you want to look at
@@ -20,7 +24,10 @@ uv.dt = 0.3; %what is your frame rate 0.2
 uv.behav = 'choiceTime'; %which behavior/timestamp to look at choiceTime
 
 %% Load behavioral data and adjust the timestamps
-[BehavData,ABETfile,Descriptives, block_end]=ABET2TableFn_Chamber_A_v6('67 10232019.csv',[]);
+
+raw_ABET_file = '/media/rory/Padlock_DT/DeepBehaviorMapping/67/RDT D1/67 10232019.csv';
+
+[BehavData,ABETfile,Descriptives, block_end]=ABET2TableFn_Chamber_A_v6(raw_ABET_file);
 
 ABET_removeheader = ABETfile(2:end,:);
 
@@ -43,47 +50,49 @@ BehavData.stTime(:)=BehavData.stTime(:)+timeShift;
 block_end = block_end +timeShift;
 % shk_times(:)=shk_times(:)+stTime(1);
 
-v = VideoReader('67_RDT_D1.2019-10-23T13_48_06.avi');
+v = VideoReader('/media/rory/Padlock_DT/DeepBehaviorMapping/67/RDT D1/67_RDT_D1.2019-10-23T13_48_06.avi');
 
 %% Inscopix-specific details
-gpio_tbl = readtable('BLA-Insc-1_2021-01-20_RDT_D1_GPIO.csv');
+% gpio_tbl = readtable('BLA-Insc-1_2021-01-20_RDT_D1_GPIO.csv');
 
 shk_times = tbl_ABET.Evnt_Time(strcmp(tbl_ABET.Item_Name, 'shock_on_off') & tbl_ABET.Arg1_Value == 1);
 
-stTime = gpio_tbl.Time_s_(strcmp(gpio_tbl.ChannelName, 'GPIO-2') & gpio_tbl.Time_s_ > 0);
+%stTime = gpio_tbl.Time_s_(strcmp(gpio_tbl.ChannelName, 'GPIO-2') & gpio_tbl.Time_s_ > 0);
 
-frames = gpio_tbl.Time_s_(strcmp(gpio_tbl.ChannelName,'BNC Sync Output') & gpio_tbl.Value == 1);
+%frames = gpio_tbl.Time_s_(strcmp(gpio_tbl.ChannelName,'BNC Sync Output') & gpio_tbl.Value == 1);
 
 %check GPIO file to extract each TTL, since the TTL is 1000ms and is
 %sampled repeatedly. This will only extract events that are separated by >
 %8sec, so be sure to change this if the TTL or task structure changes
 %dramatically! 
-pp = 2;
-ttl_filtered = stTime(1);
-for kk = 1:size(stTime,1)-1
-    if abs(stTime(kk)-stTime(kk+1)) > 8
-        ttl_filtered(pp) = stTime(kk+1);
-        pp=pp+1;
-    end
-end
-ttl_filtered = ttl_filtered';      
+
+%pp = 2;
+%ttl_filtered = stTime(1);
+%for kk = 1:size(stTime,1)-1
+%    if abs(stTime(kk)-stTime(kk+1)) > 8
+%        ttl_filtered(pp) = stTime(kk+1);
+%        pp=pp+1;
+%    end
+%end
+%ttl_filtered = ttl_filtered';     
 
 %Add TTL times received by Inscopix to data table, skipping omitted trials
 %which do not have a corresponding TTL due to a quirk in the behavioral
 %program
-BehavData.Insc_TTL = zeros(length(BehavData.TrialPossible),1);
-dd = 2;
-for cc = 1:size(BehavData, 1)
-    if BehavData.TrialPossible(cc) > stTime(1)
-        BehavData.Insc_TTL(cc) = ttl_filtered(dd);
-        dd = dd+1;
-    elseif BehavData.TrialPossible(cc) <= stTime(1)
-        BehavData.Insc_TTL(cc) = 0;
-    end
-end
 
-BehavData.choTime2 = BehavData.choiceTime-BehavData.TrialPossible;
-BehavData.choTime3 = BehavData.Insc_TTL+BehavData.choTime2;
+%BehavData.Insc_TTL = zeros(length(BehavData.TrialPossible),1);
+%dd = 2;
+%for cc = 1:size(BehavData, 1)
+%    if BehavData.TrialPossible(cc) > stTime(1)
+%        BehavData.Insc_TTL(cc) = ttl_filtered(dd);
+%        dd = dd+1;
+%    elseif BehavData.TrialPossible(cc) <= stTime(1)
+%        BehavData.Insc_TTL(cc) = 0;
+%    end
+%end
+
+%BehavData.choTime2 = BehavData.choiceTime-BehavData.TrialPossible;
+%BehavData.choTime3 = BehavData.Insc_TTL+BehavData.choTime2;
 
 %%
 %filter based on TrialFilter inputs (see TrialFilter.m for full list of
