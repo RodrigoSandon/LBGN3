@@ -2,6 +2,9 @@ import os, glob
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
+import collections
+from matplotlib.pyplot import figure
 
 """ 
 Goal:
@@ -92,8 +95,9 @@ def main():
                 pass
 
     fig, ax = plt.subplots()
+    fig.set_figheight(4)
+    fig.set_figwidth(6)
 
-    import collections
     od = collections.OrderedDict(sorted(master_d_days_tracked_frequency.items()))
     print(f"NUMBER OF MICE: {num_mice}")
     print(od)
@@ -101,15 +105,30 @@ def main():
     x = [int(i) for i in list(od.keys())]
     print(x)
     y = list(od.values())
-    ax.bar(x,y)
-    every_nth = 2
+    ax.bar(x,y, width=0.2, color=(0.2, 0.4, 0.6, 0.6))
+    
+    print("y: ", y)
+    for index, value in enumerate(y):
+        ax.text(value, index,str(value))
+    rects = ax.patches
+
+    # Make some labels.
+    labels = [f"{i}" for i in y]
+
+    for rect, label in zip(rects, labels):
+        height = rect.get_height()
+        ax.text(
+            rect.get_x() + rect.get_width() / 2, height - 1, label, ha="center", va="bottom"
+        )
+    """every_nth = 2
     for n, label in enumerate(ax.xaxis.get_ticklabels()):
         if n % every_nth != 0:
             label.set_visible(False)
     for n, label in enumerate(ax.xaxis.get_major_ticks()):
         if n % every_nth != 0:
-            label.set_visible(False)
-
+            label.set_visible(False)"""
+    ax.set_xticks([1,2])
+    ax.set_xticklabels(["Pre-RDT RM","RDT D1"])
     ax.set_title("Frequency of Days Neurons are Tracked")
     ax.set_xlabel("Day(s)")
     ax.set_ylabel("Frequency")

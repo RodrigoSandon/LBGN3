@@ -12,7 +12,7 @@ import circlify
 
 def main():
 
-    dst = r"/media/rory/Padlock_DT/Rodrigo/Database/VennDiagrams_StackedPlots/results_3"
+    dst = r"/media/rory/Padlock_DT/Rodrigo/Database/VennDiagrams_StackedPlots/results_2"
     os.makedirs(dst, exist_ok=True)
 
     # Will have to connect to two dbs: post for shock responsive and pre for L/S reward responsive

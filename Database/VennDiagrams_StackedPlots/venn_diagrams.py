@@ -12,14 +12,19 @@ import circlify
 
 def main():
 
-    dst = r"/media/rory/Padlock_DT/Rodrigo/Database/VennDiagrams_StackedPlots/results_3"
+    dst = r"/media/rory/Padlock_DT/Rodrigo/Database/VennDiagrams_StackedPlots/results_2"
     os.makedirs(dst, exist_ok=True)
+    comparison_test = "mannwhitneyu"
 
     # Will have to connect to two dbs: post for shock responsive and pre for L/S reward responsive
-    db_post = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Post_Activity_BONF_AUC_-3_0_0_3.db"
-    db_pre = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Pre_Activity_BONF_AUC_-8_-5_-3_0.db"
+    db_post = "/media/rory/Padlock_DT/Rodrigo/Database/BLA_Cells_Ranksum_Post_Activity.db"
+    timewindow_post = "minus10_to_minus5_0_to_3"
 
-    sessions = ["RDT_D1",]
+    db_pre = "/media/rory/Padlock_DT/Rodrigo/Database/BLA_Cells_Ranksum_Pre_Activity.db"
+    timewindow_pre = "minus10_to_minus5_minus3_to_0"
+    shock_resp = True
+
+    sessions = ["RDT_D1", "RDT_D2", "RDT_D3"]
     for session in sessions:
 
         print(F"CURRENT SESSION: {session}")
@@ -27,7 +32,10 @@ def main():
         conn = sqlite3.connect(db_post)
         cursor = conn.cursor()
 
-        shock_col_name = "Shock_Ocurred_Choice_Time_s_True"
+        df = pd.read_sql_query(f"SELECT * FROM {session}", conn)
+        len_df = len(df)
+
+        shock_col_name = f"{comparison_test}_Shock_Ocurred_Choice_Time_s_True_{len_df}_{timewindow_post}"
         query = f"SELECT cell_name, {shock_col_name} FROM {session} WHERE {shock_col_name} = '+' OR {shock_col_name} = '-'"
         query_2 = f"SELECT cell_name, {shock_col_name} FROM {session} WHERE {shock_col_name} = 'Neutral'"
 
@@ -43,9 +51,16 @@ def main():
         
         chosen_cells_formatted = "("
 
+        if shock_resp == True:
+            cells = chosen_cells
+        else:
+            cells = neu_cells
         ##### CHANGE BETWEEN TYPES OF CHOSEN CELLS (RESP OR NONRESP) TO ANALYZE #####
-        for c in chosen_cells:
-            if c == chosen_cells[-1]: #at last one
+        # neu cells - nonresp
+        # chosen cells - resp
+
+        for c in cells:
+            if c == cells[-1]: #at last one
                 chosen_cells_formatted += f"'{c}')"
             else:
                 chosen_cells_formatted += f"'{c}', "
@@ -71,7 +86,7 @@ def main():
         col_names_formatted = ""
         for b in blocks:
             for o in outcome:
-                col_name = "_".join([event, b, o])
+                col_name = "_".join([comparison_test, event, b, o,f"{len_df}", timewindow_pre])
                 if b == blocks[-1] and o == outcome[-1]: # at last one
                     col_names_formatted += col_name
                 else:
@@ -176,8 +191,13 @@ def main():
                     set_labels=("Large", "Non-Responsive"),
                 )
 
+            if shock_resp == True:
+                label = "resp"
+            else:
+                label = "nonresp"
+
             plt.title(f"{session}: Identity Proportions of Shock Responsive Cells in {key}")
-            plt.savefig(os.path.join(dst, f"venn_shock_resp_{session}_{key}.png"))
+            plt.savefig(os.path.join(dst, f"venn_shock_{shock_resp}_{session}_{key}.png"))
             plt.close()
 
 if __name__ == "__main__":

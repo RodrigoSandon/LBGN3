@@ -55,17 +55,28 @@ def main():
     os.makedirs(dst, exist_ok=True)
 
     # Will have to connect to two dbs: post for shock responsive and pre for L/S reward responsive
-    db_post = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Post_Activity.db"
-    db_pre = "/media/rory/Padlock_DT/BLA_Analysis/Database/BLA_Cells_Pre_Activity.db"
+    db_post = "/media/rory/Padlock_DT/Rodrigo/Database/BLA_Cells_Ranksum_Post_Activity.db"
+    timewindow_post = "minus10_to_minus5_0_to_3"
 
+    db_pre = "/media/rory/Padlock_DT/Rodrigo/Database/BLA_Cells_Ranksum_Pre_Activity.db"
+    timewindow_pre = "minus10_to_minus5_minus3_to_0"
+
+    comparison_test = "mannwhitneyu"
     sessions = ["RDT_D1", "RDT_D2", "RDT_D3"]
+    shock_resp = False
+    #sessions = ["RDT_D1"]
     for session in sessions:
         print(F"CURRENT SESSION: {session}")
 
         conn = sqlite3.connect(db_post)
         cursor = conn.cursor()
 
-        shock_col_name = "Shock_Ocurred_Choice_Time_s_True"
+        # Getting number of rows
+        df = pd.read_sql_query(f"SELECT * FROM {session}", conn)
+        len_df = len(df)
+        #print(len(df))
+
+        shock_col_name = f"{comparison_test}_Shock_Ocurred_Choice_Time_s_True_{len_df}_{timewindow_post}"
         query = f"SELECT cell_name, {shock_col_name} FROM {session} WHERE {shock_col_name} = '+' OR {shock_col_name} = '-'"
         query_2 = f"SELECT cell_name, {shock_col_name} FROM {session} WHERE {shock_col_name} = 'Neutral'"
 
@@ -82,8 +93,15 @@ def main():
         chosen_cells_formatted = "("
 
         ##### CHANGE BETWEEN TYPES OF CHOSEN CELLS (RESP OR NONRESP) TO ANALYZE #####
-        for c in neu_cells:
-            if c == neu_cells[-1]: #at last one
+        # neu cells - nonresp
+        # chosen cells - resp
+        if shock_resp == True:
+            cells = chosen_cells
+        else:
+            cells = neu_cells
+
+        for c in cells:
+            if c == cells[-1]: #at last one
                 chosen_cells_formatted += f"'{c}')"
             else:
                 chosen_cells_formatted += f"'{c}', "
@@ -101,7 +119,7 @@ def main():
         col_names_formatted = ""
         for b in blocks:
             for o in outcome:
-                col_name = "_".join([event, b, o])
+                col_name = "_".join([comparison_test, event, b, o,f"{len_df}", timewindow_pre])
                 if b == blocks[-1] and o == outcome[-1]: # at last one
                     col_names_formatted += col_name
                 else:
@@ -237,8 +255,13 @@ def main():
         ax.set_title(f"{session}: Identity Proportions of Shock Non-Responsive Cells Across Blocks")
         ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2,),
             fancybox=True, shadow=True, ncol=4, borderpad=0.3, fontsize="small")
+        
+        if shock_resp == True:
+            label = "respshock"
+        else:
+            label = "nonrespshock"
 
-        plot_path = os.path.join(dst, f"stacked_plot_nonrespshock_{session}.png")
+        plot_path = os.path.join(dst, f"stacked_plot_{label}_{session}.png")
         plt.savefig(plot_path)
 
 

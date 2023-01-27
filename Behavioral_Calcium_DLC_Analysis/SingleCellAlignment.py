@@ -103,15 +103,12 @@ def gaussian_smooth(df, sigma: float = 1.5):
 def main():
     MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis"
     mice = [
-        "BLA-Insc-1",
-        "BLA-Insc-6",
-        "BLA-Insc-13",
         "BLA-Insc-14",
         "BLA-Insc-15",
         "BLA-Insc-16",
         ]
-    sessions = ["Pre-RDT RM", "RDT D1"]
-    event = "Block_Reward Size_Choice Time (s)"
+    sessions = ["Pre-RDT RM"]
+    event = "Block_Reward Size_Shock Ocurred_Choice Time (s)"
     ending_desired = "_z_fullwindow"
     filename = "plot_ready"
 

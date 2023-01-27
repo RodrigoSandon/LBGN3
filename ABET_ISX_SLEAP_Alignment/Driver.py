@@ -20,7 +20,7 @@ class Driver:
         dff traces for a given time window for each accepted cell for each session in each mouse, for a given PTP Inscopix folder
         """
 
-        session_types = [
+        """session_types = [
             "PR D1",
             "PR D2",
             "Pre-RDT RM",
@@ -38,9 +38,18 @@ class Driver:
             "RM D10",
             "Late Shock D1",
             "Late Shock D2",
-        ]  # 1/3/22 ->DONT INCLUDE SHOCK SESSIONS IN THIS PROCESS
+        ] """ # 1/3/22 ->DONT INCLUDE SHOCK SESSIONS IN THIS PROCESS
+        session_types = [
+
+            "Pre-RDT RM",
+        ]
 
         list_of_combos_we_care_about = [
+            "Block_Reward Size_Shock Ocurred_Choice Time (s)",
+        ]
+
+
+        """list_of_combos_we_care_about = [
             "Block_Choice Time (s)",
             "Block_Learning Stratergy_Choice Time (s)",
             "Block_Omission_Choice Time (s)",
@@ -61,7 +70,7 @@ class Driver:
             "Learning Stratergy_Choice Time (s)",
             "Omission_Choice Time (s)",
             "Reward Size_Choice Time (s)",
-        ]
+        ]"""
 
         MASTER_ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/"
         for folder_name in os.listdir(MASTER_ROOT):
@@ -198,7 +207,7 @@ class Driver:
                                     "Time taken for %s: %s"
                                     % (cell_name, time.time() - start)
                                 )
-                                break # for one neuron
+                                #break # for one neuron
                         except:
                             print(
                                 "NO ABET TABLE FOUND, SO SINGLE CELL ALIGNMENT & ANALYSIS CAN'T BE DONE!"
@@ -311,5 +320,5 @@ class Driver:
 
 
 if __name__ == "__main__":
-    #Driver.main()
-    Driver.run_one_session_one_neuron()
+    Driver.main()
+    #Driver.run_one_session_one_neuron()
