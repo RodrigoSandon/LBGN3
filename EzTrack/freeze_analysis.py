@@ -2,7 +2,7 @@ import os
 import holoviews as hv
 import numpy as np
 import pandas as pd
-import FreezeAnalysis_Functions as fz
+import EzTrack.FreezeAnalysis_Functions as fz
 
 
 dpath = r"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/Conditioning/"

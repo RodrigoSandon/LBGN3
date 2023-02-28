@@ -4,14 +4,20 @@ import pandas as pd
 import numpy as np
 import holoviews as hv
 import FreezeAnalysis_Functions as fz
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+from datetime import timedelta
+import math
+import random
+import matplotlib.colors as mcolors
 
 def main():
 
     FreezeThresh = 180 
     MinDuration = 40
 
-    # experiment_types = ["Extinction", "Retrieval", "Conditioning"]
-    experiment_types = ["Conditioning"]
+    experiment_types = ["Extinction", "Retrieval", "Conditioning"]
 
     for experiment_type in experiment_types:
     
@@ -97,26 +103,34 @@ def main():
             fz.SaveData(video_dict,Motion,Freezing,mt_cutoff,FreezeThresh,MinDuration)
             print('Average Freezing: {x}%'.format(x=np.average(Freezing)))
 
-            """plt_fz = hv.Area(Freezing*(Motion.max()/100),'Frame','Motion').opts(
-                color='lightgray',line_width=0,line_alpha=0)
-            plt_mt = hv.Curve((np.arange(len(Motion)),Motion),'Frame','Motion').opts(
-                height=h,width=w,line_width=1, color='steelblue',
-                title="Motion Across Session with Freezing Highlighted in Gray")
-            plt_fz*plt_mt*hv.HLine(y=FreezeThresh).opts(color='red',line_width=1,line_dash='dashed')"""
-
-            """display_dict = {
-                'start'      : disp_d_start, 
-                'end'        : disp_d_end,
-                'fps'        : fps,
-                'resize'     : None,
-                'save_video' : True
-            }
-
-            fz.PlayVideo(video_dict,display_dict,Freezing,mt_cutoff,SIGMA=1)
-            """
             vid_name_no_ext = vid_name.split(".")[0]
             result_filename = f"{vid_name_no_ext}_FreezingOutput.csv"
             result_path = os.path.join(ROOT, result_filename)
+    
+    
+    experiment_types = ["Extinction", "Retrieval","Conditioning"]
+    
+    for experiment_type in experiment_types:
+
+        ROOT_TIMING_FILE = "/media/rory/Padlock_DT/Fear_Conditioning_Control/"
+        timing_file_name = f"{experiment_type}_CS_timing_FC_Control.csv"
+        timing_filepath = os.path.join(ROOT_TIMING_FILE, timing_file_name)
+        ROOT = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/{experiment_type}"
+
+        fps = 30
+
+        for file in os.listdir(ROOT):
+            if "FreezingOutput.csv" in file:
+                file_path = os.path.join(ROOT, file)
+                file_out_path = file_path.replace(".csv", "_processed.csv")
+                print(file_path)
+
+                df_freezing_out = pd.read_csv(file_path)
+                #df_freezing_out = freezing_output_processing(file_path)
+                df_timing = timing_file_processing(timing_filepath, fps)
+                df_aligned = freezing_alignment(df_freezing_out, df_timing)
+
+                df_aligned.to_csv(file_out_path, index=False)
 
 
 
