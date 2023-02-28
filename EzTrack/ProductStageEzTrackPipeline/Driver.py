@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import holoviews as hv
 import FreezeAnalysis_Functions as fz
+import EzTrackFunctions as ez
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -16,19 +17,36 @@ def main():
 
     FreezeThresh = 180 
     MinDuration = 40
+    number_of_frames_to_calibrate = 600
+    calibrate_video_what_frame_to_start = 0
+    dsmpl = 1
+    h,w = 300,1000  
+    vid_d_start = 0 # when to start freeze analysis on a given video
+
+    event_tracked = 'CS ON'
+    half_time_window = 30
+    fps = 30
+
+    correspondence_filepath = "/media/rory/Padlock_DT/Fear_Conditioning_Control/mouse_chamber_corrrespondence.csv"
+    colname_vid_paths = "mouse_vid_path"
+    letter_column_name = "chamber"
+    eztrack_output_processed_suffix = "FreezingOutput_processed.csv"
+
+    experimental_groups_csv = "/media/rory/Padlock_DT/Fear_Conditioning_Control/experimental_groups.csv"
+    experimental_groups_df = pd.read_csv(experimental_groups_csv)
+
+    ROOT_TIMING_FILE = "/media/rory/Padlock_DT/Fear_Conditioning_Control/"
+
+    root_calibration_vids = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/Calibration"
+    ROOT = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/"
 
     experiment_types = ["Extinction", "Retrieval", "Conditioning"]
 
     for experiment_type in experiment_types:
-    
-        correspondece_file = "mouse_chamber_corrrespondence.csv"
-        colname_vid_paths = "mouse_vid_path"
+        timing_file_name = f"{experiment_type}_CS_timing_FC_Control.csv"
+        timing_filepath = os.path.join(ROOT_TIMING_FILE, timing_file_name)
 
-        root_calibration_vids = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/Calibration"
-
-        ROOT = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/{experiment_type}"
-
-        correspondence_filepath = os.path.join(ROOT, correspondece_file)
+        ROOT = os.path.join(ROOT, experiment_type)
 
         df_correspondence = pd.read_csv(correspondence_filepath)
 
@@ -39,7 +57,7 @@ def main():
 
             vid_name = vid.split("/")[-1]
 
-            chamber = df_correspondence.query(f"{colname_vid_paths}=='{vid}'")["chamber"]
+            chamber = df_correspondence.query(f"{colname_vid_paths}=='{vid}'")[letter_column_name]
             chamber = chamber.values[0]
 
             # the calibration video must contain the two: experiment type and chamber
@@ -55,11 +73,11 @@ def main():
             video_dict = {
                 'dpath'   : root_calibration_vids,  
                 'file'    : calibration_vid_file,
-                'start'   : 0, 
+                'start'   : calibrate_video_what_frame_to_start, 
                 'end'     : None,
-                'dsmpl'   : 1,
+                'dsmpl'   : dsmpl,
                 'stretch' : dict(width=1, height=1),
-                'cal_frms' : 600
+                'cal_frms' : number_of_frames_to_calibrate
                 }
 
 
@@ -73,16 +91,7 @@ def main():
             length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             print("length of vid: ", length)
 
-            h,w = 300,1000  
-
-            vid_d_start = 0
             vid_d_end = length
-            dsmpl = 1
-
-            disp_d_start = 1
-            disp_d_end = 600
-            fps = 30
-
 
             video_dict = {
                 'dpath'   : ROOT,  
@@ -107,31 +116,125 @@ def main():
             result_filename = f"{vid_name_no_ext}_FreezingOutput.csv"
             result_path = os.path.join(ROOT, result_filename)
     
-    
-    experiment_types = ["Extinction", "Retrieval","Conditioning"]
-    
-    for experiment_type in experiment_types:
+    while True:
+        user_input = input("Do you want to continue running the next part of the code (ezTrack output processing)? (y/n): ")
+        if user_input.lower() == "y":
+            # Code to continue running goes here
 
-        ROOT_TIMING_FILE = "/media/rory/Padlock_DT/Fear_Conditioning_Control/"
-        timing_file_name = f"{experiment_type}_CS_timing_FC_Control.csv"
-        timing_filepath = os.path.join(ROOT_TIMING_FILE, timing_file_name)
-        ROOT = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/{experiment_type}"
+            for file in os.listdir(ROOT):
+                if "FreezingOutput.csv" in file:
+                    file_path = os.path.join(ROOT, file)
+                    file_out_path = file_path.replace(".csv", "_processed.csv")
+                    print(file_path)
 
-        fps = 30
+                    df_freezing_out = pd.read_csv(file_path)
+                    df_timing = ez.timing_file_processing(timing_filepath, fps)
+                    df_aligned = ez.freezing_alignment(df_freezing_out, df_timing)
 
-        for file in os.listdir(ROOT):
-            if "FreezingOutput.csv" in file:
-                file_path = os.path.join(ROOT, file)
-                file_out_path = file_path.replace(".csv", "_processed.csv")
-                print(file_path)
+                    df_aligned.to_csv(file_out_path, index=False)
+            break
+        elif user_input.lower() == "n":
+            print("Exiting program...")
+            break
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")
 
-                df_freezing_out = pd.read_csv(file_path)
-                #df_freezing_out = freezing_output_processing(file_path)
-                df_timing = timing_file_processing(timing_filepath, fps)
-                df_aligned = freezing_alignment(df_freezing_out, df_timing)
+    while True:
+        user_input = input("Do you want to continue running the next part of the code (binning and plotting)? (y/n): ")
+        if user_input.lower() == "y":
+            # Code to continue running goes here
+            opsin_group_colors = [mcolors.to_hex((random.random(), random.random(), random.random())), 
+                          mcolors.to_hex((random.random(), random.random(), random.random()))]
 
-                df_aligned.to_csv(file_out_path, index=False)
+            df_timing = pd.read_csv(timing_filepath)
+            cs_nums = range(1, len(df_timing) + 1)
 
+            fig, ax = plt.subplots()
+
+            grouped_df = experimental_groups_df.groupby("opsin").agg(lambda x: list(x))
+            d_from_df = grouped_df.T.to_dict(orient='list')
+
+            # flatten 2d array
+            for key, values in d_from_df.items():
+                d_from_df[key] = values[0]
+
+            # new d will be created of avgs of groups
+            d_groups = {}   
+
+            num_mice = 0
+            for file in os.listdir(ROOT):
+                if eztrack_output_processed_suffix in file:
+                    mouse_num = int(file.split("_")[0].replace("RRD", ""))
+                    opsin = None
+
+                    # check if mouse is in one of the opsin groups
+                    for key, values in d_from_df.items():
+                        if mouse_num in d_from_df[key]:
+                            opsin = key
+                            
+                    print(mouse_num, ":", opsin)
+
+                    processed_freezing_out_filename = file
+                    processed_freezing_out_path = os.path.join(ROOT, processed_freezing_out_filename)
+                    
+                    df = pd.read_csv(processed_freezing_out_path)
+                    frame_lst = list(df["Frame"])
+
+                    timestamps_lst = list(df["Timestamps"])
+                    
+                    # stamped_lst is the x
+                    stamped_lst = ez.overlap_two_lists(frame_lst, timestamps_lst)
+
+                    # modify y to just be binary and not 0 and 100
+                    freezing_lst = ez.lst_to_binary_lst(list(df["Freezing"]))
+                    #print(freezing_lst)
+
+                    # half_time_window is in seconds
+                    x, proportions = ez.bin_data(frame_lst, timestamps_lst,freezing_lst, half_time_window = half_time_window, fps=fps, event_tracked=event_tracked)
+                    #list_of_freezing_props_all_mice.append(proportions)
+
+                    # add to d
+                    if opsin in d_groups:
+                        d_groups[opsin].append(proportions)
+                    else:
+                        d_groups[opsin] = []
+                        d_groups[opsin].append(proportions)
+
+                    num_mice += 1
+                
+            count = 0
+            for key in d_groups:
+
+                # Convert the list of lists to a NumPy array
+                array_of_lists = np.array(d_groups[key])
+
+                # Calculate the average of the array along the columns (axis=0)
+                average = np.mean(array_of_lists, axis=0)
+
+                # Calculate the standard deviation of the array along the columns (axis=0)
+                std_deviation = np.std(array_of_lists, axis=0)
+                std_error = [std / math.sqrt(num_mice) for std in std_deviation]
+
+                ax.plot(cs_nums, average, label=key, color=opsin_group_colors[count])
+                plt.errorbar(cs_nums, average, yerr = std_error, fmt='-o', color=opsin_group_colors[count], capsize=3)
+
+                outfilename = f"{experiment_type}_halftimewdw{half_time_window}_fps{fps}_plot.png"
+                outpath = os.path.join(ROOT, outfilename)
+                count += 1
+
+            ax.set_title(f"Proportion of Freezing - {experiment_type} (n={num_mice})")
+            ax.set_ylabel(f"Proportion")
+            ax.set_xlabel(f"CS #")
+            plt.legend()
+            fig.savefig(outpath)
+            plt.close()
+
+            break
+        elif user_input.lower() == "n":
+            print("Exiting program...")
+            break
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")
 
 
 
