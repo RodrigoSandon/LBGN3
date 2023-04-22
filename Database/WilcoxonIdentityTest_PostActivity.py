@@ -207,12 +207,16 @@ class WilcoxonIdentityTest:
 
             # cell doesn't exists: means we have an empty table
             if not isinstance(result, tuple):
-
-                # insert cell name and id
-                self.cursor.execute(
-                    f"INSERT INTO {self.table_name} VALUES (?,?)", [cell, id]
-                )
-                self.conn.commit()
+                
+                try:
+                    # insert cell name and id
+                    self.cursor.execute(
+                        f"INSERT INTO {self.table_name} VALUES (?,?)", [cell, id]
+                    )
+                    self.conn.commit()
+                except Exception as e:
+                    print(e)
+                    pass
 
             # if cellalready exists: dont insert cell name, jus add test (new col) and its id val, must be a new subevent
             # (some data already exists in the db from first run)
@@ -230,7 +234,7 @@ def main():
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
 
     # Set db name and curr subevent path
-    db_name = "BLA_Cells_Post_Activity"
+    db_name = "BLA_Cells_Ranksum_Consumption_Identities"
 
     # Create db connection
     conn = sqlite3.connect(f"{db_name}.db")
@@ -238,6 +242,7 @@ def main():
 
     lst = os.listdir(ROOT)
     lst.reverse()
+    lst = ["Pre-RDT RM", "RDT D1", "RDT D2", "RDT D3"]
     for session in lst:
         print(session)
         SESSION_PATH = os.path.join(ROOT, session)
@@ -280,11 +285,11 @@ def main():
                     change_cell_names(pd.read_csv(CONCAT_CELLS_PATH)),
                     CONCAT_CELLS_PATH,
                     session=table_name,
-                    event_type="_".join(list_of_eventtype_name),
+                    event_type = "_".join(list_of_eventtype_name),
                     base_lower_bound_time=-10,
                     base_upper_bound_time=-5,
-                    lower_bound_time=0,
-                    upper_bound_time=3,
+                    lower_bound_time=1,
+                    upper_bound_time=4,
                     reference_pair={0: 100},
                     hertz=10,
                     alpha=0.01,

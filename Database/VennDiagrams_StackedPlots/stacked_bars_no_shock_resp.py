@@ -60,15 +60,8 @@ def main():
     dst = r"/media/rory/Padlock_DT/Rodrigo/Database/VennDiagrams_StackedPlots/results_2"
     os.makedirs(dst, exist_ok=True)
 
-    # Will have to connect to two dbs: post for shock responsive and pre for L/S reward responsive
-    db_post = "/media/rory/Padlock_DT/Rodrigo/Database/BLA_Cells_Ranksum_Post_Activity.db"
-    timewindow_post = "minus10_to_minus5_0_to_3"
-
-    """db_pre = "/media/rory/Padlock_DT/Rodrigo/Database/BLA_Cells_Ranksum_Consumption_Identities.db"
-    timewindow_pre = "minus10_to_minus5_1_to_4"""
-
-    db_pre = "/media/rory/Padlock_DT/Rodrigo/Database/BLA_Cells_Ranksum_Pre_Activity.db"
-    timewindow_pre = "minus10_to_minus5_minus3_to_0"
+    db_pre = "/media/rory/Padlock_DT/Rodrigo/Database/BLA_Cells_Ranksum_Consumption_Identities.db"
+    timewindow_pre = "minus10_to_minus5_1_to_4"
 
     comparison_test = "mannwhitneyu"
     sessions = ["Pre_RDT_RM","RDT_D1", "RDT_D2", "RDT_D3"]
@@ -76,47 +69,6 @@ def main():
     #sessions = ["RDT_D1"]
     for session in sessions:
         print(F"CURRENT SESSION: {session}")
-
-        conn = sqlite3.connect(db_post)
-        cursor = conn.cursor()
-
-        # Getting number of rows
-        df = pd.read_sql_query(f"SELECT * FROM {session}", conn)
-        len_df = len(df)
-        #print(len(df))
-        shock_happened = "False"
-        shock_col_name = f"{comparison_test}_Shock_Ocurred_Choice_Time_s_{shock_happened}_{len_df}_{timewindow_post}"
-        query = f"SELECT cell_name, {shock_col_name} FROM {session} WHERE {shock_col_name} = '+' OR {shock_col_name} = '-'"
-        query_2 = f"SELECT cell_name, {shock_col_name} FROM {session} WHERE {shock_col_name} = 'Neutral'"
-
-        sql_query = pd.read_sql_query(query, conn)
-        sql_query2 = pd.read_sql_query(query_2, conn)
-        df_1 = pd.DataFrame(sql_query)
-        df_2 = pd.DataFrame(sql_query2)
-
-        chosen_cells = list(df_1["cell_name"])
-        num_chosen_cells = len(chosen_cells)
-        neu_cells = list(df_2["cell_name"])
-        num_neu_cells = len(neu_cells)
-        
-        chosen_cells_formatted = "("
-
-        ##### CHANGE BETWEEN TYPES OF CHOSEN CELLS (RESP OR NONRESP) TO ANALYZE #####
-        # neu cells - nonresp
-        # chosen cells - resp
-        if shock_resp == True:
-            cells = chosen_cells
-        else:
-            cells = neu_cells
-
-        for c in cells:
-            if c == cells[-1]: #at last one
-                chosen_cells_formatted += f"'{c}')"
-            else:
-                chosen_cells_formatted += f"'{c}', "
-
-        #print(chosen_cells_formatted)
-        conn.close()
 
         conn = sqlite3.connect(db_pre)
         df = pd.read_sql_query(f"SELECT * FROM {session}", conn)
@@ -140,7 +92,7 @@ def main():
                     col_names_formatted += actual_col + ", "
         
 
-        query = f"SELECT cell_name, {col_names_formatted} FROM {session} WHERE cell_name IN {chosen_cells_formatted}"
+        query = f"SELECT cell_name, {col_names_formatted} FROM {session}"
 
         sql_query = pd.read_sql_query(query, conn)
         df_3 = pd.DataFrame(sql_query)
@@ -209,6 +161,7 @@ def main():
             "Dual Responsive": list(),
             "Non-Responsive": list()
         }
+        print(final_cell_classifications)
         print(final_cell_classifications_arranged)
 
         #all keys exist, ready to append cells
@@ -266,7 +219,7 @@ def main():
 
         ax.set_ylabel("# Cells")
         ax.set_xlabel("Block")
-        ax.set_title(f"{session}: Identity Proportions of Shock Non-Responsive Cells Across Blocks")
+        ax.set_title(f"{session}: Identity Proportions of Cells Across Blocks")
         ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2,),
             fancybox=True, shadow=True, ncol=4, borderpad=0.3, fontsize="small")
         
@@ -275,7 +228,7 @@ def main():
         else:
             label = "nonrespshock"
 
-        plot_path = os.path.join(dst, f"stacked_plot_{label}_{session}_{timewindow_post}_{timewindow_pre}.png")
+        plot_path = os.path.join(dst, f"stacked_plot_{label}_{session}_{timewindow_pre}.png")
         plt.savefig(plot_path)
 
 

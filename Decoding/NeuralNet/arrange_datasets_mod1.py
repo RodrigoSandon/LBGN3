@@ -86,7 +86,7 @@ class TrialSet:
 
 def main():
     ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datasets_69_100/"
-    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_69_100"
+    DST_ROOT = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_69_100_v2"
     # ex input: /media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Correlation_Datatrial_sets/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/True/trial_1_corrmap.csv
     # ex output: /media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datatrial_sets/Neural_Net/BLA-Insc-1/RDT D1/Shock Ocurred_Choice Time (s)/train/True/trial_1_corrmap.csv
     
@@ -95,33 +95,7 @@ def main():
 
     files = find_paths(ROOT, f"trial_*_corrmap.csv")
     
-    ##### GETTING INDIVIDUAL MOUSE TRIAL COUNTS #####
-    """for f in files:
-        # need to count how many trials are in each subevent
-        # to find out limiting factor
-        f = Path(f)
-
-        mouse = f.parts[7]
-        session = f.parts[8]
-        event = f.parts[9]
-        subevent = f.parts[10]
-
-        root = f.parent
-        num_trials = find_paths_num_paths_no_btwn(root, "trial_*_corrmap.csv")
-        
-        if mouse not in d:
-            d[mouse] = {}
-        elif mouse in d:
-            if session not in d[mouse]:
-                d[mouse][session] = {}
-            elif session in d[mouse]:
-                if event not in d[mouse][session]:
-                    d[mouse][session][event] = {}
-                elif event in d[mouse][session]:
-                    d[mouse][session][event][subevent] = num_trials
-
-    for key, value in d.items():
-        print(key, value)"""
+    sessions_to_include = ["Pre-RDT RM", "RDT D1"]
     ##### GETTING ALL MOUSE TRIAL COUNTS #####
     train_prop = 0.7
     val_prop = 0.1
@@ -201,58 +175,60 @@ def main():
     ##### NOW COPY/PASTE THOSE RANDOMLY CHOSEN CSV FILES TO APPROPRIATE DIRS #####
     # Reminder: each session type is it's own decoding session
     for session, event in d.items():
-        for event, subevent in d[session].items():
-            for subevent, trial_set in d[session][event].items():
-                new_dir_train = os.path.join(DST_ROOT, session, event, "train", subevent)
-                new_dir_test = os.path.join(DST_ROOT, session, event, "test", subevent)
-                new_dir_val = os.path.join(DST_ROOT, session, event, "val", subevent)
+        if session in sessions_to_include:
+            for event, subevent in d[session].items():
+                for subevent, trial_set in d[session][event].items():
+                    # Update directory paths
+                    new_dir_train = os.path.join(DST_ROOT, "train", f"{session} {subevent}")
+                    new_dir_test = os.path.join(DST_ROOT, "test", f"{session} {subevent}")
+                    new_dir_val = os.path.join(DST_ROOT, "val", f"{session} {subevent}")
 
-                os.makedirs(new_dir_train, exist_ok=True)
-                os.makedirs(new_dir_test, exist_ok=True)
-                os.makedirs(new_dir_val, exist_ok=True)
-                
-                """print(session, event, subevent, trial_set.num_trials)
-                print("INTERSECIONS")
-                
-                print(any(i in trial_set.train_trial_set for i in trial_set.val_trial_set))
-                print(any(i in trial_set.train_trial_set for i in trial_set.test_trial_set))
-                print(any(i in trial_set.test_trial_set for i in trial_set.val_trial_set))
-"""
-                print("TRAIN trial_set")
-                for csv in trial_set.train_trial_set:
-                    csv_path = Path(csv)
-                    mouse = csv_path.parts[7]
-                    filename = csv_path.name
-                    new_path = os.path.join(new_dir_train, filename)
-                    #print(f"source: {csv1} | dest: {new_path1}")
-                    # add mouse name to file, else we get lower file counts
-                    new_path = new_path.replace(".csv", f"_{mouse}.csv")
-                    shutil.copy(csv, new_path)
-                #print(len(trial_set.train_trial_set))
+                    os.makedirs(new_dir_train, exist_ok=True)
+                    os.makedirs(new_dir_test, exist_ok=True)
+                    os.makedirs(new_dir_val, exist_ok=True)
+                    
+                    """print(session, event, subevent, trial_set.num_trials)
+                    print("INTERSECIONS")
+                    
+                    print(any(i in trial_set.train_trial_set for i in trial_set.val_trial_set))
+                    print(any(i in trial_set.train_trial_set for i in trial_set.test_trial_set))
+                    print(any(i in trial_set.test_trial_set for i in trial_set.val_trial_set))
+    """
+                    print("TRAIN trial_set")
+                    for csv in trial_set.train_trial_set:
+                        csv_path = Path(csv)
+                        mouse = csv_path.parts[7]
+                        filename = csv_path.name
+                        new_path = os.path.join(new_dir_train, filename)
+                        #print(f"source: {csv1} | dest: {new_path1}")
+                        # add mouse name to file, else we get lower file counts
+                        new_path = new_path.replace(".csv", f"_{mouse}.csv")
+                        shutil.copy(csv, new_path)
+                    #print(len(trial_set.train_trial_set))
 
-                print("VAL trial_set")
-                for csv in trial_set.val_trial_set:
-                    csv_path = Path(csv)
-                    mouse = csv_path.parts[7]
-                    filename = csv_path.name
-                    new_path = os.path.join(new_dir_val, filename)
-                    #print(f"source: {csv1} | dest: {new_path1}")
-                    # add mouse name to file, else we get lower file counts
-                    new_path = new_path.replace(".csv", f"_{mouse}.csv")
-                    shutil.copy(csv, new_path)
-                #print(len(trial_set.val_trial_set))
-                
-                print("TEST trial_set")
-                for csv in trial_set.test_trial_set:
-                    csv_path = Path(csv)
-                    mouse = csv_path.parts[7]
-                    filename = csv_path.name
-                    new_path = os.path.join(new_dir_test, filename)
-                    #print(f"source: {csv1} | dest: {new_path1}")
-                    # add mouse name to file, else we get lower file counts
-                    new_path = new_path.replace(".csv", f"_{mouse}.csv")
-                    shutil.copy(csv, new_path)
-                #print(len(trial_set.test_trial_set))
+                    print("VAL trial_set")
+                    for csv in trial_set.val_trial_set:
+                        csv_path = Path(csv)
+                        mouse = csv_path.parts[7]
+                        filename = csv_path.name
+                        new_path = os.path.join(new_dir_val, filename)
+                        #print(f"source: {csv1} | dest: {new_path1}")
+                        # add mouse name to file, else we get lower file counts
+                        new_path = new_path.replace(".csv", f"_{mouse}.csv")
+                        shutil.copy(csv, new_path)
+                    #print(len(trial_set.val_trial_set))
+                    
+                    print("TEST trial_set")
+                    for csv in trial_set.test_trial_set:
+                        csv_path = Path(csv)
+                        mouse = csv_path.parts[7]
+                        filename = csv_path.name
+                        new_path = os.path.join(new_dir_test, filename)
+                        #print(f"source: {csv1} | dest: {new_path1}")
+                        # add mouse name to file, else we get lower file counts
+                        new_path = new_path.replace(".csv", f"_{mouse}.csv")
+                        shutil.copy(csv, new_path)
+                    #print(len(trial_set.test_trial_set))
     
     # Option 1: Combine all trial corrmaps of specific subevent for training and val, test for any corrmap of any mouse (most data, most generalizable)
         # would work well if the model is able to account for multiple microcircuit states that describe one class

@@ -171,6 +171,12 @@ class FeatureDataset(Dataset):
   def __getitem__(self, idx):
     return self.X_train[idx], self.Y_train[idx]
 
+
+PATH = "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_69_100/model_postbac_posterday_350.pt"
+model = ResNet18()
+model.load_state_dict(torch.load(PATH))
+model.eval()
+
 train_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_69_100/RDT D1/Block_Choice Time (s)/train")
 test_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_69_100/RDT D1/Block_Choice Time (s)/test")
 val_set = FeatureDataset("/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_69_100/RDT D1/Block_Choice Time (s)/val")
@@ -183,14 +189,6 @@ testloader = torch.utils.data.DataLoader(test_set, batch_size=mini_batch_size)
 valloader = torch.utils.data.DataLoader(val_set, batch_size=mini_batch_size)
 cats = ["1.0", "2.0","3.0"]
 
-train_losses = []
-valid_losses = []
-val_kappa = []
-test_accuracies = []
-valid_accuracies = []
-kappa_epoch = []
-time0 = time()
-
 if torch.cuda.is_available():
     device = torch.device('cuda')
     print("cuda available")
@@ -198,77 +196,9 @@ else:
     device = torch.device('cpu')
     print("cpu")
 
-model = ResNet18()
-#model = resnet18()
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-model.to(device)
-
-def train(epochs, model):
-    valid_loss_min = np.Inf
-    train_loss = 0.0
-    valid_loss = 0.0
-    for e in range(epochs):
-        running_loss = 0
-        for images, labels in trainloader:
-            #print(images)
-            #print(labels)
-            images = images.unsqueeze(1)
-            #print(images.shape)
-            #long(images) convert types
-            images = images.to(device)
-            #print(images.shape)
-            labels = labels.to(device)
-    
-            # Training pass
-            optimizer.zero_grad()
-    
-            output = model(images).to(device)
-        
-            loss = criterion(output, labels)
-    
-            # backpropagation: calculate the gradient of the loss function w.r.t model parameters
-            loss.backward()
-    
-            # And optimizes its weights here
-            optimizer.step()
-    
-            running_loss += loss.item()
-            
-            train_loss += loss.item()*images.size(0)
-            valid_loss += loss.item()*images.size(0)
-            
-            y_actual = labels.data.cpu().numpy()
-            y_pred = output[:,-1].detach().cpu().numpy()
-            val_kappa.append(cohen_kappa_score(y_actual, y_pred.round()))  
-        else:
-            
-            train_loss = train_loss/len(trainloader.sampler)
-            valid_loss = valid_loss/len(valloader.sampler)
-            valid_kappa = np.mean(val_kappa)
-            kappa_epoch.append(np.mean(val_kappa))
-            train_losses.append(train_loss)
-            valid_losses.append(valid_loss)
-            
-            print('Epoch: {} | Training Loss: {:.6f} | Val. Loss: {:.6f} | Val. Kappa Score: {:.4f}'.format(
-                e, train_loss, valid_loss, valid_kappa))
-            
-            if valid_loss <= valid_loss_min:
-                print('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(
-                valid_loss_min,
-                valid_loss))
-                torch.save(model.state_dict(), '/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_69_100/trained_model_150.pt')
-                valid_loss_min = valid_loss
-    print("\nTraining Time (in minutes) =", (time()-time0)/60)
-
-
-train(150, model)
-
-plt.plot(train_losses, label='Training loss')
-plt.plot(valid_losses, label='Validation loss')
-plt.xlabel("Epochs")
-plt.ylabel("Loss")
-plt.legend(frameon=False)
+#Confusion Matrix
+from sklearn.metrics import confusion_matrix
+import itertools
 
 correct_count, all_count = 0, 0
 
@@ -291,28 +221,6 @@ with torch.no_grad():
 
         y_true.extend(labels.cpu().numpy())
         y_pred.extend(predicted.cpu().numpy())
-
-"""with torch.no_grad():
-    for data in valloader:
-        images, labels = data
-        images = images.to(device)
-        images = images.unsqueeze(1)
-        #standard for image is 4 dimensional
-        labels = labels.to(device)
-        outputs = model(images)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()"""
-
-print('Accuracy of the network test images: %d %%' % (
-    100 * correct / total))
-
-torch.save(model.state_dict(), "/media/rory/Padlock_DT/BLA_Analysis/Decoding/Pearson_Input_Datasets/Neural_Net_69_100/model_postbac_posterday_150.pt")
-plt.show()
-
-#Confusion Matrix
-from sklearn.metrics import confusion_matrix
-import itertools
 
 
 def plot_confusion_matrix(cm, classes,

@@ -15,6 +15,159 @@ import matplotlib.colors as mcolors
 
 def main():
 
+    people = ["Patrick", "Olena", "Ozge"]
+    experiments = ["conditioning", "extinction_1", "extinction_2", "retrieval",	"late_retrieval", "renewal"]
+
+    # these named columns will be searched for in the startime_info.csv
+    # indicates how mnay of these vid types we have to process eztrack for
+    # names should stay the same (or at least one of their identifiers should stay the same) so i can look them up
+    people_experiments_dict = {
+        "Patrick": ["conditioning", "extinction_1", "retrieval"],
+        "Olena": ["conditioning", "extinction_1", "extinction_2", "retrieval", "late_retrieval", "renewal"],
+        "Ozge": ["conditioning", "extinction_1"]
+    }
+
+    # these named columns will be searched for in the startime_info.csv
+    # these look up columns tell sus what specifc vids to look for, and indication for cali
+    # make tuple once you find cali
+
+    # at this point we have everything we need to search for the video and it's calibration video
+    # remember the finders list has the same index as the row_data list
+    # Olena: /media/rory/Padlock_DT/Fear_Conditioning_Control/Olena_Group/080822_conditioning/{camera_type} camera/{animal_name}-220808-125748_Cam{camera_id}.avi
+    #   - to find vid give animal_name, experiment, camera_id, and camera_type, to find cali just chamber, to group experimental group and camera type? maybe
+    # Ozge: /media/rory/Padlock_DT/Fear_Conditioning_Control/Ozge_Group/extinction_1/Ozge-Grabecb-190530-155232_C16149A_C17605B-221212-100827_Cam1.avi
+    #   - looks like they just used usb video (that's why there's camera_id)
+    #   - to find vid give animal_id and experiment, to find cali just chamber, to group just experimental group
+    # Patrick: /media/rory/Padlock_DT/Fear_Conditioning_Control/Patrick_Group/conditioning/RRD276_Conditioning.avi
+    #   - just give the animal_id and experiment to find vid, to find cali just chamber, to group just experimental group
+
+    # depending on who i search the search will be slightly different
+    # "chamber" and "experimental_group" are separate lookups, and they pertain 
+    look_up_cols = {
+        "Patrick": ["animal_id", "experiment_id"],
+        "Olena":["animal_id", "experiment_id", "camera_id", "camera_type"],
+        "Ozge": ["animal_id", "experiment_id"]
+    }
+
+    people_paths_dict = {
+        "Patrick": "/media/rory/Padlock_DT/Fear_Conditioning_Control/Patrick_Group",
+        "Olena": "/media/rory/Padlock_DT/Fear_Conditioning_Control/Olena_Group",
+        "Ozge": "/media/rory/Padlock_DT/Fear_Conditioning_Control/Ozge_Group"
+    }
+
+    start_time_info_suffix  = "FC_startime_info.csv"
+
+    ROOT = r"/media/rory/Padlock_DT/Fear_Conditioning_Control/"
+
+    for person in people:
+        print(person)
+        PERSON_ROOT = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/{person}_Group"
+        # this person's root dir contains the experiment folders and the startime_info
+        # each row in this df is a mouse, each mouse will contain n many types of experiments depending
+        # how many experiments types this person has done, this is indicated by the columns in the df
+        # as we go through the columns it tell us how much we shall search
+        # search folders are: 
+        info_csv_path = os.path.join(PERSON_ROOT, f"{person.lower()}_{start_time_info_suffix}")
+        info_df = pd.read_csv(info_csv_path)
+        # get the index of the "conditioning" column
+        cond_idx = info_df.columns.get_loc("conditioning")
+
+        # get a list of column names up to the "conditioning" column
+        col_names_before_cond = info_df.columns[:cond_idx].tolist()
+
+        # print the list of column names
+        print("finders:", col_names_before_cond)
+
+        # get a list of column names after including the "conditioning" column
+        col_names_before_cond = info_df.columns[cond_idx:].tolist()
+
+        # print the list of column names
+        #print("expanders:", col_names_before_cond)
+        
+        for experiment in col_names_before_cond:
+            print("experiment: ",experiment)
+            # iterate over each row in the dataframe
+            for _, row in info_df.iterrows():
+                # create a new list to store the row values
+                row_data = []
+                # iterate over each column in the row
+                for column_name, column_value in row.iteritems():
+                    # check if the current column is "conditioning"
+                    if column_name == 'conditioning':
+                        break  # stop processing columns once we reach "conditioning"
+                    else:
+                        # append the column value to the row data list
+                        row_data.append(column_value)
+                # print the row data list
+                print(row_data)
+                # at this point we have everything we need to search for the video and it's calibration video
+                # remember the finders list has the same index as the row_data list
+                # Olena: /media/rory/Padlock_DT/Fear_Conditioning_Control/Olena_Group/080822_conditioning/{camera_type} camera/{animal_name}-220808-125748_Cam{camera_id}.avi
+                #   - to find vid give animal_name, experiment, camera_id, and camera_type, to find cali just chamber, to group experimental group and camera type? maybe
+                # Ozge: /media/rory/Padlock_DT/Fear_Conditioning_Control/Ozge_Group/extinction_1/Ozge-Grabecb-190530-155232_C16149A_C17605B-221212-100827_Cam1.avi
+                #   - looks like they just used usb video (that's why there's camera_id)
+                #   - to find vid give animal_id and experiment, to find cali just chamber, to group just experimental group
+                # Patrick: /media/rory/Padlock_DT/Fear_Conditioning_Control/Patrick_Group/conditioning/RRD276_Conditioning.avi
+                #   - just give the animal_id and experiment to find vid, to find cali just chamber, to group just experimental group
+
+                # depending on who i search the search will be slightly different
+
+
+                root_dir = '/media/rory/Padlock_DT/Fear_Conditioning_Control/Olena_Group/080822_conditioning/'
+                camera_types = ['usb', 'videofreeze']  # list of camera types to search for
+                file_pattern = '{root}{camera_type} camera/{animal_name}-220808-125748_Cam{camera_id}.avi'
+
+                # iterate over each row in the table and search for matching files
+                for _, row in info_df.iterrows():
+                    # create a dictionary of variable values for the current row
+                    row_vars = {'root': root_dir,
+                                'animal_name': row['animal_name'],
+                                'camera_id': row['camera_id']}
+                    
+                    # iterate over each camera type and search for files
+                    for camera_type in camera_types:
+                        # add the camera type to the variable dictionary
+                        row_vars['camera_type'] = camera_type
+                        file_path = file_pattern.format(**row_vars)
+                        
+                        file_matches = glob.glob(file_path)
+                        
+                        # print the list of file matches (or a message if there are none)
+                        if file_matches:
+                            print(f'Found {len(file_matches)} files for row {row.name}:')
+                            for match in file_matches:
+                                print(match)
+                        else:
+                            print(f'No files found for row {row.name} and camera type {camera_type}')
+
+
+            # find the dirs in person roots that contain the exact experiment name
+
+        for experiment_folder in os.listdir(PERSON_ROOT):
+            # within each experiment folder,
+            for experiment in experiments: 
+                pass
+
+
+
+
+
+    """correspondence_filepath = "/media/rory/Padlock_DT/Fear_Conditioning_Control/mouse_chamber_corrrespondence.csv"
+    colname_vid_paths = "mouse_vid_path"
+    letter_column_name = "chamber"
+    eztrack_output_processed_suffix = "FreezingOutput_processed.csv"
+
+    experimental_groups_csv = "/media/rory/Padlock_DT/Fear_Conditioning_Control/experimental_groups.csv"
+    ROOT_TIMING_FILE = "/media/rory/Padlock_DT/Fear_Conditioning_Control/"
+
+    root_calibration_vids = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/Calibration"
+    ROOT = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/"
+
+    experiment_type = "Conditioning"
+
+    
+    timing_file_name = f"{experiment_type}_CS_timing_FC_Control.csv"
+
     FreezeThresh = 180 
     MinDuration = 40
     number_of_frames_to_calibrate = 600
@@ -27,23 +180,8 @@ def main():
     half_time_window = 30
     fps = 30
 
-    correspondence_filepath = "/media/rory/Padlock_DT/Fear_Conditioning_Control/mouse_chamber_corrrespondence.csv"
-    colname_vid_paths = "mouse_vid_path"
-    letter_column_name = "chamber"
-    eztrack_output_processed_suffix = "FreezingOutput_processed.csv"
-
-    experimental_groups_csv = "/media/rory/Padlock_DT/Fear_Conditioning_Control/experimental_groups.csv"
     experimental_groups_df = pd.read_csv(experimental_groups_csv)
 
-    ROOT_TIMING_FILE = "/media/rory/Padlock_DT/Fear_Conditioning_Control/"
-
-    root_calibration_vids = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/Calibration"
-    ROOT = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/"
-
-    experiment_type = "Conditioning"
-
-    
-    timing_file_name = f"{experiment_type}_CS_timing_FC_Control.csv"
     timing_filepath = os.path.join(ROOT_TIMING_FILE, timing_file_name)
     ROOT = os.path.join(ROOT, experiment_type)
 
@@ -236,7 +374,7 @@ def main():
             print("Exiting program...")
             break
         else:
-            print("Invalid input. Please enter 'y' or 'n'.")
+            print("Invalid input. Please enter 'y' or 'n'.")"""
 
 
 

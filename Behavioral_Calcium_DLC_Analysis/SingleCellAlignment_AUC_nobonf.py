@@ -77,12 +77,12 @@ def main():
         "BLA-Insc-18",
         "BLA-Insc-19",
         ]
-    sessions = ["RDT D1"]
+    sessions = ["Pre-RDT RM"]
 
     for mouse in mice:
         print(mouse)
         for session in sessions:
-            files = find_paths(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData","plot_ready_z_-10_0.csv")
+            files = find_paths(MASTER_ROOT, f"{mouse}/{session}/SingleCellAlignmentData","plot_ready_z_fullwindow.csv")
             print(session)
             for csv in files:
                 #print(f"CURR CSV: {csv}")
@@ -103,11 +103,11 @@ def main():
                 # one col is 1 trial now
                 x_coords = list(range(len(df)))
                 
-                prechoice_min = 71
-                prechoice_max = 101
-                postchoice_min = 101
-                postchoice_max = 131
-                auc_prechoice = subwindow_auc(df, x_coords, 71, 101) # -8 to -5 | TO -3 TO 0
+                prechoice_min = 0
+                prechoice_max = 51
+                postchoice_min = 111
+                postchoice_max = 141
+                auc_prechoice = subwindow_auc(df, x_coords, 71, 101) # -8 to -5 | TO -3 TO 0 | -10 -5
                 auc_postchoice = subwindow_auc(df, x_coords, 101, 131,) # 0 to 3 | changed to -3 to 0 5/5/22 | TO 0 TO 3
 
                 d_to_save = {
@@ -125,7 +125,7 @@ def main():
 
                 id_d = {cell_name : id}
                 id_df = pd.DataFrame.from_records(id_d, index=[0])
-                id_df_out = csv.replace("plot_ready_z_-10_0.csv", f"id_z_-10_0_auc_{prechoice_min}_{prechoice_max}_{postchoice_min}_{postchoice_max}.csv")
+                id_df_out = csv.replace("plot_ready_z_fullwindow.csv", f"id_z_fullwindow_auc_{prechoice_min}_{prechoice_max}_{postchoice_min}_{postchoice_max}.csv")
                 id_df.to_csv(id_df_out, index=False)
 
 if __name__ == "__main__":

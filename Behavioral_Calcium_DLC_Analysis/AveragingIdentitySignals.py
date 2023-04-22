@@ -142,14 +142,15 @@ class Cell:
 
 def main():
     ROOT = r"/media/rory/Padlock_DT/BLA_Analysis/BetweenMiceAlignmentData"
-    to_look_for = "all_concat_cells_z_pre.csv"
+    to_look_for = "all_concat_cells_z_fullwindow.csv"
     if_folder_includes_this_process_this_instead = "all_concat_cells_z_pre_truncated.csv"
+    out_filename = "sorted_traces_z_err_-10_-5_1_4"
 
     """files = find_paths_conditional_endswith(
         ROOT, to_look_for, if_folder_includes_this_process_this_instead
     )"""
 
-    list_of_sessions = ["RDT D1", "RDT D2", "RDT D3"]
+    list_of_sessions = ["Pre-RDT RM", "RDT D1", "RDT D2", "RDT D3"]
     
     for i in list_of_sessions:
         print(i)
@@ -157,7 +158,7 @@ def main():
         """files : list
         files = find_paths_conditional_endswith(
         ROOT, to_look_for, if_folder_includes_this_process_this_instead
-    )"""
+        )"""
         
         for csv in files:
             # print(csv)
@@ -165,8 +166,8 @@ def main():
                 if "Shock Test" not in csv:
                     base_lower_bound_time = -10
                     base_upper_bound_time = -5
-                    lower_bound_time = 0
-                    upper_bound_time = 3
+                    lower_bound_time = 1
+                    upper_bound_time = 4
                     reference_pair = {0: 100}
 
                     # for normalizing ater averaging
@@ -192,7 +193,7 @@ def main():
                 print(len(df))
                 number_cells = len(list(df.columns))
 
-                out_path = "/".join(csv.split("/")[:-1]) + "/sorted_traces_z_err_pre.png"
+                out_path = "/".join(csv.split("/")[:-1]) + f"/{out_filename}.png"
                 
                 # print(out_path)
 
@@ -273,7 +274,7 @@ def main():
 
                     d[key] = avg_dff_traces
 
-                out_path_csv = out_path.replace("sorted_traces_z_err_pre.png", "sorted_traces_z_err_pre.csv")
+                out_path_csv = out_path.replace(f"{out_filename}.png", f"{out_filename}.csv")
 
                 new_d = {}
                 for key_1 in d_description:
@@ -342,4 +343,4 @@ def main2():
 
 
 if __name__ == "__main__":
-    main2()
+    main()

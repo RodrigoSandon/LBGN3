@@ -14,6 +14,16 @@ import random
 import matplotlib.colors as mcolors
 
 def main():
+    people = ["Patrick", "Olena", "Ozge"]
+    eztrack_output_processed_suffix = "FreezingOutput_processed.csv"
+    ROOT = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/Olena/"
+
+    root_calibration_vids = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/Calibration"
+
+    experiment_type = "conditioning"
+
+    
+    timing_file_name = f"olena_FC_info_{experiment_type}.csv"
 
     FreezeThresh = 180 
     MinDuration = 40
@@ -21,29 +31,14 @@ def main():
     calibrate_video_what_frame_to_start = 0
     dsmpl = 1
     h,w = 300,1000  
-    vid_d_start = 0 # when to start freeze analysis on a given video
-
+    vid_d_start = 0
     event_tracked = 'CS ON'
     half_time_window = 30
     fps = 30
 
-    correspondence_filepath = "/media/rory/Padlock_DT/Fear_Conditioning_Control/mouse_chamber_corrrespondence.csv"
-    colname_vid_paths = "mouse_vid_path"
-    letter_column_name = "chamber"
-    eztrack_output_processed_suffix = "FreezingOutput_processed.csv"
-
-    experimental_groups_csv = "/media/rory/Padlock_DT/Fear_Conditioning_Control/experimental_groups.csv"
-    experimental_groups_df = pd.read_csv(experimental_groups_csv)
-
-    ROOT_TIMING_FILE = "/media/rory/Padlock_DT/Fear_Conditioning_Control/"
-
-    root_calibration_vids = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/Calibration"
-    ROOT = f"/media/rory/Padlock_DT/Fear_Conditioning_Control/NewVideos/"
-
-    experiment_type = "Conditioning"
-
+    # so ima builed this so it doesn't have to read the csv file every time, just have your desired time stamps for each event
+    # I need starting step, frames, and how many steps to do, and current unit in which i have info of
     
-    timing_file_name = f"{experiment_type}_CS_timing_FC_Control.csv"
     timing_filepath = os.path.join(ROOT_TIMING_FILE, timing_file_name)
     ROOT = os.path.join(ROOT, experiment_type)
 
