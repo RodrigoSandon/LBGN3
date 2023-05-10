@@ -47,20 +47,17 @@ def main():
     event_tracked = 'CS ON'
 
     vid_look_up_experiments_cols = {
-        "Olena": ["conditioning", "extinction_1", "extinction_2", "retrieval", "late_retrieval", "renewal"],
-        "Ozge": ["conditioning", "extinction_1"],
+      
         "Patrick": ["conditioning", "extinction_1", "retrieval"],
     }
 
     vid_look_up_general_cols = {
-        "Olena":["animal_id", "camera_id", "camera_type"],
-        "Ozge": ["animal_id"],
+        
         "Patrick": ["animal_id"],
     }
 
     indv_root_paths = {
-        "Olena": os.path.join(ROOT, "Olena_Group"),
-        "Ozge": os.path.join(ROOT, "Ozge_Group"),
+       
         "Patrick": os.path.join(ROOT, "Patrick_Group"),
     }
 
@@ -73,7 +70,7 @@ def main():
 
         PERSON_ROOT = val
         start_info_filepath = os.path.join(PERSON_ROOT, f"{key.lower()}{start_time_info_suffix}")
-        print(f"start_info_filepath: {start_info_filepath}")
+        #print(f"start_info_filepath: {start_info_filepath}")
 
         df_start_info = pd.read_csv(start_info_filepath)
         #print(df_start_info.head())
@@ -81,9 +78,10 @@ def main():
         # going through each mouse of this person's dataset
         for experiment in vid_look_up_experiments_cols[key]:
             # find vids using vid_look_up_experiments_cols
-            print(experiment)
+            #print(experiment)
+
             for index, row in df_start_info.iterrows():
-                print(row)
+                #print(row)
                 look_up_strings = []
                 look_up_strings.append(experiment)
                 
@@ -96,17 +94,15 @@ def main():
 
                 # making all elements strings
                 look_up_strings = [str(item) for item in look_up_strings]
-                print(look_up_strings)
+                #print(look_up_strings)
                 vid_found = find_file_with_strings(PERSON_ROOT, look_up_strings)
-                print("vid_found: ", vid_found)
-                # based on this level of info, we can get chamber and experimental group info
-                # Get fps of video
+                print("vid_found:", vid_found)
 
                 vid_opencv_obj = cv2.VideoCapture(vid_found)
                 fps = vid_opencv_obj.get(cv2.CAP_PROP_FPS)
 
                 # Print the fps
-                print("Frames per second:", fps)
+                #print("Frames per second:", fps)
                 fps_eztrack_adjusted = fps / 2 # bc eztrack downsamples by 2
                 vid_opencv_obj.release()
 
@@ -118,75 +114,19 @@ def main():
                 correction_time_in_frames = row[experiment] * fps_eztrack_adjusted
                 rounded_correction_time_in_frames = math.ceil(correction_time_in_frames)
                 print("correction_time_in_frames: ", correction_time_in_frames)
-                
-                #to find calibration for extinction_get rid of _1 and _2
-                if "_1" in experiment or "_2" in experiment:
-                    experiment_cali = experiment[:-2]
-                else:
-                    experiment_cali = experiment
-
-                print([chamber, experiment_cali])
-                calibration_vid_file_name = find_file_with_strings(CALIBRATION_ROOT, [chamber, experiment_cali])
-                # need to modify the calibration vids for olena she has two extinctions and like 2 or 3 more types of experiments
-                 
-
-                video_dict = {
-                    'dpath'   : CALIBRATION_ROOT,  
-                    'file'    : calibration_vid_file_name.split("/")[-1],
-                    'start'   : calibrate_video_what_frame_to_start, 
-                    'end'     : None,
-                    'dsmpl'   : dsmpl,
-                    'stretch' : dict(width=1, height=1),
-                    'cal_frms' : number_of_frames_to_calibrate
-                    }
-
-
-                img_crp, video_dict = fz.LoadAndCrop(video_dict)
-
-                ####### CALIBRATION #######
-                cal_dif_avg, percentile, mt_cutoff = fz.calibrate_custom(video_dict, cal_pix=10000, SIGMA=1)
-
-                ####### FREEZE ANALYSIS #######
-                cap = cv2.VideoCapture(vid_found)
-                length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-                print("length of vid: ", length)
-
-                vid_d_end = length
-
-                video_dict = {
-                    'dpath'   : PERSON_ROOT,  
-                    'file'    : vid_found.split("/")[-1],
-                    'fpath'   : vid_found,
-                    'start'   : vid_d_start, 
-                    'end'     : vid_d_end,
-                    'dsmpl'   : dsmpl,
-                    'stretch' : dict(width=1, height=1)
-                }
-
-                Motion, frames_processed = fz.Measure_Motion(video_dict, mt_cutoff, SIGMA=1)  
-                plt_mt = hv.Curve((np.arange(len(Motion)),Motion),'Frame','Pixel Change').opts(
-                    height=h,width=w,line_width=1,color="steelblue",title="Motion Across Session")
-                plt_mt
-
-                Freezing = fz.Measure_Freezing(Motion,FreezeThresh,MinDuration)  
-                fz.SaveData(video_dict,Motion,Freezing,mt_cutoff,FreezeThresh,MinDuration)
-                print('Average Freezing: {x}%'.format(x=np.average(Freezing)))
 
                 vid_name_no_ext = vid_found.split("/")[-1].split(".")[0]
                 freezing_result_filename = f"{vid_name_no_ext}_FreezingOutput.csv"
                 freezing_result_path = vid_found.replace(vid_found.split("/")[-1], freezing_result_filename)
 
-                # this processing includes frame correction from when experiment started
                 processed_freezing_out_path = freezing_result_path.replace(".csv", "_processed.csv")
-
-                df_freezing_out = pd.read_csv(freezing_result_path)
+                look_up_strings = [str(item) for item in look_up_strings]
+                #print(look_up_strings)
+                
+                #print("vid_found: ", vid_found)
                 #finding the timing file for this person and experiment
+                # make sure session name is exactly as it appears in the file
                 timing_filepath = find_file_with_strings(PERSON_ROOT, [person.lower(), "FC_info", experiment])
-                df_timing = ez.timing_file_processing(find_file_with_strings(PERSON_ROOT, [person.lower(), "FC_info", experiment]), fps_eztrack_adjusted, rounded_correction_time_in_frames)
-                df_aligned = ez.freezing_alignment(df_freezing_out, df_timing)
-
-                df_aligned.to_csv(processed_freezing_out_path, index=False)
-                    
 
             # PLOTTING, AFTER DONE PROCESSING ALL VIDS FOR CURR EXPERIMENT
             # Code to continue running goes here
@@ -199,7 +139,7 @@ def main():
             fig, ax = plt.subplots()
 
             experimental_groups_df = df_start_info.loc[:, ["animal_id", "experimental_group"]]
-            print(experimental_groups_df.head())
+            #print(experimental_groups_df.head())
             grouped_df = experimental_groups_df.groupby("experimental_group").agg(lambda x: list(x))
             d_from_df = grouped_df.T.to_dict(orient='list')
 
@@ -217,7 +157,7 @@ def main():
                     #mouse_num = int(file.split("_")[0].replace("RRD", ""))
                     # finding the name of animal embedded in the vid name
                     mouse = file.split(".")[0]
-                    print(mouse)
+                    #print(mouse)
                     experimental_group = None
 
                     # check if mouse is in one of the opsin groups
@@ -225,7 +165,7 @@ def main():
                         if mouse in d_from_df[key_2]:
                             opsin = key_2
                             
-                    print(mouse, ":", experimental_group)
+                    #print(mouse, ":", experimental_group)
                     
                     df = pd.read_csv(processed_freezing_out_path)
                     frame_lst = list(df["Frame"])
@@ -240,6 +180,7 @@ def main():
                     #print(freezing_lst)
 
                     # half_time_window is in seconds
+                    #print(freezing_lst)
                     x, proportions = ez.bin_data(frame_lst, timestamps_lst,freezing_lst, half_time_window = half_time_window, fps=fps_eztrack_adjusted, event_tracked=event_tracked)
                     #list_of_freezing_props_all_mice.append(proportions)
 
@@ -253,13 +194,18 @@ def main():
                     num_mice += 1
                 
             count = 0
+            print("d_groups:")
+            print(d_groups)
             for key_3 in d_groups:
 
                 # Convert the list of lists to a NumPy array
                 array_of_lists = np.array(d_groups[key_3])
+                print("array_of_lists: ")
+                print(array_of_lists)
 
                 # Calculate the average of the array along the columns (axis=0)
                 average = np.mean(array_of_lists, axis=0)
+                print("average:")
                 print(average)
 
                 # Calculate the standard deviation of the array along the columns (axis=0)

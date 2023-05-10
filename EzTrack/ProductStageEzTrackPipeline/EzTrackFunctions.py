@@ -61,10 +61,10 @@ def create_timestamps(start_timestamp: str, num_events: int, step: int, fps: flo
         min, sec = break_down_timestamp(step)
         step_in_frames = convert_sec_to_frames(convert_min_to_sec(min, sec), fps)   
 
-    print("start_frame_num: ", start_frame_num)
-    print("step_in_frames: ", step_in_frames)
+    #print("start_frame_num: ", start_frame_num)
+    #print("step_in_frames: ", step_in_frames)
     frame_stamps = [start_frame_num + i * step_in_frames for i in range(0, num_events)]
-    print("frame_stamps: ", frame_stamps)
+    #print("frame_stamps: ", frame_stamps)
     return frame_stamps
 
 
@@ -111,7 +111,7 @@ def freezing_output_processing(file_path):
     frame_list = [i + count for count, i in enumerate(frame_list)]
     df_result["Frame"] = frame_list
 
-    print(df_result.head())
+    #print(df_result.head())
     return df_result
 
 # do this after their processing
@@ -185,12 +185,14 @@ def bin_data(frame_lst, timestamps, freezing_lst, half_time_window, fps, event_t
             # this means it's a timestamp, get when i happened
             time = timedelta(seconds=(frame_lst[idx] / fps))
 
-            lower_bound_idx = idx
-            upper_bound_idx = idx + (half_time_window * fps)
+            # these could be floats
+            lower_bound_idx = int(idx)
+            upper_bound_idx = int(idx + (half_time_window * fps))
 
             time_str = f"{val}:{time} : {frame_lst[idx]}"
-            print(time_str)
+            #print(time_str)
             binned_timestamps_lst.append(time_str)
+            #print(lower_bound_idx, upper_bound_idx)
 
             freezing_sublst = freezing_lst[lower_bound_idx : upper_bound_idx]
             freezing_proportion = get_proportion_freezing(freezing_sublst)
