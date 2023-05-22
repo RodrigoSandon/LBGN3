@@ -114,18 +114,28 @@ def freezing_output_processing(file_path):
     #print(df_result.head())
     return df_result
 
+def replace_func(x, col, timestamps):
+    if x in timestamps:
+        print(col)
+        return col
+    else:
+        return x
+
 # do this after their processing
 def freezing_alignment(df_freezing_out: pd.DataFrame, df_timing: pd.DataFrame):
     # add empty column first (zero-filled)
     df_freezing_out["Timestamps"] = [0] * len(df_freezing_out)
     replace_lst = list(df_freezing_out["Timestamps"])
+    print("here")
 
     for col in list(df_timing.columns):
             if col != "Trial":
                 timestamps = list(df_timing[col])
+                print("timestamps")
+                print(timestamps)
 
-                replace_func = lambda x: col if x in timestamps else x
-                new_series = df_freezing_out["Frame"].apply(replace_func).tolist()
+                #replace_func = lambda x: col if x in timestamps else x
+                new_series = df_freezing_out["Frame"].apply(lambda x: replace_func(x, col, timestamps)).tolist()
                 #print(new_series)
                 # now replace that old timestamps col with new_series
                 for idx, val in enumerate(new_series):
