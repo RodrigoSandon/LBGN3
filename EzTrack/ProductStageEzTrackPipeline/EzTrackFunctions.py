@@ -126,7 +126,7 @@ def freezing_alignment(df_freezing_out: pd.DataFrame, df_timing: pd.DataFrame):
     # add empty column first (zero-filled)
     df_freezing_out["Timestamps"] = [0] * len(df_freezing_out)
     replace_lst = list(df_freezing_out["Timestamps"])
-    print("here")
+    #print("here")
 
     for col in list(df_timing.columns):
             if col != "Trial":
