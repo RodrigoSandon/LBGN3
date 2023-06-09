@@ -67,7 +67,10 @@ def create_timestamps(start_timestamp: str, num_events: int, step: int, fps: flo
     #print("frame_stamps: ", frame_stamps)
     return frame_stamps
 
-
+# need 3 parameters for the following reasons:
+# 1. need to know the fps of the video - fps depends on type of video
+# 2. need to know the start time of the video - start time depends on when the video was started
+# 3. file_path for timing file
 def timing_file_processing(file_path, fps, start_time_in_frames):
     df = pd.read_csv(file_path)
     #iterate through columns except trial column
